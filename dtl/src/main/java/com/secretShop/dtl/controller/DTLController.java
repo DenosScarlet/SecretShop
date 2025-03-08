@@ -25,7 +25,7 @@ public class DTLController {
 
     @GetMapping("/quest/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<QuestDTO> getQuest(@PathVariable UUID id) {
+    public ResponseEntity<QuestDTO> getQuest(@PathVariable("id") UUID id) {
         return ResponseEntity.ok().body(questService.findById(id));
     }
 
@@ -38,12 +38,13 @@ public class DTLController {
 
     @PutMapping("/quest/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<QuestDTO> updateQuest( @PathVariable UUID id, @RequestBody QuestDTO quest) {
+    public ResponseEntity<QuestDTO> updateQuest( @PathVariable("id") UUID id, @RequestBody QuestDTO quest) {
+        quest.setQuest_id(id);
         return ResponseEntity.ok().body(questService.save(quest));
     }
 
     @DeleteMapping("/quest/{id}")
-    public ResponseEntity<?> deleteQuest(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteQuest(@PathVariable("id") UUID id) {
         questService.deleteById(id);
         return ResponseEntity.ok().build();
     }
