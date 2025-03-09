@@ -1,0 +1,19 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: myclient
+            client-secret: GNOOFsIDrhZhIHLP3GHDyBQ5uMEQK0SK
+            scope: openid, offline_access, profile
+            authorization-grant-type: authorization_code
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/auth/realms/secretshoprealm
+            user-name-attribute: preferred_username
+keycloak:
+  server-url: http://localhost:8180/auth
+  realm: secretshoprealm
+  username: admin
+  password: adminpass
