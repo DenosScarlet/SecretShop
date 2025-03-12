@@ -1,19 +1,23 @@
+server:
+  port: 8080
+
 spring:
+  application:
+    name: keycloak-demo
   security:
     oauth2:
       client:
         registration:
           keycloak:
             client-id: myclient
-            client-secret: GNOOFsIDrhZhIHLP3GHDyBQ5uMEQK0SK
-            scope: openid, offline_access, profile
-            authorization-grant-type: authorization_code
+            client-secret: QASrUtPg98bEzHbfYH6CiKkf6yx0iQ3Z
+            scope: openid,profile,email
+            redirect-uri: http://localhost:8080/login/oauth2/code/keycloak
         provider:
           keycloak:
-            issuer-uri: http://localhost:8180/auth/realms/secretshoprealm
-            user-name-attribute: preferred_username
-keycloak:
-  server-url: http://localhost:8180/auth
-  realm: secretshoprealm
-  username: admin
-  password: adminpass
+            issuer-uri: http://localhost:8180/realms/secretshoprealm
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG

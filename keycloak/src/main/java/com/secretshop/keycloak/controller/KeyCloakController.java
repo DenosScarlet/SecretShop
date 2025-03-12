@@ -1,44 +1,41 @@
 package com.secretshop.keycloak.controller;
 
-import com.secretshop.keycloak.dto.UserRequestDTO;
-import com.secretshop.keycloak.service.KeyCloakService;
-import jakarta.annotation.security.RolesAllowed;
-import java.security.Principal;
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
+/**
+ * KeycloakController handles web requests related to the home and work_env pages of the secretshop application.
+ */
 @Controller
-@RequiredArgsConstructor
-public class KeyCloakController {
+public class KeycloakController {
 
-    private final KeyCloakService keyCloakService;
-
-    @GetMapping("/admin")
-    @RolesAllowed("admin")
-    public String admin(Principal principal, Model model) {
-        model.addAttribute("username", principal.getName());
-        return "admin";
+    /**
+     * Maps the root URL ("/") to the home page.
+     *
+     * @return the name of the view to render for the home page
+     */
+    @GetMapping("/")
+    public String home() {
+        return "home";
     }
 
-    @GetMapping("/user")
-    public String user(Principal principal, Model model) {
-        model.addAttribute("username", principal.getName());
-        return "user";
+    /**
+     * Maps the "/work_env" URL to the menu page and sets the authenticated user's username in the model.
+     *
+     * @param user  the authenticated OIDC (OpenID Connect) user
+     * @param model Model object for passing data to the view
+     * @return the name of the view to render for the menu page, or redirects to home if user is not authenticated
+     */
+    @GetMapping("/work_env")
+    public String menu(@AuthenticationPrincipal OidcUser user, Model model) {
+        if (user != null) {
+            model.addAttribute("username", user.getPreferredUsername());
+        } else {
+            return "redirect:/";  // Redirect to home if not authenticated
+        }
+        return "work_env";
     }
-
-    @GetMapping("/create")
-    public String createUser() {
-        return "create-user";
-    }
-
-    @PostMapping("/create")
-    public String createUser(@RequestBody UserRequestDTO userRequestDTO) {
-        keyCloakService.addUser(userRequestDTO);
-        return "index";
-    }
-
 }
