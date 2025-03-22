@@ -1,9 +1,11 @@
+version: "3.8"
+
 services:
   client-backend:
     container_name: dtl_backend
     image: client:0.0.1
     build:
-      context: .
+      context: ./dtl/
       dockerfile: Dockerfile
     ports:
       - "8181:8181"
@@ -21,21 +23,21 @@ services:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "secretshop_db" ]
+      test: ["CMD-SHELL", "pg_isready", "-d", "secretshop_db"]
       interval: 10s
       timeout: 3s
       retries: 3
     ports:
       - "15432:5432"
     volumes:
-      - ./infrastructure/db/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+      - ./dtl/infrastructure/db/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
       - db-data:/var/lib/postgresql/data
     restart: unless-stopped
 
   pgadmin:
     container_name: pgadmin4_container
     image: dpage/pgadmin4:7
-    restart: always
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
@@ -44,6 +46,60 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
+  keycloak-db:
+    image: postgres
+    container_name: keycloak_db
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloakdb
+      POSTGRES_USER: keycloakuser
+      POSTGRES_PASSWORD: keycloakpass
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloakuser -d keycloakdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.2
+    container_name: keycloak_server
+    ports:
+      - "8180:8080"
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: keycloak-db
+      DB_DATABASE: keycloakdb
+      DB_SCHEMA: public
+      DB_USER: keycloakuser
+      DB_PASSWORD: keycloakpass
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: adminpass
+      KC_LOG_LEVEL: DEBUG
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: adminpass
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/realms/master"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - keycloak-network
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    restart: unless-stopped
+    command:
+      - "start-dev"
+
 volumes:
   db-data:
   pgadmin-data:
+  keycloak_db_data:
+
+networks:
+  keycloak-network:
+    driver: bridge

@@ -27,6 +27,9 @@ public class Quest {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "steps_to_complete")
+    private String steps_to_complete;
+
     @Column(name = "frequency")
     @Enumerated(value = EnumType.STRING)
     private Frequency frequency;

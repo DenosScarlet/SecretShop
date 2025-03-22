@@ -6,5 +6,7 @@
 
     <include file="2025-02-26-1-create-table-quest.xml" relativeToChangelogFile="true" />
     <include file="2025-02-26-1-insert-quests.xml" relativeToChangelogFile="true" />
+    <include file="2025-02-26-1-create-table-user.xml" relativeToChangelogFile="true" />
+    <include file="2025-02-26-1-insert-users.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog>
