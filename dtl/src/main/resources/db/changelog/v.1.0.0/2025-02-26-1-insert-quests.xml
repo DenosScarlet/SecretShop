@@ -16,5 +16,18 @@
             <column  name="cost"  value="5"/>
         </insert>
     </changeSet>
+    
+    <changeSet id="2025-03-21-insert-quests" author="m">
+        <insert tableName="quest">
+            <column  name="quest_title"  value="Первый квест"/>
+            <column  name="description"  value="Откройте меню квестов."/>
+            <column  name="steps_to_complete"  value="1"/>
+            <column  name="frequency"  value="ONCE"/>
+            <column  name="work_group"  value="DATA_PROCESSING"/>
+            <column  name="start_date"  value="2025-02-27 00:00:00"/>
+            <column  name="end_date"  value="2025-02-28 00:00:00"/>
+            <column  name="cost"  value="5"/>
+        </insert>
+    </changeSet>
 
 </databaseChangeLog>

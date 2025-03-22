@@ -37,4 +37,13 @@
         </createTable>
     </changeSet>
 
+
+    <changeSet id="2025-03-21-add_column_steps_to_complete" author="d.m">
+        <addColumn tableName="quest">
+            <column name="steps_to_complete" type="int">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
