@@ -6,11 +6,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * SecurityConfig class configures security settings for the application,
@@ -42,6 +41,9 @@ public class SecurityConfig {
                         .requestMatchers("/work_env").authenticated() // Requires authentication to access "/work_env"
                         .anyRequest().authenticated() // Requires authentication for any other request
                 )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.decoder(jwtDecoder())) // Указываем JwtDecoder напрямую
+                )
                 // Configures OAuth2 login settings
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/oauth2/authorization/keycloak") // Sets custom login page for OAuth2 with Keycloak
@@ -64,5 +66,11 @@ public class SecurityConfig {
 
         successHandler.setPostLogoutRedirectUri("{baseUrl}/");
         return successHandler;
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri("http://localhost:8180/realms/secretshoprealm/protocol/openid-connect/certs")
+                .build();
     }
 }
