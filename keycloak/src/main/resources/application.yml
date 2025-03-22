@@ -10,7 +10,7 @@ spring:
         registration:
           keycloak:
             client-id: myclient
-            client-secret: QASrUtPg98bEzHbfYH6CiKkf6yx0iQ3Z
+            client-secret: XwABwMGGKw1HnS4tPYYbVgax3MH6sDQ2
             scope: openid,profile,email
             redirect-uri: http://localhost:8080/login/oauth2/code/keycloak
         provider:
