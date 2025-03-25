@@ -1,14 +1,13 @@
 package com.secretShop.dtl.entity;
 
-import com.secretShop.dtl.enums.Frequency;
+
 import com.secretShop.dtl.enums.Type;
-import com.secretShop.dtl.enums.WorkGroup;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+
 import java.util.UUID;
 
 @Data
