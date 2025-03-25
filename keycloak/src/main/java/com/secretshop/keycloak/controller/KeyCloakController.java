@@ -46,7 +46,7 @@ public class KeycloakController {
 
         if (principal instanceof Jwt) {
             Jwt jwt = (Jwt) principal;
-            String username = jwt.getClaim("preferred_username"); // Или другой клейм, содержащий имя пользователя
+            String username = jwt.getClaim("preferred_username");
             model.addAttribute("username", username);
             return "work_env";
         } else {

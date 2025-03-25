@@ -17,13 +17,13 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/secretshop_db
 
   service-db:
-    container_name: service_db
+    container_name: secretshop_db
     image: postgres:14.7-alpine
     environment:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "secretshop_db"]
+      test: [ "CMD-SHELL", "pg_isready", "-d", "secretshop_db" ]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -52,14 +52,14 @@ services:
     volumes:
       - keycloak_db_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: keycloakdb
-      POSTGRES_USER: keycloakuser
-      POSTGRES_PASSWORD: keycloakpass
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - keycloak-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloakuser -d keycloakdb"]
+      test: [ "CMD-SHELL", "pg_isready -U keycloakuser -d keycloakdb" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -98,7 +98,7 @@ services:
       KC_LOG_LEVEL: INFO
     healthcheck:
       #test: ["CMD", "curl", "-f", "http://localhost:8080/auth/realms/master"]
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -113,6 +113,19 @@ services:
     restart: unless-stopped
     command:
       - "start-dev"
+
+  keycloak-client:
+    container_name: kc-admin-client
+    image: kc-admin-client:0.0.1
+    build:
+      context: ./keycloak/
+      dockerfile: Dockerfile
+    ports:
+      - "8280:8280"
+    networks:
+      - keycloak-network
+    depends_on:
+      - keycloak
 
 volumes:
   db-data:
