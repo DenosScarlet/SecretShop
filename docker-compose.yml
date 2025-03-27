@@ -16,6 +16,23 @@ services:
       - SERVER_PORT=8181
       - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/secretshop_db
 
+  shop:
+    container_name: shop-service
+    build:
+      context: ./shop/
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      client-backend:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DTL_SERVICE_URL: "http://client-backend:8181"
+    networks:
+      - default
+      - keycloak-network
+
   service-db:
     container_name: service_db
     image: postgres:14.7-alpine
@@ -101,5 +118,7 @@ volumes:
   keycloak_db_data:
 
 networks:
+  default:
+    driver: bridge
   keycloak-network:
     driver: bridge
