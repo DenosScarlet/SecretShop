@@ -15,7 +15,8 @@ spring:
             redirect-uri: http://localhost:8280/login/oauth2/code/keycloak
         provider:
           keycloak:
-            issuer-uri: http://localhost:8180/realms/secretshoprealm
+#            issuer-uri: http://localhost:8180/realms/secretshoprealm
+            issuer-uri: http://keycloak:8080/realms/secretshoprealm
 
 logging:
   level:
