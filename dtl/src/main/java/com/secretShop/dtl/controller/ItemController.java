@@ -2,7 +2,6 @@ package com.secretShop.dtl.controller;
 
 import com.secretShop.dtl.entity.Item;
 import com.secretShop.dtl.repository.ItemRepository;
-import com.secretShop.dtl.service.dto.QuestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/item")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ItemController {
 
@@ -21,7 +20,7 @@ public class ItemController {
         return itemRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/item/{id}")
     public Item getItemById(@PathVariable UUID id){
         return itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
