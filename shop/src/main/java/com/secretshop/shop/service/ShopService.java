@@ -16,4 +16,9 @@ public class ShopService {
     public ItemDTO getItemFromDtl(UUID id){
         return dtlServiceClient.getItemById(id);
     }
+
+    public ItemDTO addItem(ItemDTO itemDTO) {
+
+        return dtlServiceClient.createItem(itemDTO);
+    }
 }
