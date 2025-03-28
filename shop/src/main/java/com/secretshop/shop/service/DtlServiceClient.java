@@ -2,6 +2,7 @@ package com.secretshop.shop.service;
 
 import com.secretshop.shop.DTO.ItemDTO;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -31,5 +32,14 @@ public class DtlServiceClient {
                 .uri("/api/item")
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
+    }
+
+    public ItemDTO createItem(ItemDTO itemDTO) {
+        return restClient.post()
+                .uri("/api/item")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(itemDTO)
+                .retrieve()
+                .body(ItemDTO.class);
     }
 }
