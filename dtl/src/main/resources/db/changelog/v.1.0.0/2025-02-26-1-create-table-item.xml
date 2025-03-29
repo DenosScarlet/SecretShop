@@ -34,4 +34,12 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="rename-itemName-column" author="m">
+        <renameColumn
+                tableName="item"
+                oldColumnName="itemName"
+                newColumnName="item_name"
+                columnDataType="text"/>
+    </changeSet>
+
 </databaseChangeLog>
