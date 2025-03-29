@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ItemDTO {
     private UUID item_id;
-    private String itemName;
+    private String item_name;
     private String description;
     private String owner;
     private Type type;

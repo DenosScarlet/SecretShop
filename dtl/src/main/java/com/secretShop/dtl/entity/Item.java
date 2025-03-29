@@ -21,8 +21,8 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID item_id;
 
-    @Column(name = "\"itemName\"")
-    private String itemName;
+    @Column(name = "item_name")
+    private String item_name;
 
     @Column(name = "description")
     private String description;
