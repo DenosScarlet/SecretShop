@@ -21,7 +21,7 @@ public class ItemController {
     }
 
     @GetMapping("/item/{id}")
-    public Item getItemById(@PathVariable UUID id){
+    public Item getItemById(@PathVariable("id") UUID id){
         return itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
