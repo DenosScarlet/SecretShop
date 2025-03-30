@@ -1,9 +1,11 @@
 package com.secretshop.shop.controller;
 
 import com.secretshop.shop.DTO.ItemDTO;
+import com.secretshop.shop.enums.Type;
 import com.secretshop.shop.service.ShopService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,9 +23,33 @@ public class ShopController {
         return shopService.getItemFromDtl(id);
     }
 
+    @GetMapping("/items")
+    public List<ItemDTO> getAllItems() {
+        return shopService.getAllItemsFromDtl();
+    }
+
     @PostMapping("/item")
     public ItemDTO addItem(@RequestBody ItemDTO itemDTO) {
         return shopService.addItem(itemDTO);
+    }
+
+    @PutMapping("/item/{id}")
+    public ItemDTO updateItem(@PathVariable UUID id, @RequestBody ItemDTO itemDTO) {
+        itemDTO.setItem_id(id); // Устанавливаем ID из пути запроса
+        return shopService.updateItem(itemDTO);
+    }
+
+    @DeleteMapping("/item/{id}")
+    public void deleteItem(@PathVariable UUID id) {
+        shopService.deleteItem(id);
+    }
+
+    @GetMapping("/item/search")
+    public List<ItemDTO> searchItems(
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "owner", required = false) String owner,
+            @RequestParam(name = "type", required = false) Type type) {
+        return shopService.searchItems(name, owner, type);
     }
 
 }
