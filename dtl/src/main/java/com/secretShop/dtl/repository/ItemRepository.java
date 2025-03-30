@@ -12,9 +12,9 @@ import java.util.UUID;
 public interface ItemRepository extends JpaRepository<Item, UUID> {
 
     @Query("SELECT i FROM Item i WHERE " +
-            "(i.item_name LIKE %:name% OR :name IS NULL) AND " +
-            "(i.owner LIKE %:owner% OR :owner IS NULL) AND " +
-            "(i.type = :type OR :type IS NULL)")
+            "(:name IS NULL OR i.item_name = :name) AND " +
+            "(:owner IS NULL OR i.owner = :owner) AND " +
+            "(:type IS NULL OR i.type = :type)")
     List<Item> searchItems(
             @Param("name") String name,
             @Param("owner") String owner,
