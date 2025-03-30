@@ -1,6 +1,7 @@
 package com.secretShop.dtl.service.impl;
 
 import com.secretShop.dtl.entity.Item;
+import com.secretShop.dtl.enums.Type;
 import com.secretShop.dtl.repository.ItemRepository;
 import com.secretShop.dtl.service.ItemService;
 import com.secretShop.dtl.service.convertor.ItemMapper;
@@ -44,5 +45,14 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(
                         "Предмет с id: " + id + " не найден :("));
+    }
+
+    @Override
+    public List<ItemDTO> searchItems(String name, String owner, Type type) {
+        return itemMapper.toListDto(itemRepository.searchItems(
+                name != null ? name : "",
+                owner != null ? owner : "",
+                type
+        ));
     }
 }
