@@ -37,7 +37,10 @@ public class ShopService {
     }
 
     public List<ItemDTO> searchItems(String name, String owner, Type type) {
-        return dtlServiceClient.searchItems(name, owner, type);
+        String searchName = (name != null && !name.isEmpty()) ? name : null;
+        String searchOwner = (owner != null && !owner.isEmpty()) ? owner : null;
+
+        return dtlServiceClient.searchItems(searchName, searchOwner, type);
     }
 
 }

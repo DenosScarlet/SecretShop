@@ -46,9 +46,9 @@ public class ShopController {
 
     @GetMapping("/item/search")
     public List<ItemDTO> searchItems(
-            @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "owner", required = false) String owner,
-            @RequestParam(name = "type", required = false) Type type) {
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String owner,
+            @RequestParam(required = false) Type type) {
         return shopService.searchItems(name, owner, type);
     }
 

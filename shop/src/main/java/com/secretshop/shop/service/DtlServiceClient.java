@@ -65,7 +65,7 @@ public class DtlServiceClient {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/item/search")
-                        .queryParamIfPresent("item_name", Optional.ofNullable(name))
+                        .queryParamIfPresent("name", Optional.ofNullable(name))
                         .queryParamIfPresent("owner", Optional.ofNullable(owner))
                         .queryParamIfPresent("type", Optional.ofNullable(type))
                         .build())
