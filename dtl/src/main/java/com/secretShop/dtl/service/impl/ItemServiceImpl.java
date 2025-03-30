@@ -49,10 +49,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDTO> searchItems(String name, String owner, Type type) {
-        return itemMapper.toListDto(itemRepository.searchItems(
-                name != null ? name : "",
-                owner != null ? owner : "",
-                type
-        ));
+        String searchName = (name != null && !name.isEmpty()) ? name : null;
+        String searchOwner = (owner != null && !owner.isEmpty()) ? owner : null;
+
+        return itemMapper.toListDto(itemRepository.searchItems(searchName, searchOwner, type));
     }
 }
