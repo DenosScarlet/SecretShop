@@ -431,3 +431,7 @@ sketch
 shop/.idea/amplicode-settings.xml
 /shop/.idea
 /shop/.idea
+shop/.idea/compiler.xml
+shop/.idea/encodings.xml
+shop/.idea/jarRepositories.xml
+shop/.idea/misc.xml
