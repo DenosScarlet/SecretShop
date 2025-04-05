@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet logicalFilePath="2025-02-26-2-insert-users"
+               id="2025-02-26-2-insert-users" author="d.m">
+        <insert tableName="user">
+            <column  name="avatar"  value="Путь к аватару"/>
+            <column  name="firstName"  value="Максим"/>
+            <column  name="lastName"  value="Малышев"/>
+            <column  name="middleName"  value="Александрович"/>
+            <column  name="work_group"  value="DATA_PROCESSING"/>
+            <column  name="balance"  value="1555"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

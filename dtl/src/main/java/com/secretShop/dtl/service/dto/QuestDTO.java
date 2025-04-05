@@ -16,6 +16,7 @@ public class QuestDTO {
     private UUID quest_id;
     private String quest_title;
     private String description;
+    private Integer steps_to_complete;
     private Frequency frequency;
     private WorkGroup work_group;
     private LocalDateTime start_date;
