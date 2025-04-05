@@ -1,16 +1,12 @@
-version: "3.8"
-
 services:
   client-backend:
-    container_name: dtl_backend
+    container_name: dtl-backend
     image: client:0.0.1
     build:
       context: ./dtl/
       dockerfile: Dockerfile
     ports:
       - "8181:8181"
-    networks:
-      - keycloak-network
     depends_on:
       service-db:
         condition: service_healthy
@@ -19,7 +15,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/secretshop_db
 
   service-db:
-    container_name: secretshop_db
+    container_name: secretshop-db
     image: postgres:14.7-alpine
     environment:
       POSTGRES_USER: username
@@ -31,15 +27,13 @@ services:
       retries: 3
     ports:
       - "15432:5432"
-    networks:
-      - keycloak-network
     volumes:
       - ./dtl/infrastructure/db/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
       - db-data:/var/lib/postgresql/data
     restart: unless-stopped
 
   pgadmin:
-    container_name: pgadmin4_container
+    container_name: pgadmin
     image: dpage/pgadmin4:7
     restart: unless-stopped
     environment:
@@ -47,8 +41,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "5050:80"
-    networks:
-      - keycloak-network
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
@@ -61,8 +53,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    networks:
-      - keycloak-network
+    network_mode: host
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U keycloakuser -d keycloakdb" ]
@@ -72,46 +63,45 @@ services:
 
   keycloak:
     #image: quay.io/keycloak/keycloak:21.1.2
-    image: quay.io/keycloak/keycloak:latest
+#    image: quay.io/keycloak/keycloak:26.1
+    image: bitnami/keycloak:26
     container_name: keycloak
     ports:
-      - "8180:8080"
+      - "8180:8180"
     environment:
+      KEYCLOAK_HTTP_PORT: 8180
+#      KEYCLOAK_BIND_ADDRESS: localhost
+      KEYCLOAK_HOSTNAME_ADMIN: http://localhost:8180
+      KEYCLOAK_HOSTNAME: http://localhost:8180
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-#      KC_HOSTNAME_ADMIN: ${KC_HOSTNAME_ADMIN}
-#      KC_HOSTNAME: ${KC_HOSTNAME}
-      KC_PROXY: edge
-#      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_ISSUER_URI: "http://keycloak:8080/realms/secretshoprealm"
-#      KC_HOSTNAME_STRICT: "false"
-#      KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
-      KC_METRICS_ENABLED: "true"
-      KC_HEALTH_ENABLED: "false"
-      KC_DB: postgres
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KC_DB_SCHEMA: public
-      KC_DB_USERNAME: ${POSTGRES_USER}
-      KC_DB_URL_HOST: keycloak-db
-      KC_DB_URL_DATABASE: ${POSTGRES_DB}
+#      KEYCLOAK_HOSTNAME_ADMIN: localhost
+#      KEYCLOAK_HOSTNAME: localhost
+#      KC_PROXY: edge
+#      KEYCLOAK_HTTP_RELATIVE_PATH: /
+#      KEYCLOAK_HOSTNAME_STRICT: "false"
+      KEYCLOAK_ENABLE_STATISTICS: "true"
+      KEYCLOAK_ENABLE_HEALTH_ENDPOINTS: "true"
+      KEYCLOAK_DATABASE_NAME: ${POSTGRES_DB}
+      KEYCLOAK_DATABASE_VENDOR: postgresql
+      KEYCLOAK_DATABASE_SCHEMA: public
+      KEYCLOAK_DATABASE_USER: ${POSTGRES_USER}
+      KEYCLOAK_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_DATABASE_HOST: localhost
       KC_LOG_LEVEL: INFO
     healthcheck:
-      disable: true
-      #test: ["CMD", "curl", "-f", "http://localhost:8080/auth/realms/master"]
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/health/live" ]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
       - keycloak_data:/opt/keycloak/data
       - ./auth/import:/opt/keycloak/data/import
-    networks:
-      - keycloak-network
+    network_mode: host
     depends_on:
       keycloak-db:
         condition: service_healthy
     restart: unless-stopped
-    command:
-      - "start-dev"
 
   keycloak-client:
     container_name: keycloak-client
@@ -119,26 +109,15 @@ services:
     build:
       context: ./keycloak/
       dockerfile: Dockerfile
-#    environment:
-#      SPRING_KEYCLOAK_URL: http://localhost:8180
-#      SPRING_KEYCLOAK_REALM: secretshoprealm
-#      SPRING_KEYCLOAK_CLIENT_ID: myclient
-#      SPRING_KEYCLOAK_CLIENT_SECRET: XwABwMGGKw1HnS4tPYYbVgax3MH6sDQ2
     ports:
-      - "8280:8080"
-    networks:
-      - keycloak-network
+      - "8280:8280"
+    network_mode: host
     depends_on:
-      - keycloak
-#      keycloak:
-#        condition: service_healthy
+      keycloak:
+        condition: service_healthy
 
 volumes:
   db-data:
   pgadmin-data:
   keycloak_db_data:
   keycloak_data:
-
-networks:
-  keycloak-network:
-    driver: bridge
