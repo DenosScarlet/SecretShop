@@ -18,7 +18,7 @@ public class DtlServiceClient {
 
     public DtlServiceClient(){
         this.restClient = RestClient.builder()
-                .baseUrl("http://localhost:8181")
+                .baseUrl("http://localhost:8580")
                 .build();
     }
 
