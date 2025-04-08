@@ -1,19 +1,18 @@
-version: "3.8"
-
 services:
   client-backend:
-    container_name: dtl_backend
+    container_name: dtl-backend
     image: client:0.0.1
     build:
       context: ./dtl/
       dockerfile: Dockerfile
+#    network_mode: host
     ports:
-      - "8181:8181"
+      - "8580:8580"
     depends_on:
       service-db:
         condition: service_healthy
     environment:
-      - SERVER_PORT=8181
+      - SERVER_PORT=8580
       - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/secretshop_db
 
   shop:
@@ -21,43 +20,55 @@ services:
     build:
       context: ./shop/
       dockerfile: Dockerfile
+    network_mode: host
     ports:
-      - "8080:8080"
+      - "8480:8480"
     depends_on:
-      client-backend:
+      service-db:
         condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      DTL_SERVICE_URL: "http://client-backend:8181"
-    networks:
-      - default
-      - keycloak-network
+
+  quest-menu:
+    container_name: quest-menu-service
+    build:
+      context: ./questMenu/
+      dockerfile: Dockerfile
+    network_mode: host
+    ports:
+      - "8380:8380"
+    depends_on:
+      service-db:
+        condition: service_healthy
+#    environment:
+#      SPRING_PROFILES_ACTIVE: dev
+#      DTL_SERVICE_URL: "http://localhost:8181"
 
   service-db:
-    container_name: service_db
+    container_name: secretshop-db
     image: postgres:14.7-alpine
     environment:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "secretshop_db"]
+      test: [ "CMD-SHELL", "pg_isready", "-d", "secretshop_db" ]
       interval: 10s
       timeout: 3s
       retries: 3
+#    network_mode: host
     ports:
-      - "15432:5432"
+      - "15432:15432"
     volumes:
       - ./dtl/infrastructure/db/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
       - db-data:/var/lib/postgresql/data
     restart: unless-stopped
 
   pgadmin:
-    container_name: pgadmin4_container
+    container_name: pgadmin
     image: dpage/pgadmin4:7
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
+#    network_mode: host
     ports:
       - "5050:80"
     volumes:
@@ -65,60 +76,80 @@ services:
 
   keycloak-db:
     image: postgres
-    container_name: keycloak_db
+    container_name: keycloak-db
     volumes:
       - keycloak_db_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: keycloakdb
-      POSTGRES_USER: keycloakuser
-      POSTGRES_PASSWORD: keycloakpass
-    networks:
-      - keycloak-network
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#    network_mode: host
+    ports:
+      - "5432:5432"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloakuser -d keycloakdb"]
+      test: [ "CMD-SHELL", "pg_isready -U keycloakuser -d keycloakdb" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   keycloak:
-    image: quay.io/keycloak/keycloak:21.1.2
-    container_name: keycloak_server
+    #image: quay.io/keycloak/keycloak:21.1.2
+#    image: quay.io/keycloak/keycloak:26.1
+    image: bitnami/keycloak:26
+    container_name: keycloak
     ports:
-      - "8180:8080"
+      - "8180:8180"
     environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: keycloak-db
-      DB_DATABASE: keycloakdb
-      DB_SCHEMA: public
-      DB_USER: keycloakuser
-      DB_PASSWORD: keycloakpass
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: adminpass
-      KC_LOG_LEVEL: DEBUG
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: adminpass
+      KEYCLOAK_HTTP_PORT: 8180
+#      KEYCLOAK_BIND_ADDRESS: localhost
+      KEYCLOAK_HOSTNAME_ADMIN: http://localhost:8180
+      KEYCLOAK_HOSTNAME: http://localhost:8180
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+#      KEYCLOAK_HOSTNAME_ADMIN: localhost
+#      KEYCLOAK_HOSTNAME: localhost
+#      KC_PROXY: edge
+#      KEYCLOAK_HTTP_RELATIVE_PATH: /
+#      KEYCLOAK_HOSTNAME_STRICT: "false"
+      KEYCLOAK_ENABLE_STATISTICS: "true"
+      KEYCLOAK_ENABLE_HEALTH_ENDPOINTS: "true"
+      KEYCLOAK_DATABASE_NAME: ${POSTGRES_DB}
+      KEYCLOAK_DATABASE_VENDOR: postgresql
+      KEYCLOAK_DATABASE_SCHEMA: public
+      KEYCLOAK_DATABASE_USER: ${POSTGRES_USER}
+      KEYCLOAK_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_DATABASE_HOST: localhost
+      KC_LOG_LEVEL: INFO
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/realms/master"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - keycloak-network
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/health/live" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./auth/import:/opt/keycloak/data/import
+    network_mode: host
     depends_on:
       keycloak-db:
         condition: service_healthy
     restart: unless-stopped
-    command:
-      - "start-dev"
+
+  keycloak-client:
+    container_name: keycloak-client
+    image: kc-admin-client:0.0.1
+    build:
+      context: ./keycloak/
+      dockerfile: Dockerfile
+    ports:
+      - "8280:8280"
+    network_mode: host
+    depends_on:
+      keycloak:
+        condition: service_healthy
 
 volumes:
   db-data:
   pgadmin-data:
   keycloak_db_data:
-
-networks:
-  default:
-    driver: bridge
-  keycloak-network:
-    driver: bridge
+  keycloak_data:
