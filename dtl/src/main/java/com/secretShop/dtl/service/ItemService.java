@@ -8,9 +8,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ItemService {
-    List<ItemDTO> findAll ();
+    List<ItemDTO> findAll();
+
     ItemDTO findById(UUID id);
-    ItemDTO save (ItemDTO item);
-    void deleteById (UUID id);
+
+    ItemDTO save(ItemDTO item);
+
+    void deleteById(UUID id);
+
     List<ItemDTO> searchItems(String name, String owner, Type type);
 }

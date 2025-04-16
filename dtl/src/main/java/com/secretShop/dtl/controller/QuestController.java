@@ -2,8 +2,12 @@ package com.secretShop.dtl.controller;
 
 import com.secretShop.dtl.entity.Quest;
 import com.secretShop.dtl.repository.QuestRepository;
+import com.secretShop.dtl.service.QuestService;
+import com.secretShop.dtl.service.dto.QuestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class QuestController {
     private final QuestRepository questRepository;
+    private final QuestService questService;
 
     @GetMapping
     public List<Quest> getAllQuests() {
@@ -22,14 +27,15 @@ public class QuestController {
     }
 
     @GetMapping("/{id}")
-    public Quest getQuestById(@PathVariable("id") UUID id){
+    public Quest getQuestById(@PathVariable("id") UUID id) {
         return questRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Квест не найден."));
     }
-    @PostMapping
-    public Quest createQuest(@RequestBody Quest quest){
-        return questRepository.save(quest);
-    }
+
+//    @PostMapping
+//    public Quest createQuest(@RequestBody Quest quest) {
+//        return questRepository.save(quest);
+//    }
 
 
     @PutMapping("/{id}")
@@ -49,4 +55,10 @@ public class QuestController {
         return quest;
     }
 
+    @PostMapping
+    public ResponseEntity<QuestDTO> createQuest(
+            @RequestBody @Validated QuestDTO request) {
+        QuestDTO createdQuest = questService.createQuestWithUserRelations(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdQuest);
+    }
 }
