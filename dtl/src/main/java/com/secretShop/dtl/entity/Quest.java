@@ -28,7 +28,7 @@ public class Quest {
     private String description;
 
     @Column(name = "steps_to_complete")
-    private String steps_to_complete;
+    private Integer steps_to_complete;
 
     @Column(name = "frequency")
     @Enumerated(value = EnumType.STRING)
