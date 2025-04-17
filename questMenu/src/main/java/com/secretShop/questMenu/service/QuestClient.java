@@ -1,6 +1,8 @@
 package com.secretShop.questMenu.service;
 
 import com.secretShop.questMenu.DTO.QuestDTO;
+import com.secretShop.questMenu.DTO.StepsRequestDTO;
+import com.secretShop.questMenu.DTO.StepsResponseDTO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
@@ -47,5 +49,13 @@ public class QuestClient {
                 .uri("/api/quest/{id}", id)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    public StepsResponseDTO getSteps(UUID userId, UUID questId) {
+        return restClient.get()
+                .uri("/api/quest/steps/{userId}&{questId}", userId, questId)
+                .retrieve()
+                .body(StepsResponseDTO.class);
+
     }
 }

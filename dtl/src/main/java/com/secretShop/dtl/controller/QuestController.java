@@ -3,6 +3,8 @@ package com.secretShop.dtl.controller;
 import com.secretShop.dtl.entity.Quest;
 import com.secretShop.dtl.repository.QuestRepository;
 import com.secretShop.dtl.service.QuestService;
+import com.secretShop.dtl.service.dto.StepsRequestDTO;
+import com.secretShop.dtl.service.dto.StepsResponseDTO;
 import com.secretShop.dtl.service.dto.QuestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -60,5 +62,12 @@ public class QuestController {
             @RequestBody @Validated QuestDTO request) {
         QuestDTO createdQuest = questService.createQuestWithUserRelations(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdQuest);
+    }
+
+    @GetMapping("/steps/{userId}&{questId}")
+    public ResponseEntity<StepsResponseDTO> getSteps(
+            @PathVariable("userId") UUID userId, @PathVariable("questId") UUID questId) {
+        StepsResponseDTO response = questService.getSteps(userId, questId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

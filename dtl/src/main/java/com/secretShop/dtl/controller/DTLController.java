@@ -32,14 +32,14 @@ public class DTLController {
     @PostMapping("/quest")
     public ResponseEntity<QuestDTO> createQuest( @RequestBody QuestDTO quest) throws URISyntaxException {
         QuestDTO result = IQuestService.save(quest);
-        return ResponseEntity.created(new URI("/api/v1/quests/" + result.getQuest_id()))
+        return ResponseEntity.created(new URI("/api/v1/quests/" + result.getQuestId()))
                 .body(result);
     }
 
     @PutMapping("/quest/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<QuestDTO> updateQuest( @PathVariable("id") UUID id, @RequestBody QuestDTO quest) {
-        quest.setQuest_id(id);
+        quest.setQuestId(id);
         return ResponseEntity.ok().body(IQuestService.save(quest));
     }
 
