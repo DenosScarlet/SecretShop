@@ -38,7 +38,8 @@ public class SecurityConfig {
                 // Configures authorization rules for different endpoints
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/").permitAll() // Allows public access to the root URL
-                        .requestMatchers("/work_env").authenticated() // Requires authentication to access "/work_env"
+                        .requestMatchers("/work_env").authenticated()
+                        .requestMatchers("http:localhost:8480/shop").authenticated()// Requires authentication to access "/work_env"
                         .anyRequest().authenticated() // Requires authentication for any other request
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
