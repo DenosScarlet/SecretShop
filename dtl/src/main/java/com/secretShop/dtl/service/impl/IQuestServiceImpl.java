@@ -2,7 +2,7 @@ package com.secretShop.dtl.service.impl;
 
 import com.secretShop.dtl.entity.Quest;
 import com.secretShop.dtl.repository.QuestRepository;
-import com.secretShop.dtl.service.QuestService;
+import com.secretShop.dtl.service.IQuestService;
 import com.secretShop.dtl.service.convertor.QuestMapper;
 import com.secretShop.dtl.service.dto.QuestDTO;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class QuestServiceImpl implements QuestService {
+public class IQuestServiceImpl implements IQuestService {
 
     private final QuestRepository questRepository;
     private final QuestMapper questMapper;
@@ -42,8 +42,8 @@ public class QuestServiceImpl implements QuestService {
     @Override
     @Transactional
     public void deleteById(UUID id) {
-        var book = getById(id);
-        questRepository.delete(book);
+        var quest = getById(id);
+        questRepository.delete(quest);
     }
 
     private Quest getById(UUID id) {

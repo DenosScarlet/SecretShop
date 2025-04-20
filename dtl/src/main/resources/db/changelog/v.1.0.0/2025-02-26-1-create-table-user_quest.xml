@@ -40,15 +40,12 @@
 
     <changeSet logicalFilePath="2025-02-26-2-modify-pk-users_quests"
                id="2025-02-26-2-modify-pk-users_quests" author="m">
-        <!-- 1. Удаляем существующий составной первичный ключ -->
         <dropPrimaryKey tableName="users_quests"/>
 
-        <!-- 2. Создаем новый первичный ключ только для users_quest_id -->
         <addPrimaryKey tableName="users_quests"
                        columnNames="users_quest_id"
                        constraintName="pk_users_quests"/>
 
-        <!-- 3. Добавляем NOT NULL constraints для user_id и quest_id -->
         <addNotNullConstraint tableName="users_quests"
                               columnName="user_id"
                               columnDataType="${uuid_type}"/>

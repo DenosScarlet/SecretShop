@@ -13,13 +13,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuestDTO {
-    private UUID quest_id;
-    private String quest_title;
+    private UUID questId;
+    private String questTitle;
     private String description;
-    private Integer steps_to_complete;
+    private Integer stepsToComplete;
     private Frequency frequency;
-    private WorkGroup work_group;
-    private LocalDateTime start_date;
-    private LocalDateTime end_date;
+    private WorkGroup workGroup;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private Integer cost;
 }

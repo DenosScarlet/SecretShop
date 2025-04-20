@@ -1,6 +1,6 @@
 package com.secretShop.dtl.controller;
 
-import com.secretShop.dtl.service.QuestService;
+import com.secretShop.dtl.service.IQuestService;
 import com.secretShop.dtl.service.dto.QuestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,36 +16,36 @@ import java.util.UUID;
 @RequestMapping("api/v1")
 @RequiredArgsConstructor
 public class DTLController {
-    private final QuestService questService;
+    private final IQuestService IQuestService;
 
     @GetMapping("/quests")
     public List<QuestDTO> allQuests() {
-        return questService.findAll();
+        return IQuestService.findAll();
     }
 
     @GetMapping("/quest/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<QuestDTO> getQuest(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok().body(questService.findById(id));
+        return ResponseEntity.ok().body(IQuestService.findById(id));
     }
 
     @PostMapping("/quest")
     public ResponseEntity<QuestDTO> createQuest( @RequestBody QuestDTO quest) throws URISyntaxException {
-        QuestDTO result = questService.save(quest);
-        return ResponseEntity.created(new URI("/api/v1/quests/" + result.getQuest_id()))
+        QuestDTO result = IQuestService.save(quest);
+        return ResponseEntity.created(new URI("/api/v1/quests/" + result.getQuestId()))
                 .body(result);
     }
 
     @PutMapping("/quest/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<QuestDTO> updateQuest( @PathVariable("id") UUID id, @RequestBody QuestDTO quest) {
-        quest.setQuest_id(id);
-        return ResponseEntity.ok().body(questService.save(quest));
+        quest.setQuestId(id);
+        return ResponseEntity.ok().body(IQuestService.save(quest));
     }
 
     @DeleteMapping("/quest/{id}")
     public ResponseEntity<?> deleteQuest(@PathVariable("id") UUID id) {
-        questService.deleteById(id);
+        IQuestService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 }

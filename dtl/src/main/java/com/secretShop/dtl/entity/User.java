@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name =  "\"user\"", schema = "public")
 public class User {
     @Id
     @Column(name = "user_id")
@@ -23,16 +23,16 @@ public class User {
     @Column(name = "avatar")
     private String avatar;
 
-    @Column(name = "firstName")
+    @Column(name = "\"firstName\"")
     private String firstName;
 
-    @Column(name = "lastName")
+    @Column(name = "\"lastName\"")
     private String lastName;
 
-    @Column(name = "middleName")
+    @Column(name = "\"middleName\"")
     private String middleName;
 
-    @Column(name = "workGroup")
+    @Column(name = "work_group")
     @Enumerated(value = EnumType.STRING)
     private WorkGroup workGroup;
 

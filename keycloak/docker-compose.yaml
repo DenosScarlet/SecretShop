@@ -5,7 +5,7 @@ services:
     build:
       context: ./dtl/
       dockerfile: Dockerfile
-#    network_mode: host
+    #    network_mode: host
     ports:
       - "8580:8580"
     depends_on:
@@ -38,9 +38,9 @@ services:
     depends_on:
       service-db:
         condition: service_healthy
-#    environment:
-#      SPRING_PROFILES_ACTIVE: dev
-#      DTL_SERVICE_URL: "http://localhost:8181"
+  #    environment:
+  #      SPRING_PROFILES_ACTIVE: dev
+  #      DTL_SERVICE_URL: "http://localhost:8181"
 
   service-db:
     container_name: secretshop-db
@@ -53,7 +53,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
-#    network_mode: host
+    #    network_mode: host
     ports:
       - "15432:15432"
     volumes:
@@ -68,7 +68,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
-#    network_mode: host
+    #    network_mode: host
     ports:
       - "5050:80"
     volumes:
@@ -83,7 +83,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#    network_mode: host
+    #    network_mode: host
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -95,23 +95,15 @@ services:
 
   keycloak:
     #image: quay.io/keycloak/keycloak:21.1.2
-#    image: quay.io/keycloak/keycloak:26.1
+    #    image: quay.io/keycloak/keycloak:26.1
     image: bitnami/keycloak:26
     container_name: keycloak
-    ports:
-      - "8180:8180"
     environment:
       KEYCLOAK_HTTP_PORT: 8180
-#      KEYCLOAK_BIND_ADDRESS: localhost
       KEYCLOAK_HOSTNAME_ADMIN: http://localhost:8180
       KEYCLOAK_HOSTNAME: http://localhost:8180
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-#      KEYCLOAK_HOSTNAME_ADMIN: localhost
-#      KEYCLOAK_HOSTNAME: localhost
-#      KC_PROXY: edge
-#      KEYCLOAK_HTTP_RELATIVE_PATH: /
-#      KEYCLOAK_HOSTNAME_STRICT: "false"
       KEYCLOAK_ENABLE_STATISTICS: "true"
       KEYCLOAK_ENABLE_HEALTH_ENDPOINTS: "true"
       KEYCLOAK_DATABASE_NAME: ${POSTGRES_DB}
@@ -122,18 +114,21 @@ services:
       KEYCLOAK_DATABASE_HOST: localhost
       KC_LOG_LEVEL: INFO
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/health/live" ]
+      test:
+        [ "CMD", "curl", "-f", "http://localhost:9000/health/live" ]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
       - keycloak_data:/opt/keycloak/data
       - ./auth/import:/opt/keycloak/data/import
-    network_mode: host
+    #    network_mode: host
+
     depends_on:
       keycloak-db:
         condition: service_healthy
     restart: unless-stopped
+    network_mode: host
 
   keycloak-client:
     container_name: keycloak-client
@@ -141,12 +136,11 @@ services:
     build:
       context: ./keycloak/
       dockerfile: Dockerfile
-    ports:
-      - "8280:8280"
-    network_mode: host
+    #    network_mode: host
     depends_on:
       keycloak:
         condition: service_healthy
+    network_mode: host
 
 volumes:
   db-data:

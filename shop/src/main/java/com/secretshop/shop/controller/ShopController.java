@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/shop")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ShopController {
 
     private final ShopService shopService;
