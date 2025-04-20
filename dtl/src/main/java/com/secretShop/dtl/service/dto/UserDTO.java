@@ -12,11 +12,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO {
-    private UUID user_id;
+    private UUID userId;
     private String avatar;
     private String firstName;
     private String lastName;
     private String middleName;
-    private WorkGroup work_group;
+    private WorkGroup workGroup;
     private Integer balance;
 }

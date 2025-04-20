@@ -15,4 +15,8 @@ public interface UsersQuestsRepository extends JpaRepository<UsersQuests, UUID> 
             nativeQuery = true)
     void createUserQuestRelation(@Param("userId") UUID userId,
                                  @Param("questId") UUID questId);
+
+    @Modifying
+    @Query("SELECT uq.completed_steps FROM UsersQuests uq WHERE uq.user.user_id = :userId")
+    Integer getCompletedStepsById(@Param("userId") UUID userId);
 }
