@@ -5,21 +5,37 @@ server:
 spring:
   application:
     name: kc-admin-client
+  cloud:
+    gateway:
+      routes:
+        - id: shop
+          uri: http://localhost:8480
+          predicates:
+            - Path=/shop/**
+          filters:
+            - TokenRelay=
   security:
     oauth2:
       client:
         registration:
           keycloak:
             client-id: myclient
-#            client-secret: XwABwMGGKw1HnS4tPYYbVgax3MH6sDQ2
+
             client-secret: JZH6vnVqYcBbb7Q5XPjLldFOzKftQAG8
+
             scope: openid,profile,email
             redirect-uri: http://localhost:8280/login/oauth2/code/keycloak
+            authorization-grant-type: authorization_code
         provider:
           keycloak:
             issuer-uri: http://localhost:8180/realms/secretshoprealm
 
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/secretshoprealm
+          jwk-set-uri: http://localhost:8180/realms/secretshoprealm/protocol/openid-connect/certs
+
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: DEBUG, TRACE
     org.springframework.security.oauth2: DEBUG
