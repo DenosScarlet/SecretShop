@@ -1,6 +1,7 @@
 package com.secretShop.dtl.repository;
 
 import com.secretShop.dtl.entity.UsersQuests;
+import com.secretShop.dtl.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +17,14 @@ public interface UsersQuestsRepository extends JpaRepository<UsersQuests, UUID> 
     void createUserQuestRelation(@Param("userId") UUID userId,
                                  @Param("questId") UUID questId);
 
-    @Modifying
     @Query("SELECT uq.completed_steps FROM UsersQuests uq WHERE uq.user.user_id = :userId")
     Integer getCompletedStepsById(@Param("userId") UUID userId);
+
+    @Modifying
+    @Query("UPDATE UsersQuests uq SET uq.completed_steps = :newStepsValue WHERE uq.user.user_id = :userId AND uq.quest.quest_id = :questId")
+    void updateCompletedStepsById(@Param("userId") UUID userId, @Param("questId") UUID questId, @Param("newStepsValue") Integer newStepsValue);
+
+    @Modifying
+    @Query("UPDATE UsersQuests uq SET uq.quest_status = :status WHERE uq.user.user_id = :userId AND uq.quest.quest_id = :questId")
+    void updateQuestStatusById(@Param("userId") UUID userId, @Param("questId") UUID questId, @Param("status") Status status);
 }

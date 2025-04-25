@@ -1,7 +1,9 @@
 package com.secretShop.questMenu.controller;
 
 import com.secretShop.questMenu.DTO.QuestDTO;
+import com.secretShop.questMenu.DTO.StepsRequestDTO;
 import com.secretShop.questMenu.service.QuestClient;
+import com.secretShop.questMenu.service.QuestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +16,7 @@ import java.util.UUID;
 public class QuestMenuController {
 
     private final QuestClient questClient = new QuestClient();
+    private final QuestService questService = new QuestService();
 
     @GetMapping
     public List<QuestDTO> getAllQuests() {
@@ -39,5 +42,8 @@ public class QuestMenuController {
     public void deleteQuest(@PathVariable("id") UUID id) {
         questClient.delete(id);
     }
-
+    @PatchMapping("/steps/update")
+    public void updateSteps(@RequestBody StepsRequestDTO stepsRequest){
+        questService.updateSteps(stepsRequest);
+    }
 }

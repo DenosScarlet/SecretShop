@@ -3,8 +3,10 @@ package com.secretShop.questMenu.service;
 import com.secretShop.questMenu.DTO.QuestDTO;
 import com.secretShop.questMenu.DTO.StepsRequestDTO;
 import com.secretShop.questMenu.DTO.StepsResponseDTO;
+import com.secretShop.questMenu.DTO.UpdateStepsRequestDTO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
@@ -56,6 +58,14 @@ public class QuestClient {
                 .uri("/api/quest/steps/{userId}&{questId}", userId, questId)
                 .retrieve()
                 .body(StepsResponseDTO.class);
+    }
 
+    public ResponseEntity<Void> updateSteps(UpdateStepsRequestDTO request){
+        return restClient.patch()
+                .uri("/api/quest/steps/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .toBodilessEntity();
     }
 }

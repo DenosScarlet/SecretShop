@@ -6,6 +6,7 @@ import com.secretShop.dtl.service.QuestService;
 import com.secretShop.dtl.service.dto.StepsRequestDTO;
 import com.secretShop.dtl.service.dto.StepsResponseDTO;
 import com.secretShop.dtl.service.dto.QuestDTO;
+import com.secretShop.dtl.service.dto.UpdateStepsRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,5 +70,15 @@ public class QuestController {
             @PathVariable("userId") UUID userId, @PathVariable("questId") UUID questId) {
         StepsResponseDTO response = questService.getSteps(userId, questId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PatchMapping("/steps/update")
+    public void updateSteps(@RequestBody UpdateStepsRequestDTO request){
+        questService.updateSteps(request);
+    }
+
+    @PatchMapping("/steps/updateQuestStatus")
+    public void updateQuestStatus(@RequestBody UpdateStepsRequestDTO request){
+        questService.updateSteps(request);
     }
 }

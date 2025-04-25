@@ -9,6 +9,7 @@ import com.secretShop.dtl.service.convertor.QuestMapper;
 import com.secretShop.dtl.service.dto.QuestDTO;
 import com.secretShop.dtl.service.dto.StepsRequestDTO;
 import com.secretShop.dtl.service.dto.StepsResponseDTO;
+import com.secretShop.dtl.service.dto.UpdateStepsRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,11 +55,15 @@ public class QuestService {
         return questMapper.modelToDto(savedQuest);
     }
 
-    @Transactional
     public StepsResponseDTO getSteps(UUID userId, UUID questId){
         StepsResponseDTO response = new StepsResponseDTO();
         response.setStepsToComplete(questRepository.getStepsToCompleteById(questId));
         response.setCompletedSteps(usersQuestsRepository.getCompletedStepsById(userId));
         return response;
+    }
+
+    @Transactional
+    public void updateSteps(UpdateStepsRequestDTO request){
+        usersQuestsRepository.updateCompletedStepsById(request.getUserId(), request.getQuestId(), request.getNewStepsValue());
     }
 }
