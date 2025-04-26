@@ -19,16 +19,16 @@ public class Quest {
     @Id
     @Column(name = "quest_id")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID quest_id;
+    private UUID questId;
 
     @Column(name = "quest_title")
-    private String quest_title;
+    private String questTitle;
 
     @Column(name = "description")
     private String description;
 
     @Column(name = "steps_to_complete")
-    private Integer steps_to_complete;
+    private Integer stepsToComplete;
 
     @Column(name = "frequency")
     @Enumerated(value = EnumType.STRING)
@@ -36,13 +36,13 @@ public class Quest {
 
     @Column(name = "work_group")
     @Enumerated(value = EnumType.STRING)
-    private WorkGroup work_group;
+    private WorkGroup workGroup;
 
     @Column(name = "start_date")
-    private LocalDateTime start_date;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date")
-    private LocalDateTime end_date;
+    private LocalDateTime endDate;
 
     @Column(name = "cost")
     private Integer cost;

@@ -1,13 +1,15 @@
 package com.secretShop.dtl.controller;
 
 import com.secretShop.dtl.entity.Quest;
+import com.secretShop.dtl.entity.User;
 import com.secretShop.dtl.repository.QuestRepository;
+import com.secretShop.dtl.repository.UserRepository;
 import com.secretShop.dtl.service.QuestService;
-import com.secretShop.dtl.service.dto.StepsRequestDTO;
-import com.secretShop.dtl.service.dto.StepsResponseDTO;
-import com.secretShop.dtl.service.dto.QuestDTO;
-import com.secretShop.dtl.service.dto.UpdateStepsRequestDTO;
+import com.secretShop.dtl.service.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class QuestController {
     private final QuestRepository questRepository;
     private final QuestService questService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public List<Quest> getAllQuests() {
@@ -33,6 +36,11 @@ public class QuestController {
     public Quest getQuestById(@PathVariable("id") UUID id) {
         return questRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Квест не найден."));
+    }
+
+    @GetMapping("/cost/{id}")
+    public Integer getCostById(@PathVariable("id") UUID questId) {
+        return questRepository.getCostById(questId);
     }
 
 //    @PostMapping
@@ -73,12 +81,24 @@ public class QuestController {
     }
 
     @PatchMapping("/steps/update")
-    public void updateSteps(@RequestBody UpdateStepsRequestDTO request){
+    public void updateSteps(@RequestBody UpdateStepsRequestDTO request) {
         questService.updateSteps(request);
     }
 
-    @PatchMapping("/steps/updateQuestStatus")
-    public void updateQuestStatus(@RequestBody UpdateStepsRequestDTO request){
-        questService.updateSteps(request);
+    @GetMapping("/balance/{userId}")
+    public Integer getBalance(@PathVariable("userId") UUID userId) {
+        return userRepository.getBalanceById(userId);
+    }
+
+    @PatchMapping("/balance/update")
+    public void updateBalance(@RequestBody UpdateBalanceDTO balanceDTO) {
+        questService.updateBalance(balanceDTO);
+    }
+
+
+    @GetMapping("/user")
+    public PagedModel<User> getAll(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+        return new PagedModel<>(users);
     }
 }

@@ -18,24 +18,24 @@ public class User {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID user_id;
+    private UUID userId;
 
     @Column(name = "avatar")
     private String avatar;
 
-    @Column(name = "\"firstName\"")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "\"lastName\"")
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "\"middleName\"")
+    @Column(name = "middle_name")
     private String middleName;
 
     @Column(name = "work_group")
     @Enumerated(value = EnumType.STRING)
     private WorkGroup workGroup;
 
-    @Column(name = "balance")
-    private Integer balance;
+    @Column(name = "balance", nullable = false)
+    private Integer balance = 0;
 }

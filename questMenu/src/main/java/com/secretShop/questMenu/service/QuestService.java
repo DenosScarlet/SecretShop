@@ -1,9 +1,7 @@
 package com.secretShop.questMenu.service;
 
-import com.secretShop.questMenu.DTO.StepsRequestDTO;
-import com.secretShop.questMenu.DTO.StepsResponseDTO;
-import com.secretShop.questMenu.DTO.UpdateStepsRequestDTO;
-import com.secretShop.questMenu.DTO.UsersQuestDTO;
+import com.secretShop.questMenu.DTO.*;
+import com.secretShop.questMenu.enums.Status;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,21 +15,32 @@ public class QuestService {
     public void updateSteps(StepsRequestDTO stepsRequest) {
         StepsResponseDTO response = questClient.getSteps(stepsRequest.getUserId(), stepsRequest.getQuestId());
 
-        Integer newStepsValue;
+        Status questStatus;
+
+        int newStepsValue;
 
         Integer stepsToComplete = response.getStepsToComplete();
         Integer completedSteps = response.getCompletedSteps();
 
         if (stepsToComplete > (completedSteps + 1)){
             newStepsValue = completedSteps + 1;
+            questStatus = Status.IN_PROGRESS;
         } else {
             newStepsValue = stepsToComplete;
+            questStatus = Status.COMPLETE;
+
+            UpdateBalanceDTO balanceDTO = new UpdateBalanceDTO();
+            balanceDTO.setUserId(stepsRequest.getUserId());
+            balanceDTO.setCost(questClient.getCostById(stepsRequest.getUserId()));
+
+            questClient.updateBalance(balanceDTO);
         }
 
         UpdateStepsRequestDTO updateStepsRequest = new UpdateStepsRequestDTO();
         updateStepsRequest.setUserId(stepsRequest.getUserId());
         updateStepsRequest.setQuestId(stepsRequest.getQuestId());
         updateStepsRequest.setNewStepsValue(newStepsValue);
+        updateStepsRequest.setQuestStatus(questStatus);
 
         questClient.updateSteps(updateStepsRequest);
     }

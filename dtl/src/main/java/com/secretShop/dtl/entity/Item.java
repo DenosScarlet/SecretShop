@@ -19,10 +19,10 @@ public class Item {
     @Id
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID item_id;
+    private UUID itemId;
 
     @Column(name = "item_name")
-    private String item_name;
+    private String itemName;
 
     @Column(name = "description")
     private String description;

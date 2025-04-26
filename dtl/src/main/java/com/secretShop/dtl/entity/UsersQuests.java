@@ -18,7 +18,7 @@ public class UsersQuests {
     @Id
     @Column(name = "users_quest_id")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID users_quest_id;
+    private UUID usersQuestId;
 
     //    @Id
     //    @Column(name = "user_id")
@@ -34,10 +34,10 @@ public class UsersQuests {
 
     @Column(name = "quest_status")
     @Enumerated(value = EnumType.STRING)
-    private Status quest_status = Status.IN_PROGRESS;
+    private Status questStatus = Status.IN_PROGRESS;
 
     @Column(name = "completed_steps")
-    private Integer completed_steps = 0;
+    private Integer completedSteps = 0;
 
     @Override
     public final boolean equals(Object o) {
@@ -47,7 +47,7 @@ public class UsersQuests {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         UsersQuests that = (UsersQuests) o;
-        return getUsers_quest_id() != null && Objects.equals(getUsers_quest_id(), that.getUsers_quest_id());
+        return getUsersQuestId() != null && Objects.equals(getUsersQuestId(), that.getUsersQuestId());
     }
 
     @Override

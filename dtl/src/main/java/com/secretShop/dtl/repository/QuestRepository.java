@@ -9,8 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.UUID;
 
 public interface QuestRepository extends JpaRepository<Quest, UUID> {
-    @Query("SELECT q.steps_to_complete FROM Quest q WHERE q.quest_id = :questId")
-    Integer getStepsToCompleteById(@Param("questId")UUID questId);
+    @Query("SELECT q.stepsToComplete FROM Quest q WHERE q.questId = :questId")
+    Integer getStepsToCompleteById(@Param("questId") UUID questId);
 
-
+    @Query("SELECT q.cost FROM Quest q WHERE q.questId = :questId")
+    Integer getCostById(@Param("questId") UUID questID);
 }

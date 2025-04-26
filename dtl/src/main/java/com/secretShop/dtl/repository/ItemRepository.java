@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface ItemRepository extends JpaRepository<Item, UUID> {
 
     @Query("SELECT i FROM Item i WHERE " +
-            "(:name IS NULL OR i.item_name = :name) AND " +
+            "(:name IS NULL OR i.itemName = :name) AND " +
             "(:owner IS NULL OR i.owner = :owner) AND " +
             "(:type IS NULL OR i.type = :type)")
     List<Item> searchItems(

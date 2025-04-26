@@ -1,12 +1,11 @@
 package com.secretShop.questMenu.service;
 
 import com.secretShop.questMenu.DTO.QuestDTO;
-import com.secretShop.questMenu.DTO.StepsRequestDTO;
 import com.secretShop.questMenu.DTO.StepsResponseDTO;
+import com.secretShop.questMenu.DTO.UpdateBalanceDTO;
 import com.secretShop.questMenu.DTO.UpdateStepsRequestDTO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
@@ -37,6 +36,13 @@ public class QuestClient {
                 .body(QuestDTO.class);
     }
 
+    public Integer getCostById(UUID questId) {
+        return restClient.get()
+                .uri("/api/quest/cost/{id}", questId)
+                .retrieve()
+                .body(Integer.class);
+    }
+
     public QuestDTO save(QuestDTO quest) {
         return restClient.post()
                 .uri("/api/quest")
@@ -60,11 +66,20 @@ public class QuestClient {
                 .body(StepsResponseDTO.class);
     }
 
-    public ResponseEntity<Void> updateSteps(UpdateStepsRequestDTO request){
-        return restClient.patch()
+    public void updateSteps(UpdateStepsRequestDTO request) {
+        restClient.patch()
                 .uri("/api/quest/steps/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public void updateBalance(UpdateBalanceDTO balanceDTO) {
+        restClient.patch()
+                .uri("/api/quest/balance/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(balanceDTO)
                 .retrieve()
                 .toBodilessEntity();
     }

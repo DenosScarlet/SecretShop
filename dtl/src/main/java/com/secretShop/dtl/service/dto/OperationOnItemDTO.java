@@ -10,10 +10,10 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OperationsonItemDTO {
-    private UUID operations_id;
-    private UUID users_id;
-    private UUID item_id;
+public class OperationOnItemDTO {
+    private UUID operationsId;
+    private UUID usersId;
+    private UUID itemId;
     private Status status;
-    private String operations_history;
+    private String operationsHistory;
 }

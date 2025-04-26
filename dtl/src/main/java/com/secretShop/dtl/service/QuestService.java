@@ -6,10 +6,7 @@ import com.secretShop.dtl.repository.QuestRepository;
 import com.secretShop.dtl.repository.UserRepository;
 import com.secretShop.dtl.repository.UsersQuestsRepository;
 import com.secretShop.dtl.service.convertor.QuestMapper;
-import com.secretShop.dtl.service.dto.QuestDTO;
-import com.secretShop.dtl.service.dto.StepsRequestDTO;
-import com.secretShop.dtl.service.dto.StepsResponseDTO;
-import com.secretShop.dtl.service.dto.UpdateStepsRequestDTO;
+import com.secretShop.dtl.service.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,20 +25,20 @@ public class QuestService {
     @Transactional
     public QuestDTO createQuestWithUserRelations(QuestDTO request) {
         Quest newQuest = new Quest();
-        newQuest.setQuest_title(request.getQuestTitle());
+        newQuest.setQuestTitle(request.getQuestTitle());
         newQuest.setDescription(request.getDescription());
-        newQuest.setSteps_to_complete(request.getStepsToComplete());
+        newQuest.setStepsToComplete(request.getStepsToComplete());
         newQuest.setFrequency(request.getFrequency());
-        newQuest.setWork_group(request.getWorkGroup());
-        newQuest.setStart_date(request.getStartDate());
-        newQuest.setEnd_date(request.getEndDate());
+        newQuest.setWorkGroup(request.getWorkGroup());
+        newQuest.setStartDate(request.getStartDate());
+        newQuest.setEndDate(request.getEndDate());
         newQuest.setCost(request.getCost());
         Quest savedQuest = questRepository.save(newQuest);
 
         List<User> users = userRepository.findUsersByWorkGroup(request.getWorkGroup());
 
         users.forEach(user -> {
-            usersQuestsRepository.createUserQuestRelation(user.getUser_id(), savedQuest.getQuest_id());
+            usersQuestsRepository.createUserQuestRelation(user.getUserId(), savedQuest.getQuestId());
 
             // ИЛИ через сохранение сущности (если нужна валидация):
             /*
@@ -55,7 +52,7 @@ public class QuestService {
         return questMapper.modelToDto(savedQuest);
     }
 
-    public StepsResponseDTO getSteps(UUID userId, UUID questId){
+    public StepsResponseDTO getSteps(UUID userId, UUID questId) {
         StepsResponseDTO response = new StepsResponseDTO();
         response.setStepsToComplete(questRepository.getStepsToCompleteById(questId));
         response.setCompletedSteps(usersQuestsRepository.getCompletedStepsById(userId));
@@ -63,7 +60,21 @@ public class QuestService {
     }
 
     @Transactional
-    public void updateSteps(UpdateStepsRequestDTO request){
+    public void updateSteps(UpdateStepsRequestDTO request) {
         usersQuestsRepository.updateCompletedStepsById(request.getUserId(), request.getQuestId(), request.getNewStepsValue());
+        usersQuestsRepository.updateQuestStatusById(request.getUserId(), request.getQuestId(), request.getQuestStatus());
+    }
+
+    @Transactional
+    public void updateBalance(UpdateBalanceDTO balanceDTO) {
+        userRepository.updateBalanceById(balanceDTO.getUserId(), balanceDTO.getCost());
+//        User user = userRepository.findById(balanceDTO.getUserId()).orElseThrow();
+//
+//        // Проверяем balance (хотя в БД он не null, Hibernate мог его не загрузить)
+//        if (user.getBalance() == null) {
+//            user.setBalance(0); // Если null, устанавливаем 0
+//        }
+//
+//        userRepository.updateBalanceById(balanceDTO.getUserId(), balanceDTO.getCost());
     }
 }

@@ -1,7 +1,5 @@
 package com.secretShop.dtl.service.dto;
 
-
-import com.secretShop.dtl.enums.Type;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,12 +9,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemDTO {
-    private UUID itemId;
-    private String itemName;
-    private String description;
-    private String owner;
-    private Type type;
+public class UpdateBalanceDTO {
+    private UUID userId;
     private Integer cost;
-    private Integer count;
 }

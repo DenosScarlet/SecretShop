@@ -39,7 +39,7 @@ public class ItemController {
 
     @PutMapping("/item/{id}")
     public Item updateItem(@PathVariable("id") UUID id, @RequestBody Item item) {
-        item.setItem_id(id);
+        item.setItemId(id);
         return itemRepository.save(item);
     }
 

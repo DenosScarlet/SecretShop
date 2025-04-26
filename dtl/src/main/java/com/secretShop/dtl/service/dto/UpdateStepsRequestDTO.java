@@ -1,5 +1,6 @@
 package com.secretShop.dtl.service.dto;
 
+import com.secretShop.dtl.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,4 +14,5 @@ public class UpdateStepsRequestDTO {
     private UUID userId;
     private UUID questId;
     private Integer newStepsValue;
+    private Status questStatus;
 }

@@ -13,24 +13,24 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "operations_on_item")
-public class OperationonItem {
+public class OperationOnItem {
     @Id
     @Column(name = "operations_id")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID operations_id;
+    private UUID operationsId;
 
-    @Id
-    @Column(name = "user_id")
-    private UUID user_id;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user;
 
-    @Id
-    @Column(name = "item_id")
-    private UUID item_id;
+    @ManyToOne
+    @JoinColumn(name = "item_id", referencedColumnName = "item_id")
+    private Item itemId;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
     @Column(columnDefinition = "jsonb", name = "operation_history")
-    private String operation_history;
+    private String operationHistory;
 }

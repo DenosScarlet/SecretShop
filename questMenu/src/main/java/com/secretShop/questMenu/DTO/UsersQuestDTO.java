@@ -11,9 +11,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsersQuestDTO {
-    private UUID users_quest_id;
-    private UUID users_id;
-    private UUID quest_id;
-    private Status quest_status;
-    private Integer completed_steps;
+    private UUID usersQuestId;
+    private UUID usersId;
+    private UUID questId;
+    private Status questStatus;
+    private Integer completedSteps;
 }

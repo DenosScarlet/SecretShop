@@ -11,4 +11,5 @@
     <include file="2025-02-26-1-create-table-item.xml" relativeToChangelogFile="true" />
     <include file="2025-02-26-1-create-table-user_quest.xml" relativeToChangelogFile="true" />
     <include file="2025-02-26-1-create-table-operations_on_item.xml" relativeToChangelogFile="true" />
+    <include file="2025-02-26-2-rename-user-columns.xml" relativeToChangelogFile="true" />
 </databaseChangeLog>

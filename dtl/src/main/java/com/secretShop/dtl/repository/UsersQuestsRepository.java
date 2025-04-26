@@ -17,14 +17,14 @@ public interface UsersQuestsRepository extends JpaRepository<UsersQuests, UUID> 
     void createUserQuestRelation(@Param("userId") UUID userId,
                                  @Param("questId") UUID questId);
 
-    @Query("SELECT uq.completed_steps FROM UsersQuests uq WHERE uq.user.user_id = :userId")
+    @Query("SELECT uq.completedSteps FROM UsersQuests uq WHERE uq.user.userId = :userId")
     Integer getCompletedStepsById(@Param("userId") UUID userId);
 
     @Modifying
-    @Query("UPDATE UsersQuests uq SET uq.completed_steps = :newStepsValue WHERE uq.user.user_id = :userId AND uq.quest.quest_id = :questId")
+    @Query("UPDATE UsersQuests uq SET uq.completedSteps = :newStepsValue WHERE uq.user.userId = :userId AND uq.quest.questId = :questId")
     void updateCompletedStepsById(@Param("userId") UUID userId, @Param("questId") UUID questId, @Param("newStepsValue") Integer newStepsValue);
 
     @Modifying
-    @Query("UPDATE UsersQuests uq SET uq.quest_status = :status WHERE uq.user.user_id = :userId AND uq.quest.quest_id = :questId")
+    @Query("UPDATE UsersQuests uq SET uq.questStatus = :status WHERE uq.user.userId = :userId AND uq.quest.questId = :questId")
     void updateQuestStatusById(@Param("userId") UUID userId, @Param("questId") UUID questId, @Param("status") Status status);
 }
