@@ -14,14 +14,15 @@ import java.util.UUID;
 public class QuestClient {
     RestClient restClient;
 
+    /// DTL Quests API
+
     public QuestClient() {
         this.restClient = RestClient.builder()
                 .baseUrl("http://localhost:8580")
                 .build();
     }
 
-
-    public List<QuestDTO> findAll() {
+    public List<QuestDTO> findAllQuests() {
         return restClient.get()
                 .uri("/api/quest")
                 .retrieve()
@@ -29,7 +30,7 @@ public class QuestClient {
                 });
     }
 
-    public QuestDTO findById(UUID id) {
+    public QuestDTO findQuestById(UUID id) {
         return restClient.get()
                 .uri("/api/quest/{id}", id)
                 .retrieve()
@@ -43,7 +44,14 @@ public class QuestClient {
                 .body(Integer.class);
     }
 
-    public QuestDTO save(QuestDTO quest) {
+    public String getQuestStatusById(UUID questId) {
+        return restClient.get()
+                .uri("/api/quest/usersQuest/questStatus/{id}", questId)
+                .retrieve()
+                .body(String.class);
+    }
+
+    public QuestDTO saveQuest(QuestDTO quest) {
         return restClient.post()
                 .uri("/api/quest")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -52,32 +60,43 @@ public class QuestClient {
                 .body(QuestDTO.class);
     }
 
-    public void delete(UUID id) {
+    public void deleteQuest(UUID id) {
         restClient.delete()
                 .uri("/api/quest/{id}", id)
                 .retrieve()
                 .toBodilessEntity();
     }
 
+    /// DTL UsersQuests API
+
     public StepsResponseDTO getSteps(UUID userId, UUID questId) {
         return restClient.get()
-                .uri("/api/quest/steps/{userId}&{questId}", userId, questId)
+                .uri("/api/users_quests/steps/{userId}&{questId}", userId, questId)
                 .retrieve()
                 .body(StepsResponseDTO.class);
     }
 
     public void updateSteps(UpdateStepsRequestDTO request) {
         restClient.patch()
-                .uri("/api/quest/steps/update")
+                .uri("/api/users_quests/steps/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
                 .toBodilessEntity();
     }
 
+    /// DTL User API
+
+    public Integer getBalance(UUID userId) {
+        return restClient.get()
+                .uri("/api/user/balance/{userId}", userId)
+                .retrieve()
+                .body(Integer.class);
+    }
+
     public void updateBalance(UpdateBalanceDTO balanceDTO) {
         restClient.patch()
-                .uri("/api/quest/balance/update")
+                .uri("/api/user/balance/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(balanceDTO)
                 .retrieve()

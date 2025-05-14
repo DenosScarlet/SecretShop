@@ -1,6 +1,6 @@
-package com.secretShop.dtl.service;
+package com.secretShop.dtl.service.interfaces;
 
-import com.secretShop.dtl.service.dto.QuestDTO;
+import com.secretShop.dtl.DTO.QuestDTO;
 
 import java.util.List;
 import java.util.UUID;

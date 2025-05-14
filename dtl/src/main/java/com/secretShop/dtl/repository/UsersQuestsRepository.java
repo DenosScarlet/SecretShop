@@ -20,6 +20,9 @@ public interface UsersQuestsRepository extends JpaRepository<UsersQuests, UUID> 
     @Query("SELECT uq.completedSteps FROM UsersQuests uq WHERE uq.user.userId = :userId")
     Integer getCompletedStepsById(@Param("userId") UUID userId);
 
+    @Query("SELECT uq.questStatus FROM UsersQuests uq WHERE uq.quest.questId = :questId")
+    String getQuestStatusById(@Param("questId") UUID questID);
+
     @Modifying
     @Query("UPDATE UsersQuests uq SET uq.completedSteps = :newStepsValue WHERE uq.user.userId = :userId AND uq.quest.questId = :questId")
     void updateCompletedStepsById(@Param("userId") UUID userId, @Param("questId") UUID questId, @Param("newStepsValue") Integer newStepsValue);

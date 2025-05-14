@@ -1,17 +1,17 @@
 package com.secretShop.dtl.entity;
 
-import com.secretShop.dtl.enums.Frequency;
 import com.secretShop.dtl.enums.WorkGroup;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
+import java.util.Objects;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity
 @Table(name =  "\"user\"", schema = "public")
 public class User {
@@ -38,4 +38,6 @@ public class User {
 
     @Column(name = "balance", nullable = false)
     private Integer balance = 0;
+
+
 }

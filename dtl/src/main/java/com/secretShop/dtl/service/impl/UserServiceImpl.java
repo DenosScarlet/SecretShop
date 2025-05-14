@@ -2,9 +2,9 @@ package com.secretShop.dtl.service.impl;
 
 import com.secretShop.dtl.entity.User;
 import com.secretShop.dtl.repository.UserRepository;
-import com.secretShop.dtl.service.UserService;
+import com.secretShop.dtl.service.interfaces.UserService;
 import com.secretShop.dtl.service.convertor.UserMapper;
-import com.secretShop.dtl.service.dto.UserDTO;
+import com.secretShop.dtl.DTO.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,7 +1,7 @@
 package com.secretShop.dtl.service.convertor;
 
 import com.secretShop.dtl.entity.Item;
-import com.secretShop.dtl.service.dto.ItemDTO;
+import com.secretShop.dtl.DTO.ItemDTO;
 import org.mapstruct.Mapper;
 
 import java.util.List;

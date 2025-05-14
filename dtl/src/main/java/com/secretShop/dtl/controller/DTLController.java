@@ -1,7 +1,7 @@
 package com.secretShop.dtl.controller;
 
-import com.secretShop.dtl.service.IQuestService;
-import com.secretShop.dtl.service.dto.QuestDTO;
+import com.secretShop.dtl.service.interfaces.IQuestService;
+import com.secretShop.dtl.DTO.QuestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

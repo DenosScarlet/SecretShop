@@ -1,14 +1,18 @@
 package com.secretShop.dtl.service;
 
+import com.secretShop.dtl.DTO.UpdateBalanceDTO;
+import com.secretShop.dtl.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.secretShop.dtl.service.dto.UserDTO;
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    UserRepository userRepository;
 
-import java.util.List;
-import java.util.UUID;
-
-public interface UserService {
-    List<UserDTO> findAll ();
-    UserDTO findById(UUID id);
-    UserDTO save (UserDTO user);
-    void deleteById (UUID id);
+    @Transactional
+    public void updateBalance(UpdateBalanceDTO balanceDTO) {
+        userRepository.updateBalanceById(balanceDTO.getUserId(), balanceDTO.getNewBalance());
+    }
 }

@@ -21,7 +21,7 @@ public class OperationOnItem {
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    private User user;
+    private User userId;
 
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "item_id")
@@ -32,5 +32,5 @@ public class OperationOnItem {
     private Status status;
 
     @Column(columnDefinition = "jsonb", name = "operation_history")
-    private String operationHistory;
+    private String operationsHistory;
 }

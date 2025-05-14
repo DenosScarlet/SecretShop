@@ -1,4 +1,4 @@
-package com.secretShop.dtl.service.dto;
+package com.secretShop.dtl.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateBalanceDTO {
+public class StepsRequestDTO {
     private UUID userId;
-    private Integer cost;
+    private UUID questId;
 }
