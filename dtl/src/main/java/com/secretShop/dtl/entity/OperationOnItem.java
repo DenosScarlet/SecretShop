@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -25,12 +27,13 @@ public class OperationOnItem {
 
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "item_id")
-    private Item itemId;
+    private Item item;
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
     @Column(columnDefinition = "jsonb", name = "operation_history")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String operationHistory;
 }
