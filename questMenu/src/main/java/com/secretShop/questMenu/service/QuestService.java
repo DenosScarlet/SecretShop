@@ -13,32 +13,38 @@ public class QuestService {
 
     @Transactional
     public void updateSteps(StepsRequestDTO stepsRequest) {
-        StepsResponseDTO response = questClient.getSteps(stepsRequest.getUserId(), stepsRequest.getQuestId());
 
-        Status questStatus;
+        Status currentStatus = Status.valueOf(questClient.getQuestStatusById(stepsRequest.getQuestId()));
 
-        int newStepsValue;
+        // Если квест уже завершен - выходим из метода
+        if (currentStatus == Status.COMPLETE) {
+            return;
+        }
 
+        UUID userId = stepsRequest.getUserId();
+        UUID questId = stepsRequest.getQuestId();
+        StepsResponseDTO response = questClient.getSteps(userId, questId);
         Integer stepsToComplete = response.getStepsToComplete();
         Integer completedSteps = response.getCompletedSteps();
+        Status questStatus = Status.IN_PROGRESS;
+        int newStepsValue;
 
-        if (stepsToComplete > (completedSteps + 1)){
+        if (stepsToComplete > (completedSteps + 1)) {
             newStepsValue = completedSteps + 1;
-            questStatus = Status.IN_PROGRESS;
         } else {
             newStepsValue = stepsToComplete;
             questStatus = Status.COMPLETE;
 
             UpdateBalanceDTO balanceDTO = new UpdateBalanceDTO();
-            balanceDTO.setUserId(stepsRequest.getUserId());
-            balanceDTO.setCost(questClient.getCostById(stepsRequest.getUserId()));
+            balanceDTO.setUserId(userId);
+            balanceDTO.setNewBalance(questClient.getBalance(userId) + questClient.getCostById(questId));
 
             questClient.updateBalance(balanceDTO);
         }
 
         UpdateStepsRequestDTO updateStepsRequest = new UpdateStepsRequestDTO();
-        updateStepsRequest.setUserId(stepsRequest.getUserId());
-        updateStepsRequest.setQuestId(stepsRequest.getQuestId());
+        updateStepsRequest.setUserId(userId);
+        updateStepsRequest.setQuestId(questId);
         updateStepsRequest.setNewStepsValue(newStepsValue);
         updateStepsRequest.setQuestStatus(questStatus);
 

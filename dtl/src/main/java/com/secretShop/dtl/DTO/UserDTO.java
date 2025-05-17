@@ -1,4 +1,4 @@
-package com.secretShop.dtl.service.dto;
+package com.secretShop.dtl.DTO;
 
 import com.secretShop.dtl.enums.WorkGroup;
 import lombok.AllArgsConstructor;

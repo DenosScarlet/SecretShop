@@ -2,7 +2,7 @@ package com.secretShop.dtl.service.convertor;
 
 
 import com.secretShop.dtl.entity.User;
-import com.secretShop.dtl.service.dto.UserDTO;
+import com.secretShop.dtl.DTO.UserDTO;
 import org.mapstruct.Mapper;
 
 import java.util.List;

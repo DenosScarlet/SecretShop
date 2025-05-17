@@ -1,4 +1,4 @@
-package com.secretShop.questMenu.DTO;
+package com.secretShop.dtl.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

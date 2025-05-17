@@ -6,7 +6,7 @@ import com.secretShop.dtl.repository.QuestRepository;
 import com.secretShop.dtl.repository.UserRepository;
 import com.secretShop.dtl.repository.UsersQuestsRepository;
 import com.secretShop.dtl.service.convertor.QuestMapper;
-import com.secretShop.dtl.service.dto.*;
+import com.secretShop.dtl.DTO.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,42 +39,8 @@ public class QuestService {
 
         users.forEach(user -> {
             usersQuestsRepository.createUserQuestRelation(user.getUserId(), savedQuest.getQuestId());
-
-            // ИЛИ через сохранение сущности (если нужна валидация):
-            /*
-            UsersQuests relation = new UsersQuests();
-            relation.setUser(user);
-            relation.setQuest(savedQuest);
-            usersQuestsRepository.save(relation);
-            */
         });
 
         return questMapper.modelToDto(savedQuest);
-    }
-
-    public StepsResponseDTO getSteps(UUID userId, UUID questId) {
-        StepsResponseDTO response = new StepsResponseDTO();
-        response.setStepsToComplete(questRepository.getStepsToCompleteById(questId));
-        response.setCompletedSteps(usersQuestsRepository.getCompletedStepsById(userId));
-        return response;
-    }
-
-    @Transactional
-    public void updateSteps(UpdateStepsRequestDTO request) {
-        usersQuestsRepository.updateCompletedStepsById(request.getUserId(), request.getQuestId(), request.getNewStepsValue());
-        usersQuestsRepository.updateQuestStatusById(request.getUserId(), request.getQuestId(), request.getQuestStatus());
-    }
-
-    @Transactional
-    public void updateBalance(UpdateBalanceDTO balanceDTO) {
-        userRepository.updateBalanceById(balanceDTO.getUserId(), balanceDTO.getCost());
-//        User user = userRepository.findById(balanceDTO.getUserId()).orElseThrow();
-//
-//        // Проверяем balance (хотя в БД он не null, Hibernate мог его не загрузить)
-//        if (user.getBalance() == null) {
-//            user.setBalance(0); // Если null, устанавливаем 0
-//        }
-//
-//        userRepository.updateBalanceById(balanceDTO.getUserId(), balanceDTO.getCost());
     }
 }

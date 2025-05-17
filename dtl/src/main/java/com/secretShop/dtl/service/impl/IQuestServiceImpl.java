@@ -2,9 +2,9 @@ package com.secretShop.dtl.service.impl;
 
 import com.secretShop.dtl.entity.Quest;
 import com.secretShop.dtl.repository.QuestRepository;
-import com.secretShop.dtl.service.IQuestService;
+import com.secretShop.dtl.service.interfaces.IQuestService;
 import com.secretShop.dtl.service.convertor.QuestMapper;
-import com.secretShop.dtl.service.dto.QuestDTO;
+import com.secretShop.dtl.DTO.QuestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

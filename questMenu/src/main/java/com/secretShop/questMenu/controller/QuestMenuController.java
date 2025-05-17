@@ -20,30 +20,31 @@ public class QuestMenuController {
 
     @GetMapping
     public List<QuestDTO> getAllQuests() {
-        return questClient.findAll();
+        return questClient.findAllQuests();
     }
 
     @GetMapping("/{id}")
     public QuestDTO getQuestById(@PathVariable("id") UUID id) {
-        return questClient.findById(id);
+        return questClient.findQuestById(id);
     }
 
     @PostMapping
     public QuestDTO createQuest(@RequestBody QuestDTO quest) {
-        return questClient.save(quest);
+        return questClient.saveQuest(quest);
     }
 
     @PutMapping("/{id}")
     public QuestDTO updateQuest(@PathVariable("id") UUID id, @RequestBody QuestDTO quest) {
-        return questClient.save(quest);
+        return questClient.saveQuest(quest);
     }
 
     @DeleteMapping("/{id}")
     public void deleteQuest(@PathVariable("id") UUID id) {
-        questClient.delete(id);
+        questClient.deleteQuest(id);
     }
+
     @PatchMapping("/steps/update")
-    public void updateSteps(@RequestBody StepsRequestDTO stepsRequest){
+    public void updateSteps(@RequestBody StepsRequestDTO stepsRequest) {
         questService.updateSteps(stepsRequest);
     }
 }

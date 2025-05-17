@@ -1,7 +1,7 @@
-package com.secretShop.dtl.service;
+package com.secretShop.dtl.service.interfaces;
 
 import com.secretShop.dtl.enums.Type;
-import com.secretShop.dtl.service.dto.ItemDTO;
+import com.secretShop.dtl.DTO.ItemDTO;
 
 
 import java.util.List;

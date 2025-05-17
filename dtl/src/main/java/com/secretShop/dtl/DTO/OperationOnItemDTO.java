@@ -1,7 +1,8 @@
-package com.secretShop.dtl.service.dto;
+package com.secretShop.dtl.DTO;
 
 import com.secretShop.dtl.enums.Status;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,9 +11,11 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateStepsRequestDTO {
+@Builder
+public class OperationOnItemDTO {
+    private UUID operationsId;
     private UUID userId;
-    private UUID questId;
-    private Integer newStepsValue;
-    private Status questStatus;
+    private UUID itemId;
+    private Status status;
+    private String operationHistory;
 }

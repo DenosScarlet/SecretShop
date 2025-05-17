@@ -14,16 +14,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE u.workGroup = :workGroup")
     List<User> findUsersByWorkGroup(@Param("workGroup") WorkGroup workGroup);
 
-//    @Modifying
-//    @Query("UPDATE User u SET u.balance = u.balance + :cost WHERE u.userId = :userId")
-//    void updateBalanceById(@Param("userId") UUID userId, @Param("cost") Integer cost);
-
     @Modifying
-    @Query(
-            value = "UPDATE \"user\" SET balance = balance + :cost WHERE user_id = :userId",
-            nativeQuery = true
-    )
-    void updateBalanceById(@Param("userId") UUID userId, @Param("cost") Integer cost);
+    @Query("UPDATE User u SET u.balance = :newBalance WHERE u.userId = :userId")
+    void updateBalanceById(@Param("userId") UUID userId, @Param("newBalance") Integer newBalance);
 
     @Query("SELECT u.balance FROM User u WHERE u.userId = :userId")
     Integer getBalanceById(@Param("userId") UUID userId);
