@@ -1,7 +1,7 @@
 package com.secretShop.dtl.controller;
 
-import com.secretShop.dtl.service.dto.CreateOperationOnItemDTO;
-import com.secretShop.dtl.service.dto.OperationOnItemDTO;
+import com.secretShop.dtl.DTO.CreateOperationOnItemDTO;
+import com.secretShop.dtl.DTO.OperationOnItemDTO;
 import com.secretShop.dtl.service.OperationOnItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

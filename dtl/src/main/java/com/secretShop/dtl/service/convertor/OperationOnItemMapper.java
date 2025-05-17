@@ -3,8 +3,7 @@ package com.secretShop.dtl.service.convertor;
 import com.secretShop.dtl.entity.Item;
 import com.secretShop.dtl.entity.OperationOnItem;
 import com.secretShop.dtl.entity.User;
-import com.secretShop.dtl.service.dto.CreateOperationOnItemDTO;
-import com.secretShop.dtl.service.dto.OperationOnItemDTO;
+import com.secretShop.dtl.DTO.OperationOnItemDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -19,7 +18,7 @@ public interface OperationOnItemMapper {
     @Mapping(target = "item", source = "itemId", qualifiedByName = "uuidToItem")
     OperationOnItem dtoToModel(OperationOnItemDTO operationOnItemDTO);
 
-    @Mapping(target = "userId", source = "user.userId")
+    @Mapping(target = "userId", source = "user.userId")  // Маппинг из user.userId
     @Mapping(target = "itemId", source = "item.itemId")
     @Mapping(target = "operationHistory", source = "operationHistory")
     OperationOnItemDTO modelToDto(OperationOnItem operationOnItem);
