@@ -3,6 +3,13 @@ server:
   port: 8280
 
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
+  jpa:
+    enabled: false
   application:
     name: kc-admin-client
   cloud:
@@ -20,22 +27,36 @@ spring:
         registration:
           keycloak:
             client-id: myclient
-
             client-secret: GwRxoWbFcrT1SwkGoWaN62KvBEGyfjmy
-
             scope: openid,profile,email
             redirect-uri: http://localhost:8280/login/oauth2/code/keycloak
             authorization-grant-type: authorization_code
         provider:
           keycloak:
             issuer-uri: http://localhost:8180/realms/secretshoprealm
-
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8180/realms/secretshoprealm
           jwk-set-uri: http://localhost:8180/realms/secretshoprealm/protocol/openid-connect/certs
 
+# Настройки для интеграции с DTL сервисом
+dtl:
+  base-url: http://localhost:8580
+  kafka-topic: user-events
+
+# Выбор реализации (rest или kafka)
+event:
+  provider: rest
+
+# Настройки Keycloak Admin Client
+keycloak:
+  auth-server-url: http://localhost:8180
+  realm: secretshoprealm
+  client-id: myclient
+  client-secret: GwRxoWbFcrT1SwkGoWaN62KvBEGyfjmy
+
 logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
+    com.secretshop.keycloak: DEBUG

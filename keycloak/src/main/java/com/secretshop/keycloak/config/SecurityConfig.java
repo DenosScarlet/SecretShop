@@ -2,6 +2,7 @@ package com.secretshop.keycloak.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
@@ -32,31 +34,27 @@ public class SecurityConfig {
      * @return SecurityFilterChain for filtering and securing HTTP requests
      * @throws Exception in case of an error during configuration
      */
+
+
+
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Configures authorization rules for different endpoints
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/").permitAll() // Allows public access to the root URL
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/api/users/**").authenticated() // Требуем аутентификацию для API
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/work_env").authenticated()
-                        .requestMatchers("http:localhost:8480/shop").authenticated()// Requires authentication to access "/work_env"
-                        .anyRequest().authenticated() // Requires authentication for any other request
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder())) // Указываем JwtDecoder напрямую
+                        .bearerTokenResolver(request -> request.getParameter("access_token"))
+                        .jwt(jwt -> jwt.decoder(jwtDecoder()))
                 )
-                // Configures OAuth2 login settings
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/authorization/keycloak") // Sets custom login page for OAuth2 with Keycloak
-                        .defaultSuccessUrl("/work_env", true) // Redirects to "/work_env" after successful login
-                )
-                // Configures logout settings
-                .logout(logout -> logout
-                        .logoutSuccessHandler(oidcLogoutSuccessHandler())
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/users/**")
                 );
+
         return http.build();
     }
 
@@ -72,7 +70,8 @@ public class SecurityConfig {
     @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withJwkSetUri("http://localhost:8180/realms/secretshoprealm/protocol/openid-connect/certs")
-//        return NimbusJwtDecoder.withJwkSetUri("http://keycloak:8080/realms/secretshoprealm/protocol/openid-connect/certs")
                 .build();
     }
+
+
 }
