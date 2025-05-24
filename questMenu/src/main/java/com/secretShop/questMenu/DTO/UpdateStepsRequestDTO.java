@@ -2,10 +2,8 @@ package com.secretShop.questMenu.DTO;
 
 import com.secretShop.questMenu.enums.Status;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.UUID;
 
 @Data
