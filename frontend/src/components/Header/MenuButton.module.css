@@ -1,0 +1,268 @@
+.questMenuButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    padding: 0;
+    transition: transform 0.2s ease;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 100px;
+    background: #FEB238;
+    transition:
+            background-color 0.3s ease,
+            box-shadow 0.3s ease;
+}
+
+.stateLayer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconCatalog {
+    width: 34.68px;
+    height: 34.68px;
+    padding: 6px;
+    fill: white;
+    transition: transform 0.3s ease;
+}
+
+/* Hover states */
+.questMenuButton:hover .stateLayer {
+    opacity: 1;
+}
+
+.questMenuButton:hover .container {
+    background: #EB8A00;
+    box-shadow: 0 4px 8px rgba(235, 138, 0, 0.2);
+}
+
+/* Active state */
+.questMenuButton:active .container {
+    transform: scale(0.95);
+}
+
+.questMenuButton:active .iconCatalog {
+    transform: scale(0.9);
+}
+
+/* Focus state */
+.questMenuButton:focus-visible {
+    outline: none;
+}
+
+.questMenuButton:focus-visible .container {
+    box-shadow:
+            0 0 0 3px rgba(254, 158, 28, 0.5),
+            0 4px 8px rgba(254, 158, 28, 0.2);
+}
+
+/* Animation */
+@keyframes menu-icon-bounce {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+.questMenuButton.active .iconCatalog {
+    animation: menu-icon-bounce 0.4s ease;
+}
+
+.menuContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.headerMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition:
+            opacity 0.3s ease,
+            visibility 0.3s ease,
+            transform 0.3s ease;
+}
+
+.menuVisible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Остальные стили из Figma с адаптацией под CSS-модули */
+.menuList {
+    display: flex;
+    flex-direction: column;
+    background: #FEEDD2;
+    border-radius: 4px;
+    box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+    padding: 8px 0;
+    width: 261px;
+}
+
+.menuListItem {
+    padding: 8px 12px;
+    position: relative;
+    height: 56px;
+}
+
+.itemContent {
+    display: grid;
+    grid-template-columns: 32px 1fr 20px;
+    align-items: center;
+    gap: 12px;
+}
+
+.labelText {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #1D1B20;
+}
+
+.progress {
+    font-size: 14px;
+    color: #49454F;
+}
+
+.reward {
+    font-size: 14px;
+    color: #000;
+}
+
+.divider {
+    height: 1px;
+    background: #805C5C;
+    margin: 8px 0;
+}
+
+/* Анимации и состояния hover */
+.menuListItem:hover {
+    background: rgba(254, 158, 28, 0.08);
+}
+
+/* Стили для контента меню */
+.itemContent {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    height: 100%;
+    padding: 8px 0;
+    position: relative;
+}
+
+/* Иконка задания */
+.iconExclamation {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+/* Текстовая информация */
+.textWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.labelText {
+    font-size: 16px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.progress {
+    font-size: 14px;
+    color: #49454F;
+}
+
+/* Блок с наградой */
+.rewardWrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.iconCoin {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.reward {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+
+/* Разделитель */
+.divider {
+    width: 100%;
+    height: 1px;
+    background: #805C5C;
+    margin: 8px 0;
+}
+
+/* Исправления существующих стилей */
+.menuListItem {
+    padding: 0 12px;
+    height: 56px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.menuList {
+    padding: 8px 0;
+    width: 261px;
+    overflow: hidden;
+}
+
+.headerMenu {
+    z-index: 1000;
+    background: #FEEDD2;
+    border-radius: 4px;
+}
+
+/* Гарантируем, что контент не выходит за границы */
+.stateLayer {
+    overflow: hidden;
+}
+
+.itemContent > * {
+    flex-shrink: 0;
+}
+
+/* Ховер-эффект */
+.menuListItem:hover {
+    background: rgba(254, 158, 28, 0.08);
+    cursor: pointer;
+}
+
+/* Исправление позиционирования элементов */
+.menuListItem:last-child .divider {
+    display: none;
+}

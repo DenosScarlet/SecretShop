@@ -1,0 +1,22 @@
+.profileButton,
+.profileButton * {
+    box-sizing: border-box;
+}
+.profileButton {
+    border-radius: 30px;
+    border-style: solid;
+    border-color: #000000;
+    border-width: 0.5px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    width: 45px;
+    height: 45px;
+    position: relative;
+    overflow: hidden;
+    object-fit: cover;
+    aspect-ratio: 1;
+}

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/quest")
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ public class QuestMenuController {
     }
 
     @PutMapping("/{id}")
-    public QuestDTO updateQuest(@PathVariable("id") UUID id, @RequestBody QuestDTO quest) {
+    public QuestDTO updateQuest(@RequestBody QuestDTO quest) {
         return questClient.saveQuest(quest);
     }
 
