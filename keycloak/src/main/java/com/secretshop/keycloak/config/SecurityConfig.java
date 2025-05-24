@@ -1,5 +1,7 @@
 package com.secretshop.keycloak.config;
 
+import com.secretshop.keycloak.custom.CustomAuthoritiesConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -9,69 +11,63 @@ import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInit
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
-/**
- * SecurityConfig class configures security settings for the application,
- * enabling security filters and setting up OAuth2 login and logout behavior.
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
     private final ClientRegistrationRepository clientRegistrationRepository;
+
+    @Value("${keycloak.jwk-set-uri}")
+    private String jwkSetUri;
 
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository) {
         this.clientRegistrationRepository = clientRegistrationRepository;
     }
 
-    /**
-     * Configures the security filter chain for handling HTTP requests, OAuth2 login, and logout.
-     *
-     * @param http HttpSecurity object to define web-based security at the HTTP level
-     * @return SecurityFilterChain for filtering and securing HTTP requests
-     * @throws Exception in case of an error during configuration
-     */
-
-
-
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           @Value("${keycloak.client-id}") String clientId) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/users/**").authenticated() // Требуем аутентификацию для API
+                        .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/work_env").authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .bearerTokenResolver(request -> request.getParameter("access_token"))
-                        .jwt(jwt -> jwt.decoder(jwtDecoder()))
+                        .jwt(jwt -> jwt
+                                .decoder(jwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter(clientId))
+                        )
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/users/**")
+                        .ignoringRequestMatchers("/api/**")
                 );
 
         return http.build();
     }
 
     @Bean
-    public LogoutSuccessHandler oidcLogoutSuccessHandler() {
-        OidcClientInitiatedLogoutSuccessHandler successHandler =
-                new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-
-        successHandler.setPostLogoutRedirectUri("{baseUrl}/");
-        return successHandler;
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri("http://localhost:8180/realms/secretshoprealm/protocol/openid-connect/certs")
-                .build();
+    public JwtAuthenticationConverter jwtAuthenticationConverter(@Value("${keycloak.client-id}") String clientId) {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(new CustomAuthoritiesConverter(clientId));
+        return converter;
     }
-
-
+    @Bean
+    public LogoutSuccessHandler oidcLogoutSuccessHandler() {
+        OidcClientInitiatedLogoutSuccessHandler successHandler =
+                new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+        successHandler.setPostLogoutRedirectUri("{baseUrl}/");
+        return successHandler;
+    }
 }

@@ -50,13 +50,37 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO save(UserDTO userDTO) {
-        if (!userRepository.existsById(userDTO.getUserId())) {
-            throw new IllegalStateException("User not found");
+        // 1. Проверяем, что пользователь существует
+        User existingUser = userRepository.findById(userDTO.getUserId())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        // 2. Обновляем только те поля, которые явно заданы в DTO
+        if (userDTO.getFirstName() != null) {
+            existingUser.setFirstName(userDTO.getFirstName());
         }
-        User user = userMapper.dtoToModel(userDTO);
-        User savedUser = userRepository.save(user);
+        if (userDTO.getLastName() != null) {
+            existingUser.setLastName(userDTO.getLastName());
+        }
+        if (userDTO.getMiddleName() != null) {
+            existingUser.setMiddleName(userDTO.getMiddleName());
+        }
+        if (userDTO.getAvatar() != null) {
+            existingUser.setAvatar(userDTO.getAvatar());
+        }
+        if (userDTO.getWorkGroup() != null) {
+            existingUser.setWorkGroup(userDTO.getWorkGroup());
+        }
+        // ВАЖНО: balance обновляем только если он явно пришёл в DTO
+        if (userDTO.getBalance() != null) {
+            existingUser.setBalance(userDTO.getBalance());
+        }
+        // Добавьте сюда другие поля по аналогии, если появятся
+
+        // 3. Сохраняем обновлённого пользователя
+        User savedUser = userRepository.save(existingUser);
         return userMapper.modelToDto(savedUser);
     }
+
 
     @Override
     @Transactional

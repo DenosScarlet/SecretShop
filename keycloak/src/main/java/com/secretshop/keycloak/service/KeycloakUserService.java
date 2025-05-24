@@ -4,10 +4,13 @@ import com.secretshop.keycloak.exception.UserAlreadyExistsException;
 import com.secretshop.keycloak.exception.UserCreationException;
 import com.secretshop.keycloak.DTO.*;
 import com.secretshop.keycloak.service.impl.UserEventClient;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import jakarta.ws.rs.core.Response;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -159,6 +163,127 @@ public class KeycloakUserService {
                 request.getLastName()
         );
     }
+
+    public UserRepresentation getUserById(String userId) {
+        try {
+            return keycloak.realm(realm).users().get(userId).toRepresentation();
+        } catch (NotAuthorizedException e) {
+            // Попробуем обновить токен и повторить запрос
+            try {
+                keycloak.tokenManager().refreshToken();
+                return keycloak.realm(realm).users().get(userId).toRepresentation();
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to get user after token refresh", ex);
+            }
+        }
+    }
+
+    public List<UserRepresentation> searchUsers(String username, String email) {
+        UsersResource usersResource = keycloak.realm(realm).users();
+        if (username != null) {
+            return usersResource.search(username, true);
+        } else if (email != null) {
+            return usersResource.searchByEmail(email, true);
+        }
+        return Collections.emptyList();
+    }
+
+    public KeycloakUserResponse updateUser(String userId, UserUpdateRequest request) {
+        UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
+
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) user.setLastName(request.getLastName());
+        if (request.getMiddleName() != null) user.singleAttribute("middleName", request.getMiddleName());
+
+        keycloak.realm(realm).users().get(userId).update(user);
+
+        // Update in DTL if needed
+        UserDTO userDto = new UserDTO();
+        userDto.setUserId(UUID.fromString(userId));
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        userDto.setMiddleName(user.firstAttribute("middleName"));
+        userDto.setAvatar(request.getAvatar());
+        userEventClient.sendUserUpdatedEvent(userDto);
+
+        return new KeycloakUserResponse(
+                UUID.fromString(userId),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName()
+        );
+    }
+
+    public void disableUser(String userId) {
+        UserRepresentation user = new UserRepresentation();
+        user.setEnabled(false);
+        keycloak.realm(realm).users().get(userId).update(user);
+    }
+
+    public void enableUser(String userId) {
+        UserRepresentation user = new UserRepresentation();
+        user.setEnabled(true);
+        keycloak.realm(realm).users().get(userId).update(user);
+    }
+
+    public void resetPassword(String userId, String newPassword) {
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(newPassword);
+        credential.setTemporary(false);
+
+        keycloak.realm(realm).users().get(userId).resetPassword(credential);
+    }
+
+    public List<String> getUserRoles(String userId) {
+        return keycloak.realm(realm).users().get(userId).roles().realmLevel().listAll()
+                .stream()
+                .map(RoleRepresentation::getName)
+                .toList();
+    }
+
+    public void assignRole(String userId, String roleName) {
+        RoleRepresentation role = keycloak.realm(realm).roles().get(roleName).toRepresentation();
+        keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
+    }
+
+    public void removeRole(String userId, String roleName) {
+        RoleRepresentation role = keycloak.realm(realm).roles().get(roleName).toRepresentation();
+        keycloak.realm(realm).users().get(userId).roles().realmLevel().remove(Collections.singletonList(role));
+    }
+
+    /**
+     * Удаляет пользователя из Keycloak и DTL.
+     * @param userId ID пользователя (UUID)
+     */
+    public void deleteUser(UUID userId) {
+        // 1. Удаление из Keycloak
+        deleteUserFromKeycloak(userId);
+
+        // 2. Удаление из DTL
+        userEventClient.sendUserDeletedEvent(userId);
+    }
+
+    /**
+     * Удаляет пользователя из Keycloak.
+     */
+    private void deleteUserFromKeycloak(UUID userId) {
+        try {
+            UserResource userResource = keycloak.realm(realm).users().get(userId.toString());
+            UserRepresentation user = userResource.toRepresentation();
+
+            if (user != null) {
+                userResource.remove();  // Удаление пользователя
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete user from Keycloak: " + e.getMessage());
+        }
+    }
+
+
+
 
     // rollback по сложной логике не требуется, потому что если Keycloak не принял ID,
     // то пользователь в DTL не был создан, а если принял — то ID совпадает
