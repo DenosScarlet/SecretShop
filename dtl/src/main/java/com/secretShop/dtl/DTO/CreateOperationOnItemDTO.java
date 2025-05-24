@@ -12,8 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OperationOnItemDTO {
-    private UUID operationsId;
+public class CreateOperationOnItemDTO {
     private UUID userId;
     private UUID itemId;
     private Status status;
