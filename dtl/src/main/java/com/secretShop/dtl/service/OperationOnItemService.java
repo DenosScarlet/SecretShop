@@ -55,11 +55,15 @@ public class OperationOnItemService {
         OperationOnItem operation = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Operation not found"));
 
-        // Обновляем только необходимые поля
-        operation.setStatus(dto.getStatus());
-        operation.setOperationHistory(dto.getOperationHistory());
+        // Обновляем только не-null поля из DTO
+        if (dto.getStatus() != null) {
+            operation.setStatus(dto.getStatus());
+        }
+        if (dto.getOperationHistory() != null) {
+            operation.setOperationHistory(dto.getOperationHistory());
+        }
 
-        // Обновляем связи через UUID
+        // Обновляем связи через UUID, только если в DTO есть значение
         if (dto.getUserId() != null) {
             if (operation.getUser() == null) {
                 operation.setUser(new User());
@@ -73,7 +77,6 @@ public class OperationOnItemService {
             }
             operation.getItem().setItemId(dto.getItemId());
         }
-
 
         operation = repository.save(operation);
         return mapper.modelToDto(operation);

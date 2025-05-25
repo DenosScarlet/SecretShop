@@ -24,7 +24,7 @@ public class OperationOnItemController {
     }
 
     @GetMapping("/{id}")
-    public OperationOnItemDTO getOperation(@PathVariable UUID id) {
+    public OperationOnItemDTO getOperation(@PathVariable("id") UUID id) {
         return service.getOperationById(id);
     }
 
@@ -34,23 +34,23 @@ public class OperationOnItemController {
     }
 
     @GetMapping("/user/{userId}")
-    public List<OperationOnItemDTO> getOperationsByUser(@PathVariable UUID userId) {
+    public List<OperationOnItemDTO> getOperationsByUser(@PathVariable("id") UUID userId) {
         return service.getOperationsByUserId(userId);
     }
 
     @GetMapping("/item/{itemId}")
-    public List<OperationOnItemDTO> getOperationsByItem(@PathVariable UUID itemId) {
+    public List<OperationOnItemDTO> getOperationsByItem(@PathVariable("id") UUID itemId) {
         return service.getOperationsByItemId(itemId);
     }
 
     @PutMapping("/{id}")
-    public OperationOnItemDTO updateOperation(@PathVariable UUID id, @RequestBody OperationOnItemDTO dto) {
+    public OperationOnItemDTO updateOperation(@PathVariable("id") UUID id, @RequestBody OperationOnItemDTO dto) {
         return service.updateOperation(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOperation(@PathVariable UUID id) {
+    public void deleteOperation(@PathVariable("id") UUID id) {
         service.deleteOperation(id);
     }
 }

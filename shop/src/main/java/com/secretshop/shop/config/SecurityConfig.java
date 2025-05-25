@@ -30,13 +30,18 @@ public class SecurityConfig {
     }
 
 
-    // Кастомный резолвер для токена в query-параметре
     private String resolveTokenFromQueryParam(HttpServletRequest request) {
+        // Проверяем query-параметр
         String token = request.getParameter("access_token");
         if (token != null && !token.isBlank()) {
             return token;
         }
-        return null; // Вернет 401 если токен не найден
+        // Проверяем заголовок Authorization
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        }
+        return null;
     }
 
     @Bean
