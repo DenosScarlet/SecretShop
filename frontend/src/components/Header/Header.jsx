@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './Header.module.css';
 import MenuButton from './MenuButton';
 import Avatar from './Avatar';
+import {Link} from "react-router-dom";
 
 export default function Header() {
     return (
@@ -37,10 +38,14 @@ export default function Header() {
             </svg>
 
             <nav className={styles.navigationPillList}>
-                {['Products', 'Solutions', 'Community', 'Resources', 'Pricing', 'Contact'].map((item) => (
-                    <div key={item} className={styles.navigationPill}>
+                {['Products', 'Solutions', 'Community', 'Resources', 'Pricing', 'Contact', 'Quests'].map((item) => (
+                    <Link
+                        key={item}
+                        to={item === 'Quests' ? '/quests' : '#'}
+                        className={styles.navigationPill}
+                    >
                         <div className={styles.title}>{item}</div>
-                    </div>
+                    </Link>
                 ))}
             </nav>
 

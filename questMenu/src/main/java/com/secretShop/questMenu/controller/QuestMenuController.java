@@ -35,8 +35,8 @@ public class QuestMenuController {
     }
 
     @PutMapping("/{id}")
-    public QuestDTO updateQuest(@RequestBody QuestDTO quest) {
-        return questClient.saveQuest(quest);
+    public QuestDTO updateQuest(@PathVariable("id") UUID id, @RequestBody QuestDTO quest) {
+        return questClient.updateQuest(id, quest);
     }
 
     @DeleteMapping("/{id}")
