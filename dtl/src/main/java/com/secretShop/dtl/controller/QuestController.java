@@ -1,16 +1,12 @@
 package com.secretShop.dtl.controller;
 
 import com.secretShop.dtl.entity.Quest;
-import com.secretShop.dtl.entity.User;
 import com.secretShop.dtl.repository.QuestRepository;
 import com.secretShop.dtl.repository.UserRepository;
 import com.secretShop.dtl.repository.UsersQuestsRepository;
 import com.secretShop.dtl.service.QuestService;
 import com.secretShop.dtl.DTO.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -52,11 +48,11 @@ public class QuestController {
     }
 
     @PutMapping("/{id}")
-    public Quest updateQuest(@PathVariable("id") UUID id, @RequestBody Quest quest) {
+    public QuestDTO updateQuest(@PathVariable("id") UUID id, @RequestBody QuestDTO questDTO) {
         if (!questRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Сущность с id `%s` не найдена".formatted(id));
         }
-        return questRepository.save(quest);
+        return questService.updateQuest(id, questDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -67,8 +63,4 @@ public class QuestController {
         }
         return quest;
     }
-
-
-
-
 }

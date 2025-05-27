@@ -1,0 +1,172 @@
+.pageContainer {
+    display: flex;
+    justify-content: center;
+    padding: 120px 20px 40px;
+    width: 100%;
+    min-height: 100vh;
+    background: #FFFFFF;
+    box-sizing: border-box;
+}
+
+.formWrapper {
+    width: 100%;
+    max-width: 800px;
+    background: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 8.82px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    margin-bottom: 24px;
+}
+
+.createButton {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #2C2C2C;
+    color: #F5F5F5;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.2s ease;
+}
+
+.createButton:hover {
+    opacity: 0.9;
+}
+
+.questList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.questItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+}
+
+.questInfo {
+    flex: 1;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-left: 16px;
+}
+
+.editButton {
+    padding: 8px 16px;
+    background: #FEB238;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.deleteButton {
+    padding: 8px 16px;
+    background: #ff4444;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+}
+
+.react-datepicker__input-container input {
+    background: #fff;
+    cursor: default;
+    color: #1E1E1E;
+}
+
+/* Добавляем новые стили для редактирования */
+.editForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.editInput {
+    padding: 8px 12px;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.editTextarea {
+    padding: 8px 12px;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    min-height: 80px;
+    resize: vertical;
+}
+
+.editSelect {
+    padding: 8px 12px;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    background: white;
+}
+
+.saveButton {
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Модифицируем существующие стили */
+.questItem {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    color: #666;
+    font-size: 14px;
+}
+
+.editButton {
+    background: #FEB238;
+}
+
+.deleteButton {
+    background: #ff4c4c;
+    color: white;
+}
+
+/* Добавляем hover-эффекты */
+.editButton:hover, .saveButton:hover, .deleteButton:hover {
+    opacity: 0.9;
+}

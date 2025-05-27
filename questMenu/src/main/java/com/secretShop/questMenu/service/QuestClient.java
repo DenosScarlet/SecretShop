@@ -60,6 +60,15 @@ public class QuestClient {
                 .body(QuestDTO.class);
     }
 
+    public QuestDTO updateQuest(UUID questId, QuestDTO quest) {
+        return restClient.put()
+                .uri("/api/quest/{id}", questId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(quest)
+                .retrieve()
+                .body(QuestDTO.class);
+    }
+
     public void deleteQuest(UUID id) {
         restClient.delete()
                 .uri("/api/quest/{id}", id)

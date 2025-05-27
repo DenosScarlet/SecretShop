@@ -18,7 +18,7 @@ const workGroupOptions = [
     { value: 'MANAGEMENT', label: 'Управление' }
 ];
 
-export default function QuestCreationForm() {
+export default function QuestCreationForm({ initialData, onSuccess }) {
     const [formData, setFormData] = useState({
         questTitle: '',
         description: '',
@@ -30,18 +30,24 @@ export default function QuestCreationForm() {
         cost: 0
     });
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/quest', {
+            const method = initialData ? 'put' : 'post';
+            const url = initialData ? `/quest/${initialData.questId}` : '/quest';
+
+            await api[method](url, {
                 ...formData,
                 startDate: formData.startDate.toISOString(),
                 endDate: formData.endDate.toISOString()
             });
-            alert('Квест успешно создан!');
+
+            alert(initialData ? 'Квест успешно обновлён!' : 'Квест успешно создан!');
+            onSuccess?.();
         } catch (error) {
-            console.error('Ошибка создания:', error);
-            alert('Ошибка при создании квеста');
+            console.error('Ошибка:', error);
+            alert(`Ошибка ${initialData ? 'обновления' : 'создания'} квеста`);
         }
     };
 
