@@ -6,10 +6,13 @@ import com.secretshop.shop.DTO.PurchaseDTO;
 import com.secretshop.shop.DTO.UpdateOperationDTO;
 import com.secretshop.shop.enums.Type;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.util.List;
@@ -126,6 +129,39 @@ public class DtlServiceClient {
                 .body(updateDto)
                 .retrieve()
                 .body(OperationDTO.class);
+    }
+
+    public String uploadFile(UUID itemId, MultipartFile file) {
+        return restClient.post()
+                .uri("/api/files/upload?itemId={itemId}", itemId)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(file)
+                .retrieve()
+                .body(String.class);
+    }
+
+    public ResponseEntity<InputStreamResource> downloadFile(UUID itemId, String fileName) {
+        return restClient.get()
+                .uri("/api/files/download?itemId={itemId}&fileName={fileName}", itemId, fileName)
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
+                .retrieve()
+                .toEntity(InputStreamResource.class);
+    }
+
+    public String deleteFile(UUID itemId, String fileName) {
+        return restClient.delete()
+                .uri("/api/files/delete?itemId={itemId}&fileName={fileName}", itemId, fileName)
+                .retrieve()
+                .body(String.class);
+    }
+
+    public String uploadFileForItem(UUID itemId, MultipartFile file) {
+        return restClient.post()
+                .uri("/api/files/upload?itemId={itemId}", itemId)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(file)
+                .retrieve()
+                .body(String.class);
     }
 
 }

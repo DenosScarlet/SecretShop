@@ -148,8 +148,29 @@ services:
       keycloak:
         condition: service_healthy
 
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9002:9000"  # API порт
+      - "9003:9001"  # Console порт (веб-интерфейс)
+    environment:
+      MINIO_ROOT_USER: minioadmin  # Логин по умолчанию
+      MINIO_ROOT_PASSWORD: minioadmin  # Пароль по умолчанию
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    # network_mode: host  # Раскомментируйте, если нужен host-режим
+
 volumes:
   db-data:
   pgadmin-data:
   keycloak_db_data:
   keycloak_data:
+  minio-data:
