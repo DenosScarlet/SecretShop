@@ -6,13 +6,17 @@ import com.secretshop.shop.DTO.UpdateOperationDTO;
 import com.secretshop.shop.enums.Status;
 import com.secretshop.shop.enums.Type;
 import com.secretshop.shop.service.ShopService;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import com.secretshop.shop.util.JwtUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,9 +43,13 @@ public class ShopController {
         return shopService.getAllItemsFromDtl();
     }
 
-    @PostMapping("/item")
-    public ItemDTO addItem(@RequestBody ItemDTO itemDTO) {
-        return shopService.addItem(itemDTO);
+    @PostMapping(value = "/item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ItemDTO> addItemWithFile(
+            @RequestPart("item") ItemDTO itemDTO,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        ItemDTO createdItem = shopService.addItemWithFile(itemDTO, file);
+        return ResponseEntity.ok(createdItem);
     }
 
     @PutMapping("/item/{id}")
@@ -125,6 +133,39 @@ public class ShopController {
     public ResponseEntity<OperationDTO> updateOperation(@PathVariable UUID operationId,
             @RequestBody UpdateOperationDTO updateDto) {
         return ResponseEntity.ok(shopService.updateOperation(operationId, updateDto));
+    }
+
+    @PostMapping("/item/{itemId}/upload")
+    public ResponseEntity<String> uploadFile(
+            @PathVariable UUID itemId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            String result = shopService.uploadFile(itemId, file);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File upload failed: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/item/{itemId}/download")
+    public ResponseEntity<InputStreamResource> downloadFile(
+            @PathVariable UUID itemId,
+            @RequestParam String fileName) {
+        return shopService.downloadFile(itemId, fileName);
+    }
+
+    @DeleteMapping("/item/{itemId}/file")
+    public ResponseEntity<String> deleteFile(
+            @PathVariable UUID itemId,
+            @RequestParam String fileName) {
+        try {
+            String result = shopService.deleteFile(itemId, fileName);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File deletion failed: " + e.getMessage());
+        }
     }
 
 }

@@ -6,8 +6,11 @@ import com.secretshop.shop.DTO.PurchaseDTO;
 import com.secretshop.shop.DTO.UpdateOperationDTO;
 import com.secretshop.shop.enums.Type;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,9 +31,24 @@ public class ShopService {
         return dtlServiceClient.getAllItem();
     }
 
-    public ItemDTO addItem(ItemDTO itemDTO) {
+    @Transactional
+    public ItemDTO addItemWithFile(ItemDTO itemDTO, MultipartFile file) {
+        // 1. Создаем предмет в DTL и получаем его ID
+        ItemDTO createdItem = dtlServiceClient.createItem(itemDTO);
+        UUID itemId = createdItem.getItem_id();
 
-        return dtlServiceClient.createItem(itemDTO);
+        // 2. Если файл передан, загружаем его и переименовываем под itemId
+        if (file != null && !file.isEmpty()) {
+            String originalFilename = file.getOriginalFilename();
+            assert originalFilename != null;
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String newFileName = itemId + fileExtension; // Например: "123e4567-e89b-12d3-a456-426614174000.jpg"
+
+            // 3. Загружаем файл в MinIO через DTL
+            dtlServiceClient.uploadFileForItem(itemId, file);
+        }
+
+        return createdItem;
     }
 
     public ItemDTO updateItem(ItemDTO itemDTO) {
@@ -74,6 +92,20 @@ public class ShopService {
     public OperationDTO updateOperation(UUID operationId,UpdateOperationDTO updateDto) {
         // Можно добавить дополнительную бизнес-логику перед обновлением
         return dtlServiceClient.updateOperation(operationId, updateDto);
+    }
+
+    @Transactional
+    public String uploadFile(UUID itemId, MultipartFile file) {
+        return dtlServiceClient.uploadFile(itemId, file);
+    }
+
+    public ResponseEntity<InputStreamResource> downloadFile(UUID itemId, String fileName) {
+        return dtlServiceClient.downloadFile(itemId, fileName);
+    }
+
+    @Transactional
+    public String deleteFile(UUID itemId, String fileName) {
+        return dtlServiceClient.deleteFile(itemId, fileName);
     }
 
 }
