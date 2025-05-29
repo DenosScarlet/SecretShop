@@ -1,4 +1,4 @@
-import styles from './MenuButton.module.css';
+import styles from './QuestMenu.module.css';
 
 export const MenuItem = ({title, progress, reward}) => {
     return (
@@ -242,9 +242,8 @@ export const MenuItem = ({title, progress, reward}) => {
                     <div className={styles.reward}>{reward}</div>
                 </div>
             </div>
-            <svg className={styles.divider} width="261" height="17" viewBox="0 0 261 17" fill="none">
-                <line y1="8.5" x2="261" y2="8.5" stroke="#805C5C"/>
-            </svg>
+            {/* Изменённый разделитель */}
+            <div className={styles.divider} />
         </div>
     );
 };

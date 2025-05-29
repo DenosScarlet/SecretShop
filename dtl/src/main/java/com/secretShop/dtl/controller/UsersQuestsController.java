@@ -1,5 +1,6 @@
 package com.secretShop.dtl.controller;
 
+import com.secretShop.dtl.DTO.QuestStatusDTO;
 import com.secretShop.dtl.DTO.StepsResponseDTO;
 import com.secretShop.dtl.DTO.UpdateStepsRequestDTO;
 import com.secretShop.dtl.repository.UsersQuestsRepository;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +19,12 @@ import java.util.UUID;
 public class UsersQuestsController {
     private final UsersQuestsService usersQuestsService;
     private final UsersQuestsRepository usersQuestsRepository;
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<QuestStatusDTO>> getUsersQuests(@PathVariable UUID userId) {
+        List<QuestStatusDTO> userQuests = usersQuestsService.getUserQuests(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(userQuests);
+    }
 
     @GetMapping("/quest_status/{id}")
     public String getQuestStatusById(@PathVariable("id") UUID questId) {

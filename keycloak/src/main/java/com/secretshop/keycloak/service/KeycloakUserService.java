@@ -282,6 +282,25 @@ public class KeycloakUserService {
         }
     }
 
+    /* Получает список всех пользователей с пагинацией
+    * @param first Начальный индекс (offset)
+    * @param max Максимальное количество записей
+    * @return Список пользователей
+    */
+    public List<UserRepresentation> getAllUsers(int first, int max) {
+        try {
+            return keycloak.realm(realm).users().list(first, max);
+        } catch (NotAuthorizedException e) {
+            // Попробуем обновить токен и повторить запрос
+            try {
+                keycloak.tokenManager().refreshToken();
+                return keycloak.realm(realm).users().list(first, max);
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to get users after token refresh", ex);
+            }
+        }
+    }
+
 
 
 

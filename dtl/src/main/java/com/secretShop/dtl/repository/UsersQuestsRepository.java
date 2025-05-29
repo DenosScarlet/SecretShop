@@ -18,6 +18,9 @@ public interface UsersQuestsRepository extends JpaRepository<UsersQuests, UUID> 
     void createUserQuestRelation(@Param("userId") UUID userId,
                                  @Param("questId") UUID questId);
 
+    @Query("SELECT uq FROM UsersQuests uq JOIN FETCH uq.quest WHERE uq.user.userId = :userId")
+    List<UsersQuests> findByUser_UserIdWithQuest(@Param("userId") UUID userId);
+
     @Query("SELECT uq.user.userId FROM UsersQuests uq WHERE uq.quest.questId = :questId")
     List<UUID> findUserIdsByQuestId(@Param("questId") UUID questId);
 

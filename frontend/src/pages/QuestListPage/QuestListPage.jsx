@@ -5,7 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import styles from './QuestListPage.module.css';
 import api from '../../services/api';
 
-const QuestListPage = () => {
+const QuestListPage = ({ collapsed }) => {
     const [quests, setQuests] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editedData, setEditedData] = useState({});
@@ -141,20 +141,25 @@ const QuestListPage = () => {
                                             </option>
                                         ))}
                                     </select>
-                                    <DatePicker
-                                        selected={editedData.startDate}
-                                        onChange={(date) => handleDateChange(date, 'startDate')}
-                                        showTimeSelect
-                                        dateFormat="dd.MM.yyyy HH:mm"
-                                        className={styles.editInput}
-                                    />
-                                    <DatePicker
-                                        selected={editedData.endDate}
-                                        onChange={(date) => handleDateChange(date, 'endDate')}
-                                        showTimeSelect
-                                        dateFormat="dd.MM.yyyy HH:mm"
-                                        className={styles.editInput}
-                                    />
+                                    <div className={styles.datePickerContainer}>
+                                        <DatePicker
+                                            selected={editedData.startDate}
+                                            onChange={(date) => handleDateChange(date, 'startDate')}
+                                            showTimeSelect
+                                            dateFormat="dd.MM.yyyy HH:mm"
+                                            className={styles.editInput}
+                                        />
+                                    </div>
+
+                                    <div className={styles.datePickerContainer}>
+                                        <DatePicker
+                                            selected={editedData.endDate}
+                                            onChange={(date) => handleDateChange(date, 'endDate')}
+                                            showTimeSelect
+                                            dateFormat="dd.MM.yyyy HH:mm"
+                                            className={styles.editInput}
+                                        />
+                                    </div>
                                     <input
                                         type="number"
                                         name="cost"

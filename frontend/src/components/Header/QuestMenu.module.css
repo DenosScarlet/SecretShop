@@ -120,16 +120,22 @@
 }
 
 .menuListItem {
-    padding: 8px 12px;
+    padding: 0 12px;
+    min-height: 64px; /* Увеличиваем высоту для вертикального расположения */
     position: relative;
-    height: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .itemContent {
     display: grid;
-    grid-template-columns: 32px 1fr 20px;
+    grid-template-columns: 32px 1fr auto;
     align-items: center;
     gap: 12px;
+    height: 100%;
+    padding: 8px 0;
+    position: relative;
 }
 
 .labelText {
@@ -201,8 +207,10 @@
 /* Блок с наградой */
 .rewardWrapper {
     display: flex;
-    align-items: center;
-    gap: 4px;
+    flex-direction: column; /* Вертикальное расположение */
+    align-items: center; /* Центрирование по горизонтали */
+    justify-content: center; /* Центрирование по вертикали */
+    gap: 2px; /* Небольшой отступ между элементами */
 }
 
 .iconCoin {
@@ -215,6 +223,7 @@
     font-size: 14px;
     font-weight: 500;
     color: #000;
+    white-space: nowrap; /* Предотвращаем перенос текста */
 }
 
 /* Разделитель */
@@ -262,7 +271,8 @@
     cursor: pointer;
 }
 
-/* Исправление позиционирования элементов */
+/* Убираем разделитель у последнего элемента */
 .menuListItem:last-child .divider {
     display: none;
 }
+

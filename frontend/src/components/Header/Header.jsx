@@ -1,10 +1,27 @@
 import React from 'react';
+import { Link } from "react-router-dom";
+import { useAuth } from '../../contexts/AuthContext';
 import styles from './Header.module.css';
-import MenuButton from './MenuButton';
+import QuestMenu from './QuestMenu';
 import Avatar from './Avatar';
-import {Link} from "react-router-dom";
 
 export default function Header() {
+    const { isAuthenticated, canManageQuests, user, login, logout } = useAuth();
+
+    const navigationItems = [
+        { name: 'Products', path: '#' },
+        { name: 'Solutions', path: '#' },
+        { name: 'Community', path: '#' },
+        { name: 'Resources', path: '#' },
+        { name: 'Pricing', path: '#' },
+        { name: 'Contact', path: '#' }
+    ];
+
+    // Добавляем ссылку на квесты только для администраторов и менеджеров
+    if (isAuthenticated && canManageQuests()) {
+        navigationItems.push({ name: 'Quests', path: '/quests' });
+    }
+
     return (
         <header className={styles.header}>
             <svg
@@ -38,19 +55,41 @@ export default function Header() {
             </svg>
 
             <nav className={styles.navigationPillList}>
-                {['Products', 'Solutions', 'Community', 'Resources', 'Pricing', 'Contact', 'Quests'].map((item) => (
+                {navigationItems.map((item) => (
                     <Link
-                        key={item}
-                        to={item === 'Quests' ? '/quests' : '#'}
+                        key={item.name}
+                        to={item.path}
                         className={styles.navigationPill}
                     >
-                        <div className={styles.title}>{item}</div>
+                        <div className={styles.title}>{item.name}</div>
                     </Link>
                 ))}
             </nav>
 
-            <MenuButton />
-            <Avatar imageUrl="/images/avatar.png" className={styles.avatar} />
+            <div className={styles.authSection}>
+                {isAuthenticated ? (
+                    <>
+                        <QuestMenu />
+                        <span className={styles.userName}>
+                            {user?.firstName} {user?.lastName}
+                        </span>
+                        <Avatar imageUrl="/images/avatar.png" className={styles.avatar} />
+                        <button
+                            onClick={logout}
+                            className={styles.authButton}
+                        >
+                            Выйти
+                        </button>
+                    </>
+                ) : (
+                    <button
+                        onClick={login}
+                        className={styles.authButton}
+                    >
+                        Войти
+                    </button>
+                )}
+            </div>
         </header>
     );
 }

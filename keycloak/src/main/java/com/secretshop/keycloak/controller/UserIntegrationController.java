@@ -130,4 +130,24 @@ public class UserIntegrationController {
         keycloakUserService.deleteUser(userId);
     }
 
+    // Get all users with pagination
+    @GetMapping
+    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
+    public ResponseEntity<List<UserRepresentation>> getAllUsers(
+            @RequestParam(defaultValue = "0") int first,
+            @RequestParam(defaultValue = "20") int max) {
+        return ResponseEntity.ok(keycloakUserService.getAllUsers(first, max));
+    }
+
+    // Get user by username (для совместимости с frontend)
+    @GetMapping("/username/{username}")
+    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
+    public ResponseEntity<UserRepresentation> getUserByUsername(@PathVariable String username) {
+        List<UserRepresentation> users = keycloakUserService.searchUsers(username, null);
+        if (users.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(users.get(0));
+    }
+
 }

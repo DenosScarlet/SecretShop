@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import styles from './MenuButton.module.css';
+import styles from './QuestMenu.module.css';
 import { MenuItem } from './MenuItem';
 
-export default function MenuButton() {
+export default function QuestMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
 
