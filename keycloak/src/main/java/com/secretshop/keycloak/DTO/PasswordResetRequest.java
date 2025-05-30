@@ -1,11 +1,14 @@
 package com.secretshop.keycloak.DTO;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import jakarta.validation.constraints.NotBlank;
 
 @Data
+@Schema(description = "Запрос на сброс пароля пользователя")
 public class PasswordResetRequest {
+    @Schema(description = "Новый пароль", requiredMode = Schema.RequiredMode.REQUIRED, example = "newSecurePassword123")
     @NotBlank
     private String newPassword;
 }
