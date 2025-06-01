@@ -25,6 +25,8 @@ keycloakApiClient.interceptors.request.use(
 export const keycloakApi = {
     // ========== KEYCLOAK USER INTEGRATION API ==========
 
+    getUserQuests: (userId) => keycloakApiClient.get(`/api/quest/user/${userId}`),
+
     // Получение данных пользователя по ID (из Keycloak)
     getUserById: (userId) => keycloakApiClient.get(`/api/users/${userId}`),
 

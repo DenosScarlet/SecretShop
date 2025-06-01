@@ -10,16 +10,16 @@ import org.keycloak.OAuth2Constants;
 
 @Configuration
 public class KeycloakConfig {
-    @Value("${keycloak.auth-server-url}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.auth-server-url}")
     private String serverUrl;
 
-    @Value("${keycloak.realm}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.realm}")
     private String realm;
 
-    @Value("${keycloak.client-id}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
     private String clientId;
 
-    @Value("${keycloak.client-secret}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
     private String clientSecret;
 
     @Bean

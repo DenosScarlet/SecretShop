@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
 
-    @Value("${keycloak.jwk-set-uri}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
 
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository) {
@@ -30,7 +30,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                           @Value("${keycloak.client-id}") String clientId) throws Exception {
+                                           @Value("${spring.security.oauth2.client.registration.keycloak.client-id}") String clientId) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/users/**").authenticated()
@@ -65,7 +65,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter(@Value("${keycloak.client-id}") String clientId) {
+    public JwtAuthenticationConverter jwtAuthenticationConverter(@Value("${spring.security.oauth2.client.registration.keycloak.client-id}") String clientId) {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(new CustomAuthoritiesConverter(clientId));
         return converter;

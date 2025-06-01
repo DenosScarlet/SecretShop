@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './QuestMenu.module.css';
 import { MenuItem } from './MenuItem';
+import { useAuth } from '../../contexts/AuthContext';
+import { filterActiveQuests, groupQuestsByFrequency, getFrequencyLabel } from '../../utils/questUtils';
 
 export default function QuestMenu() {
+    const { user, getUserQuests } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
+    const [groupedQuests, setGroupedQuests] = useState({});
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -17,19 +21,27 @@ export default function QuestMenu() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const menuItems = [
-        { title: "Quest 1", progress: "0/3", reward: "+5" },
-        { title: "Quest 2", progress: "1/5", reward: "+10" },
-        { title: "Special Quest", progress: "2/2", reward: "+20" },
-        { title: "Daily Challenge", progress: "3/4", reward: "+15" }
-    ];
+    useEffect(() => {
+        const loadQuests = async () => {
+            if (user?.userId) {
+                const quests = await getUserQuests();
+                const activeQuests = filterActiveQuests(quests);
+                const grouped = groupQuestsByFrequency(activeQuests);
+                setGroupedQuests(grouped);
+            }
+        };
+
+        if (isOpen) {
+            loadQuests();
+        }
+    }, [isOpen, user, getUserQuests]);
 
     return (
         <div className={styles.menuContainer} ref={menuRef}>
             <button
                 className={`${styles.questMenuButton} ${isOpen ? styles.active : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
-                aria-label="Меню каталога"
+                aria-label="Меню квестов"
             >
                 <div className={styles.container}>
                     <div className={styles.stateLayer}>
@@ -55,14 +67,28 @@ export default function QuestMenu() {
 
             <div className={`${styles.headerMenu} ${isOpen ? styles.menuVisible : ''}`}>
                 <div className={styles.menuList}>
-                    {menuItems.map((item, index) => (
-                        <MenuItem
-                            key={index}
-                            title={item.title}
-                            progress={item.progress}
-                            reward={item.reward}
-                        />
+                    {Object.entries(groupedQuests).map(([frequency, quests]) => (
+                        <div key={frequency} className={styles.frequencyGroup}>
+                            <div className={styles.sectionHeader}>
+                                {getFrequencyLabel(frequency)}
+                            </div>
+                            {quests.map((quest) => (
+                                <MenuItem
+                                    key={quest.questId}
+                                    title={quest.questTitle}
+                                    progress={`${quest.completedSteps}/${quest.stepsToComplete}`}
+                                    reward={`+${quest.cost}`}
+                                    isCompleted={quest.questStatus === 'COMPLETE'}
+                                />
+                            ))}
+                        </div>
                     ))}
+
+                    {Object.keys(groupedQuests).length === 0 && (
+                        <div className={styles.emptyState}>
+                            На данный момент активных квестов нет
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

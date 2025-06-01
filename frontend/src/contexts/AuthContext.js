@@ -27,6 +27,18 @@ export const AuthProvider = ({ children }) => {
         }
     }, [initialized, keycloak.authenticated]);
 
+    const getUserQuests = async () => {
+        if (!user?.userId) return [];
+
+        try {
+            const response = await keycloakApi.getUserQuests(user.userId);
+            return response.data || [];
+        } catch (error) {
+            console.error('Error loading user quests:', error);
+            return [];
+        }
+    };
+
     const loadUserData = async () => {
         try {
             setLoading(true);
@@ -174,6 +186,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         // Пользовательские данные
+        getUserQuests,
         user,
         dtlUser,
         userRoles,
