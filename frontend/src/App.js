@@ -7,21 +7,20 @@ import Header from './components/Header/Header';
 import LeftMenu from './components/LeftMenu/LeftMenu';
 import QuestCreationPage from './pages/QuestCreationPage/QuestCreationPage';
 import QuestListPage from './pages/QuestListPage/QuestListPage';
+import ItemListPage from './pages/ItemListPage/ItemListPage';
+import ItemCreationPage from './pages/ItemCreationPage/ItemCreationPage'; // Новый импорт
 import QuestProtectedRoute from './components/QuestProtectedRoute/QuestProtectedRoute';
 import LoginPage from './pages/LoginPage/LoginPage';
 import './App.css';
 
-// Обработчик событий Keycloak (одна функция)
 const handleKeycloakEvent = (event, error) => {
     console.log('Keycloak event:', event, error);
-
     switch (event) {
         case 'onReady':
             console.log('Keycloak initialized:', keycloak.authenticated);
             break;
         case 'onAuthSuccess':
             console.log('Authentication successful');
-            // Сохраняем токен в localStorage
             if (keycloak.token) {
                 localStorage.setItem('keycloak-token', keycloak.token);
             }
@@ -44,7 +43,6 @@ const handleKeycloakEvent = (event, error) => {
     }
 };
 
-// Инициализация Keycloak
 const keycloakInitOptions = {
     onLoad: 'check-sso',
     silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
@@ -79,6 +77,22 @@ function App() {
                                     element={
                                         <QuestProtectedRoute>
                                             <QuestListPage />
+                                        </QuestProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/shop/items"
+                                    element={
+                                        <QuestProtectedRoute>
+                                            <ItemListPage />
+                                        </QuestProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/shop/item/create" // Новый маршрут
+                                    element={
+                                        <QuestProtectedRoute>
+                                            <ItemCreationPage />
                                         </QuestProtectedRoute>
                                     }
                                 />

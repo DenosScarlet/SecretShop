@@ -28,6 +28,11 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/shop")
+@CrossOrigin(
+        origins = "http://localhost:3000",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS},
+        allowedHeaders = "*"
+)
 @Tag(name = "Shop", description = "Операции с товарами, файлами и покупками")
 public class ShopController {
 

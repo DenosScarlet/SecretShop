@@ -9,7 +9,7 @@ export default function Header() {
     const { isAuthenticated, canManageQuests, user, login, logout } = useAuth();
 
     const navigationItems = [
-        { name: 'Products', path: '#' },
+        { name: 'Products', path: '/shop/items' },
         { name: 'Solutions', path: '#' },
         { name: 'Community', path: '#' },
         { name: 'Resources', path: '#' },
@@ -20,6 +20,11 @@ export default function Header() {
     // Добавляем ссылку на квесты только для администраторов и менеджеров
     if (isAuthenticated && canManageQuests()) {
         navigationItems.push({ name: 'Quests', path: '/quests' });
+    }
+
+    // Добавляем ссылку на магазин для всех авторизованных пользователей
+    if (isAuthenticated) {
+        navigationItems.push({ name: 'Shop', path: '/shop' });
     }
 
     return (
@@ -93,3 +98,5 @@ export default function Header() {
         </header>
     );
 }
+
+
