@@ -1,0 +1,302 @@
+.pageContainer {
+    display: flex;
+    justify-content: center;
+    padding: 120px 20px 40px;
+    width: 100%;
+    min-height: 100vh;
+    background: #FFFFFF;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif; /* Добавлено для всего контейнера */
+}
+
+/* Добавляем шрифт для всех текстовых элементов */
+.formWrapper,
+.header,
+.createButton,
+.questList,
+.questItem,
+.questInfo,
+.details,
+.actions,
+.editButton,
+.deleteButton,
+.editForm,
+.editInput,
+.editTextarea,
+.editSelect,
+.saveButton {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Добавляем шрифт для элементов формы */
+.pageContainer input,
+.pageContainer textarea,
+.pageContainer select,
+.pageContainer button {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Остальные стили без изменений */
+.formWrapper {
+    width: 100%;
+    max-width: 800px;
+    background: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 8.82px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Предотвращаем выход элементов за границы */
+}
+
+.header {
+    margin-bottom: 24px;
+}
+
+.createButton {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #2C2C2C;
+    color: #F5F5F5;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.createButton:hover {
+    opacity: 0.9;
+}
+
+.questList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.questItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+}
+
+.questInfo {
+    flex: 1;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-left: 16px;
+}
+
+.editButton {
+    padding: 8px 16px;
+    background: #FEB238;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.deleteButton {
+    padding: 8px 16px;
+    background: #ff4444;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+}
+
+.react-datepicker__input-container input {
+    background: #fff;
+    cursor: default;
+    color: #1E1E1E;
+    font-family: 'Inter', sans-serif; /* Добавлено */
+}
+
+.editForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    overflow: visible; /* Разрешаем видимость выпадающих элементов */
+}
+
+.editInput {
+    padding: 8px 12px;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.editTextarea {
+    padding: 8px 12px;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    min-height: 80px;
+    resize: vertical;
+}
+
+.editSelect {
+    padding: 8px 12px;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    background: white;
+}
+
+.saveButton {
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.questItem {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    color: #666;
+    font-size: 14px;
+}
+
+.editButton {
+    background: #FEB238;
+}
+
+.deleteButton {
+    background: #ff4c4c;
+    color: white;
+}
+
+.editButton:hover,
+.saveButton:hover,
+.deleteButton:hover {
+    opacity: 0.9;
+}
+
+.datePickerContainer {
+    position: relative;
+    width: 100%;
+}
+
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker__input-container {
+    width: 100%;
+}
+
+.react-datepicker__input-container input {
+    width: 100%;
+    box-sizing: border-box; /* Учитываем padding в ширине */
+}
+
+/* Стили для выпадающего календаря */
+.react-datepicker-popper {
+    z-index: 10; /* Поднимаем над другими элементами */
+    max-width: 100%; /* Ограничиваем ширину */
+    transform: none !important; /* Отключаем автоматическое позиционирование */
+    inset: auto auto 0px 0px !important; /* Позиционируем вручную */
+}
+
+/* Медиа-запрос для маленьких экранов */
+@media (max-width: 768px) {
+    .formWrapper {
+        padding: 16px;
+    }
+
+    .details {
+        grid-template-columns: 1fr; /* Одна колонка на маленьких экранах */
+    }
+
+    .react-datepicker-popper {
+        position: fixed !important;
+        left: 5% !important;
+        right: 5% !important;
+        width: 90% !important;
+    }
+}
+
+/* Объединённые стили для полей ввода */
+.editInput,
+.editTextarea,
+.editSelect {
+    padding: 8px 12px;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box; /* Важно для правильного расчёта ширины */
+}
+
+@media (max-width: 768px) {
+    .pageContainer {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .formWrapper {
+        padding: 15px;
+    }
+
+    .questItem {
+        padding: 15px;
+    }
+
+    .actions {
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+
+    .details {
+        grid-template-columns: 1fr;
+    }
+
+    .datePickerContainer {
+        width: 100%;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+    .createButton {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .editButton,
+    .deleteButton,
+    .saveButton {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+}

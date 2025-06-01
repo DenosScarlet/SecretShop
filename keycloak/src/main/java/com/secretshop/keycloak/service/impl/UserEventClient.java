@@ -1,0 +1,15 @@
+package com.secretshop.keycloak.service.impl;
+
+import com.secretshop.keycloak.DTO.*;
+import java.util.List;
+import java.util.UUID;
+
+public interface UserEventClient {
+    UserDTO createUser(UserDTO userDTO);
+    UserDTO createOrUpdateUser(UserDTO userDTO);
+    UserDTO getUser(UUID userId);
+    List<UserDTO> getAllUsers(int page, int size);
+    void sendUserCreatedEvent(UserDTO userDTO);
+    void sendUserUpdatedEvent(UserDTO userDTO);
+    void sendUserDeletedEvent(UUID userId);
+}

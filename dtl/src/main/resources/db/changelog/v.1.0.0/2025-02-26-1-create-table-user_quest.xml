@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <property name="uuid_type" value="uuid" dbms="postgresql"/>
+    <property name="uuid_function" value="gen_random_uuid ()" dbms="postgresql"/>
+
+    <changeSet logicalFilePath="2025-02-26-1-create-table-user_quest"
+               id="2025-02-26-1-create-table-user_quest" author="m">
+        <createTable tableName="users_quests">
+            <column name="users_quest_id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="quest_id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="quest_status" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed_steps" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="users_quests"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="user_id"
+                                 constraintName="fk_users_quests_user"/>
+        <addForeignKeyConstraint baseTableName="users_quests"
+                                 baseColumnNames="quest_id"
+                                 referencedTableName="quest"
+                                 referencedColumnNames="quest_id"
+                                 constraintName="fk_users_quests_quest"/>
+    </changeSet>
+
+    <changeSet logicalFilePath="2025-02-26-2-modify-pk-users_quests"
+               id="2025-02-26-2-modify-pk-users_quests" author="m">
+        <dropPrimaryKey tableName="users_quests"/>
+
+        <addPrimaryKey tableName="users_quests"
+                       columnNames="users_quest_id"
+                       constraintName="pk_users_quests"/>
+
+        <addNotNullConstraint tableName="users_quests"
+                              columnName="user_id"
+                              columnDataType="${uuid_type}"/>
+
+        <addNotNullConstraint tableName="users_quests"
+                              columnName="quest_id"
+                              columnDataType="${uuid_type}"/>
+    </changeSet>
+
+</databaseChangeLog>

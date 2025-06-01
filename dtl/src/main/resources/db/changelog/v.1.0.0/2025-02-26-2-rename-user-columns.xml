@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet logicalFilePath="2025-02-26-2-rename-user-columns"
+               id="2025-02-26-2-rename-user-columns" author="d.m">
+
+        <renameColumn
+                tableName="user"
+                oldColumnName="firstName"
+                newColumnName="first_name"
+                columnDataType="text"/>
+
+        <renameColumn
+                tableName="user"
+                oldColumnName="lastName"
+                newColumnName="last_name"
+                columnDataType="text"/>
+
+        <renameColumn
+                tableName="user"
+                oldColumnName="middleName"
+                newColumnName="middle_name"
+                columnDataType="text"/>
+
+    </changeSet>
+
+</databaseChangeLog>

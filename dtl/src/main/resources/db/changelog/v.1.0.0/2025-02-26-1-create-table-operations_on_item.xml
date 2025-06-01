@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <property name="uuid_type" value="uuid" dbms="postgresql"/>
+    <property name="uuid_function" value="gen_random_uuid ()" dbms="postgresql"/>
+
+    <changeSet logicalFilePath="2025-02-26-1-create-table-operations_on_item"
+               id="2025-02-26-1-create-table-operations_on_item" author="m">
+        <createTable tableName="operations_on_item">
+            <column name="operations_id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="item_id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operations_history" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="operations_on_item"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="user"
+                                 referencedColumnNames="user_id"
+                                 constraintName="fk_operations_on_item_user"/>
+        <addForeignKeyConstraint baseTableName="operations_on_item"
+                                 baseColumnNames="item_id"
+                                 referencedTableName="item"
+                                 referencedColumnNames="item_id"
+                                 constraintName="fk_operations_on_item_item"/>
+    </changeSet>
+</databaseChangeLog>
