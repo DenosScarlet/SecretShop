@@ -32,7 +32,7 @@ public class KeycloakUserService {
     private final Keycloak keycloak;
     private final UserEventClient userEventClient;
 
-    @Value("${keycloak.realm}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.realm}")
     private String realm;
 
     @Transactional
