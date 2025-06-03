@@ -3,12 +3,9 @@ import axios from 'axios';
 // Базовые конфигурации для каждого микросервиса
 const shopAxiosInstance  = axios.create({
     baseURL: 'http://localhost:8480',
-    headers: {
-        'Content-Type': 'application/json'
-    }
 });
 
-const questAxiosInstance  = axios.create({
+const api  = axios.create({
     baseURL: 'http://localhost:8380/api',
     headers: {
         'Content-Type': 'application/json'
@@ -58,21 +55,30 @@ const addRefreshInterceptor = (instance) => {
 
 // Применяем интерцепторы к обоим инстансам
 addAuthInterceptor(shopAxiosInstance);
-addAuthInterceptor(questAxiosInstance);
+addAuthInterceptor(api);
 addRefreshInterceptor(shopAxiosInstance);
-addRefreshInterceptor(questAxiosInstance);
+addRefreshInterceptor(api);
 
 // Методы для работы с магазином (микросервис 8480)
 const shopApi = {
     // Товары
     getItem: (id) => shopAxiosInstance.get(`/shop/item/${id}`),
     getAllItems: () => shopAxiosInstance.get('/shop/items'),
-    addItemWithFile: (itemData, file) => {
+    addItemWithFile: (itemJson, file) => {
         const formData = new FormData();
-        formData.append('item', new Blob([JSON.stringify(itemData)], { type: 'application/json' }));
-        if (file) formData.append('file', file);
+
+        // Добавляем JSON как часть формы
+        formData.append('item', itemJson);
+
+        // Добавляем файл
+        if (file) {
+            formData.append('file', file, file.name);
+        }
+
         return shopAxiosInstance.post('/shop/item', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         });
     },
     updateItem: (id, itemData) => shopAxiosInstance.put(`/shop/item/${id}`, itemData),
@@ -90,21 +96,28 @@ const shopApi = {
     updateOperation: (operationId, updateData) => shopAxiosInstance.put(`/shop/operation/${operationId}`, updateData),
 
     // Файлы товаров
-    uploadFile: (itemId, file) => {
+    uploadItemImage: (itemId, file) => {
         const formData = new FormData();
-        formData.append('file', file);
+
+        // Получаем расширение файла
+        const extension = file.name.substring(file.name.lastIndexOf('.'));
+        // Формируем новое имя файла: id + расширение
+        const newFileName = `${itemId}${extension}`;
+
+        // Добавляем файл с новым именем
+        formData.append('file', file, newFileName);
+
         return shopAxiosInstance.post(`/shop/item/${itemId}/upload`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     },
-    downloadFile: (itemId, fileName) => shopAxiosInstance.get(`/shop/item/${itemId}/download`, {
-        params: { fileName },
-        responseType: 'blob'
-    }),
-    deleteFile: (itemId, fileName) => shopAxiosInstance.delete(`/shop/item/${itemId}/file`, {
-        params: { fileName }
-    })
+
+    // Удаление изображения товара (обновленная версия)
+    deleteItemImage: (itemId) => {
+        return shopAxiosInstance.delete(`/shop/item/${itemId}/file`);
+    }
+
 };
 
 // Экспортируем основной api и методы для магазина
-export { questAxiosInstance as default, shopApi };
+export { api as default, shopApi };

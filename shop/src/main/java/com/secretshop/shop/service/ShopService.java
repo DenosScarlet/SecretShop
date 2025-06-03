@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,24 +34,76 @@ public class ShopService {
     }
 
     @Transactional
-    public ItemDTO addItemWithFile(ItemDTO itemDTO, MultipartFile file) {
-        // 1. Создаем предмет в DTL и получаем его ID
+    public ItemDTO addItemWithFile(ItemDTO itemDTO, MultipartFile file) throws IOException {
+        // Валидация входных данных
+        validateItemDTO(itemDTO);
+
+        // Создаем предмет в DTL и получаем его ID
         ItemDTO createdItem = dtlServiceClient.createItem(itemDTO);
-        UUID itemId = createdItem.getItem_id();
+        UUID itemId = createdItem.getItemId();
 
-        // 2. Если файл передан, загружаем его и переименовываем под itemId
+        // Если файл передан, загружаем его
         if (file != null && !file.isEmpty()) {
-            String originalFilename = file.getOriginalFilename();
-            assert originalFilename != null;
-            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String newFileName = itemId + fileExtension; // Например: "123e4567-e89b-12d3-a456-426614174000.jpg"
+            // Генерируем новое имя файла на основе ID
+            String newFileName = generateFileName(itemId, file.getOriginalFilename());
 
-            // 3. Загружаем файл в MinIO через DTL
-            dtlServiceClient.uploadFileForItem(itemId, file);
+            // Создаем переименованную реализацию MultipartFile через лямбду
+            MultipartFile renamedFile = new MultipartFile() {
+                @Override
+                public String getName() { return file.getName(); }
+
+                @Override
+                public String getOriginalFilename() { return newFileName; }
+
+                @Override
+                public String getContentType() { return file.getContentType(); }
+
+                @Override
+                public boolean isEmpty() { return file.isEmpty(); }
+
+                @Override
+                public long getSize() { return file.getSize(); }
+
+                @Override
+                public byte[] getBytes() throws IOException { return file.getBytes(); }
+
+                @Override
+                public InputStream getInputStream() throws IOException { return file.getInputStream(); }
+
+                @Override
+                public void transferTo(File dest) throws IOException, IllegalStateException {
+                    file.transferTo(dest);
+                }
+            };
+
+            // Загружаем файл в MinIO через DTL
+            dtlServiceClient.uploadFile(itemId, renamedFile);
         }
 
         return createdItem;
     }
+    // Генерация имени файла на основе ID предмета
+
+
+    private void validateItemDTO(ItemDTO itemDTO) {
+        if (itemDTO.getItemName() == null || itemDTO.getItemName().isBlank()) {
+            throw new IllegalArgumentException("Название товара обязательно");
+        }
+        if (itemDTO.getCost() == null || itemDTO.getCost() <= 0) {
+            throw new IllegalArgumentException("Цена должна быть положительной");
+        }
+        // Добавьте другие необходимые проверки
+    }
+
+    private String generateFileName(UUID itemId, String originalFilename) {
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        return itemId.toString() + extension;
+    }
+
+
 
     public ItemDTO updateItem(ItemDTO itemDTO) {
         return dtlServiceClient.updateItem(itemDTO);
@@ -107,5 +161,7 @@ public class ShopService {
     public String deleteFile(UUID itemId, String fileName) {
         return dtlServiceClient.deleteFile(itemId, fileName);
     }
+
+
 
 }

@@ -1,13 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../QuestListPage/QuestListPage.module.css';
 import { shopApi } from '../../services/api';
+
+// Константы для типов товаров
+const typeOptions = [
+    { value: 'MERCH', label: 'Мерч' },
+    { value: 'DEVICES', label: 'Устройства' },
+    { value: 'ACCESSORIES', label: 'Аксессуары' },
+    { value: 'COUPONS', label: 'Купоны' }
+];
+
+// Функция для получения читаемого названия типа
+const getTypeLabel = (typeValue) => {
+    const type = typeOptions.find(t => t.value === typeValue);
+    return type ? type.label : typeValue;
+};
 
 const ItemListPage = () => {
     const [items, setItems] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editedData, setEditedData] = useState({});
+    const [newFile, setNewFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         fetchItems();
@@ -19,35 +36,43 @@ const ItemListPage = () => {
             const response = await shopApi.getAllItems();
             setItems(response.data);
         } catch (error) {
-            console.error('Error fetching items:', error);
+            console.error('Ошибка при загрузке товаров:', error);
             alert('Ошибка загрузки товаров');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Вы уверены, что хотите удалить этот товар?')) {
+    const handleDelete = async (itemId) => {
+        if (window.confirm('Вы уверены, что хотите удалить этот товар? Все связанные изображения также будут удалены.')) {
             try {
-                await shopApi.deleteItem(id);
+                // 1. Удаляем изображение товара
+                await shopApi.deleteItemImage(itemId);
+
+                // 2. Удаляем сам товар
+                await shopApi.deleteItem(itemId);
+
+                // 3. Обновляем список
                 fetchItems();
             } catch (error) {
-                console.error('Error deleting item:', error);
-                alert('Ошибка удаления товара');
+                console.error('Ошибка при удалении товара:', error);
+                alert('Ошибка удаления товара: ' + (error.response?.data || error.message));
             }
         }
     };
 
     const startEditing = (item) => {
-        setEditingId(item.item_id);
+        setEditingId(item.itemId);
         setEditedData({
-            item_name: item.item_name,
+            itemName: item.itemName,
             description: item.description,
             owner: item.owner,
             type: item.type,
             cost: item.cost,
             count: item.count
         });
+        setNewFile(null);
+        setPreviewUrl(null);
     };
 
     const handleEditChange = (e) => {
@@ -60,20 +85,53 @@ const ItemListPage = () => {
         }));
     };
 
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setNewFile(file);
+            const previewUrl = URL.createObjectURL(file);
+            setPreviewUrl(previewUrl);
+        }
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current.click();
+    };
+
     const saveChanges = async () => {
         try {
+            // 1. Обновляем данные товара
             await shopApi.updateItem(editingId, editedData);
+
+            // 2. Если выбран новый файл
+            if (newFile) {
+                try {
+                    // Удаляем старое изображение
+                    await shopApi.deleteItemImage(editingId);
+                } catch (deleteError) {
+                    console.warn('Ошибка удаления старого изображения:', deleteError);
+                }
+
+                // Загружаем новое изображение
+                await shopApi.uploadItemImage(editingId, newFile);
+            }
+
+            // 3. Обновляем список и сбрасываем режим редактирования
             setEditingId(null);
             fetchItems();
             alert('Товар успешно обновлён!');
         } catch (error) {
             console.error('Ошибка обновления:', error);
-            alert('Ошибка обновления товара');
+            alert('Ошибка обновления товара: ' + (error.response?.data || error.message));
         }
     };
 
     const cancelEditing = () => {
         setEditingId(null);
+        // Освобождаем ресурс превью
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
     };
 
     return (
@@ -90,12 +148,12 @@ const ItemListPage = () => {
                 ) : (
                     <div className={styles.questList}>
                         {items.map(item => (
-                            <div key={item.item_id} className={styles.questItem}>
-                                {editingId === item.item_id ? (
+                            <div key={item.itemId} className={styles.questItem}>
+                                {editingId === item.itemId ? (
                                     <div className={styles.editForm}>
                                         <input
-                                            name="item_name"
-                                            value={editedData.item_name}
+                                            name="itemName"
+                                            value={editedData.itemName}
                                             onChange={handleEditChange}
                                             className={styles.editInput}
                                             placeholder="Название товара"
@@ -144,10 +202,38 @@ const ItemListPage = () => {
                                             placeholder="Количество"
                                             min="1"
                                         />
+
+                                        {/* Поле для загрузки нового изображения */}
+                                        <div className={styles.fileUploadSection}>
+                                            <button
+                                                type="button"
+                                                onClick={triggerFileInput}
+                                                className={styles.fileUploadButton}
+                                            >
+                                                Заменить изображение
+                                            </button>
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                onChange={handleFileUpload}
+                                                accept="image/*"
+                                                style={{ display: 'none' }}
+                                            />
+
+                                            {previewUrl && (
+                                                <div className={styles.previewContainer}>
+                                                    <img
+                                                        src={previewUrl}
+                                                        alt="Предпросмотр нового изображения"
+                                                        className={styles.previewImage}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className={styles.questInfo}>
-                                        <h3>{item.item_name}</h3>
+                                        <h3>{item.itemName}</h3>
                                         <p>{item.description}</p>
                                         <div className={styles.details}>
                                             <span>Владелец: {item.owner}</span>
@@ -155,11 +241,21 @@ const ItemListPage = () => {
                                             <span>Цена: {item.cost}</span>
                                             <span>Количество: {item.count}</span>
                                         </div>
+                                        {/* Отображение текущего изображения товара */}
+                                        {item.imageUrl && (
+                                            <div className={styles.imagePreview}>
+                                                <img
+                                                    src={item.imageUrl}
+                                                    alt="Текущее изображение товара"
+                                                    className={styles.currentImage}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
                                 <div className={styles.actions}>
-                                    {editingId === item.item_id ? (
+                                    {editingId === item.itemId ? (
                                         <>
                                             <button
                                                 onClick={saveChanges}
@@ -183,7 +279,7 @@ const ItemListPage = () => {
                                                 Редактировать
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(item.item_id)}
+                                                onClick={() => handleDelete(item.itemId)}
                                                 className={styles.deleteButton}
                                             >
                                                 Удалить
@@ -198,20 +294,6 @@ const ItemListPage = () => {
             </div>
         </div>
     );
-};
-
-// Константы для типов товаров
-const typeOptions = [
-    { value: 'MERCH', label: 'Мерч' },
-    { value: 'DEVICES', label: 'Устройства' },
-    { value: 'ACCESSORIES', label: 'Аксессуары' },
-    { value: 'COUPONS', label: 'Купоны' }
-];
-
-// Функция для получения читаемого названия типа
-const getTypeLabel = (typeValue) => {
-    const type = typeOptions.find(t => t.value === typeValue);
-    return type ? type.label : typeValue;
 };
 
 export default ItemListPage;

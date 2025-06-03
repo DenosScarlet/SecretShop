@@ -30,7 +30,7 @@ public class FileController {
             @Parameter(description = "Файл для загрузки", required = true)
             @RequestParam("file") MultipartFile file,
             @Parameter(description = "Название бакета", example = "my-bucket")
-            @RequestParam(required = false, defaultValue = "my-bucket") String bucketName) {
+            @RequestParam(value = "bucketName", required = false, defaultValue = "secretshop") String bucketName) {
         try {
             minioService.uploadFile(
                     bucketName,
@@ -76,9 +76,11 @@ public class FileController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteFile(
             @Parameter(description = "Имя файла", required = true, example = "avatar.jpg")
-            @RequestParam String fileName,
+            @RequestParam("fileName") String fileName,  // Явное указание имени параметра
+
             @Parameter(description = "Название бакета", example = "my-bucket")
-            @RequestParam(required = false, defaultValue = "my-bucket") String bucketName) {
+            @RequestParam(value = "bucketName", required = false, defaultValue = "secretshop") String bucketName) {
+
         try {
             minioService.deleteFile(bucketName, fileName);
             return ResponseEntity.ok("File deleted successfully: " + fileName);

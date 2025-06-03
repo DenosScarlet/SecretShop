@@ -1,6 +1,5 @@
 package com.secretshop.shop.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -22,8 +21,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Включаем CORS с нашей конфигурацией
-                .csrf(csrf -> csrf.disable()) // Отключаем CSRF (если нужно)
+                .cors(Customizer.withDefaults()) // Используем CorsConfigurationSource из бина
+                .csrf(csrf -> csrf.disable()) // Отключаем CSRF (если не используете сессии)
                 .authorizeHttpRequests(auth -> auth
                         // Разрешаем доступ к Swagger без аутентификации
                         .requestMatchers(
@@ -34,11 +33,11 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
                         // Все остальные запросы требуют аутентификации
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder()))
-                        .bearerTokenResolver(this::resolveTokenFromQueryParam)
+                                .jwt(jwt -> jwt.decoder(jwtDecoder()))
+                        // Стандартный Bearer Token Resolver — из заголовка Authorization
                 );
 
         return http.build();
@@ -49,24 +48,12 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Разрешённый фронтенд
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-        configuration.setAllowCredentials(true); // Если используете куки или авторизацию с учётом сессий
+        configuration.addAllowedHeader("*"); // Разрешаем все заголовки
+        configuration.setAllowCredentials(true); // Для передачи куки и авторизации
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    private String resolveTokenFromQueryParam(HttpServletRequest request) {
-        String token = request.getParameter("access_token");
-        if (token != null && !token.isBlank()) {
-            return token;
-        }
-        String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
-        }
-        return null;
     }
 
     @Bean

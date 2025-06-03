@@ -6,6 +6,7 @@ import com.secretShop.dtl.repository.ItemRepository;
 import com.secretShop.dtl.service.interfaces.ItemService;
 import com.secretShop.dtl.service.convertor.ItemMapper;
 import com.secretShop.dtl.DTO.ItemDTO;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,28 +24,38 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
 
     @Override
-    public List<ItemDTO> findAll() { return itemMapper.toListDto(itemRepository.findAll()); }
-
-    @Override
-    public ItemDTO findById(UUID id) { return Optional.of(getById(id)).map(itemMapper::modelToDto).get();
+    public List<ItemDTO> findAll() {
+        return itemMapper.toListDto(itemRepository.findAll());
     }
 
     @Override
-    public ItemDTO save(ItemDTO item) {
-        return itemMapper.modelToDto(itemRepository.save(
-                itemMapper.dtoToModel(item)));
+    public ItemDTO findById(UUID id) {
+        return itemMapper.modelToDto(getById(id));
     }
 
     @Override
+    @Transactional
+    public ItemDTO save(ItemDTO itemDTO) {
+        // Валидация перед сохранением
+
+
+        Item item = itemMapper.dtoToModel(itemDTO);
+        Item savedItem = itemRepository.save(item);
+        return itemMapper.modelToDto(savedItem);
+    }
+
+    @Override
+    @Transactional
     public void deleteById(UUID id) {
-        var book = getById(id);
-        itemRepository.delete(book);
+        Item item = getById(id);
+        itemRepository.delete(item);
     }
 
-    private Item getById(UUID id){
+    private Item getById(UUID id) {
         return itemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
-                        "Предмет с id: " + id + " не найден :("));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Предмет с id: " + id + " не найден"
+                ));
     }
 
     @Override
@@ -52,6 +63,9 @@ public class ItemServiceImpl implements ItemService {
         String searchName = (name != null && !name.isEmpty()) ? name : null;
         String searchOwner = (owner != null && !owner.isEmpty()) ? owner : null;
 
-        return itemMapper.toListDto(itemRepository.searchItems(searchName, searchOwner, type));
+        List<Item> items = itemRepository.searchItems(searchName, searchOwner, type);
+        return itemMapper.toListDto(items);
     }
+
+
 }

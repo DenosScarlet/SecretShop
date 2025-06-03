@@ -14,10 +14,10 @@ import java.util.UUID;
 @Schema(description = "Модель товара")
 public class ItemDTO {
     @Schema(description = "Уникальный идентификатор товара", example = "550e8400-e29b-41d4-a716-446655440000")
-    private UUID item_id;
+    private UUID itemId;
 
     @Schema(description = "Название товара", example = "Книга по Java")
-    private String item_name;
+    private String itemName;
 
     @Schema(description = "Описание товара", example = "Учебник по Spring Boot")
     private String description;

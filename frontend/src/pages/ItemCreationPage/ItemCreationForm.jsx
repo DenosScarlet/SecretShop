@@ -11,11 +11,11 @@ const typeOptions = [
 
 export default function ItemCreationForm({ onSuccess }) {
     const [formData, setFormData] = useState({
-        item_name: '',
+        itemName: '', // Используем itemName вместо item_name
         description: '',
         owner: '',
         type: 'MERCH',
-        cost: 0,
+        cost: 100,
         count: 1
     });
 
@@ -23,14 +23,25 @@ export default function ItemCreationForm({ onSuccess }) {
     const [fileName, setFileName] = useState('');
     const [preview, setPreview] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
+            if (!selectedFile.type.startsWith('image/')) {
+                setErrorMessage('Пожалуйста, выберите файл изображения');
+                return;
+            }
+
+            if (selectedFile.size > 5 * 1024 * 1024) {
+                setErrorMessage('Размер файла не должен превышать 5MB');
+                return;
+            }
+
             setFile(selectedFile);
             setFileName(selectedFile.name);
+            setErrorMessage('');
 
-            // Создание превью
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreview(reader.result);
@@ -41,20 +52,38 @@ export default function ItemCreationForm({ onSuccess }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Проверка обязательных полей
+        if (!formData.itemName || !formData.description || !formData.owner) {
+            setErrorMessage("Заполните название, описание и владельца товара");
+            return;
+        }
+
+        if (!file) {
+            setErrorMessage("Выберите изображение товара");
+            return;
+        }
+
         setIsSubmitting(true);
+        setErrorMessage('');
 
         try {
-            await shopApi.addItemWithFile(formData, file);
+            // Создаем JSON для товара (с правильными именами полей)
+            const itemJson = JSON.stringify(formData);
+
+            // Вызываем API с itemJson и файлом
+            await shopApi.addItemWithFile(itemJson, file);
+
             alert('Товар успешно создан!');
             onSuccess?.();
 
-            // Сброс формы после успешного создания
+            // Сброс формы
             setFormData({
-                item_name: '',
+                itemName: '',
                 description: '',
                 owner: '',
                 type: 'MERCH',
-                cost: 0,
+                cost: 100,
                 count: 1
             });
             setFile(null);
@@ -62,7 +91,10 @@ export default function ItemCreationForm({ onSuccess }) {
             setPreview(null);
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Ошибка создания товара');
+            const errorMsg = error.response?.data?.message ||
+                error.message ||
+                'Неизвестная ошибка при создании товара';
+            setErrorMessage(errorMsg);
         } finally {
             setIsSubmitting(false);
         }
@@ -70,14 +102,20 @@ export default function ItemCreationForm({ onSuccess }) {
 
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
+            {errorMessage && (
+                <div className={styles.error}>
+                    {errorMessage}
+                </div>
+            )}
+
             <div className={styles.formGroup}>
                 <label className={styles.label}>Название товара</label>
                 <input
                     className={styles.input}
                     type="text"
                     required
-                    value={formData.item_name}
-                    onChange={(e) => setFormData({...formData, item_name: e.target.value})}
+                    value={formData.itemName}
+                    onChange={(e) => setFormData({...formData, itemName: e.target.value})}
                     placeholder="Введите название товара"
                 />
             </div>
@@ -90,6 +128,7 @@ export default function ItemCreationForm({ onSuccess }) {
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     placeholder="Введите описание товара"
                     rows="3"
+                    required
                 />
             </div>
 
@@ -125,9 +164,13 @@ export default function ItemCreationForm({ onSuccess }) {
                 <input
                     className={styles.input}
                     type="number"
-                    min="0"
+                    min="1"
+                    step="1"
                     value={formData.cost}
-                    onChange={(e) => setFormData({...formData, cost: parseInt(e.target.value, 10) || 0})}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({...formData, cost: value === "" ? 100 : parseInt(value, 10)});
+                    }}
                 />
             </div>
 
@@ -137,8 +180,12 @@ export default function ItemCreationForm({ onSuccess }) {
                     className={styles.input}
                     type="number"
                     min="1"
+                    step="1"
                     value={formData.count}
-                    onChange={(e) => setFormData({...formData, count: parseInt(e.target.value, 10) || 1})}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({...formData, count: value === "" ? 1 : parseInt(value, 10)});
+                    }}
                 />
             </div>
 
@@ -150,6 +197,7 @@ export default function ItemCreationForm({ onSuccess }) {
                     className={styles.fileInput}
                     onChange={handleFileChange}
                     accept="image/*"
+                    required
                 />
                 <label htmlFor="file-upload" className={styles.fileLabel}>
                     <span>{fileName ? fileName : 'Выберите изображение'}</span>

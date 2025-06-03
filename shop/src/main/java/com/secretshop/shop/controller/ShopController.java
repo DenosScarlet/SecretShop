@@ -1,5 +1,7 @@
 package com.secretshop.shop.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.secretshop.shop.DTO.ItemDTO;
 import com.secretshop.shop.DTO.OperationDTO;
 import com.secretshop.shop.DTO.UpdateOperationDTO;
@@ -21,7 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -69,8 +73,25 @@ public class ShopController {
     })
     @PostMapping(value = "/item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ItemDTO> addItemWithFile(
-            @Parameter(description = "Данные товара", required = true) @RequestPart("item") ItemDTO itemDTO,
-            @Parameter(description = "Файл (опционально)") @RequestPart(value = "file", required = false) MultipartFile file) {
+            @Parameter(description = "Данные товара", required = true)
+            @RequestParam("item") String itemJson,
+
+            @Parameter(description = "Файл (опционально)")
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+
+        // Десериализация JSON в DTO
+        ObjectMapper objectMapper = new ObjectMapper();
+        ItemDTO itemDTO;
+
+        try {
+            itemDTO = objectMapper.readValue(itemJson, ItemDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Неверный формат JSON для товара: " + e.getMessage()
+            );
+        }
+
         ItemDTO createdItem = shopService.addItemWithFile(itemDTO, file);
         return ResponseEntity.ok(createdItem);
     }
@@ -81,7 +102,7 @@ public class ShopController {
     public ItemDTO updateItem(
             @Parameter(description = "UUID товара", required = true) @PathVariable UUID id,
             @Parameter(description = "Обновленные данные товара", required = true) @RequestBody ItemDTO itemDTO) {
-        itemDTO.setItem_id(id);
+        itemDTO.setItemId(id);
         return shopService.updateItem(itemDTO);
     }
 
@@ -211,9 +232,14 @@ public class ShopController {
     })
     @DeleteMapping("/item/{itemId}/file")
     public ResponseEntity<String> deleteFile(
-            @Parameter(description = "UUID товара", required = true) @PathVariable UUID itemId,
-            @Parameter(description = "Имя файла", required = true) @RequestParam String fileName) {
+            @Parameter(description = "UUID товара", required = true)
+            @PathVariable UUID itemId) {
+
         try {
+            // Получаем имя файла из сервиса (например, по шаблону itemId + расширение)
+            String fileName = itemId.toString()+".jpg";
+
+            // Удаляем файл
             String result = shopService.deleteFile(itemId, fileName);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
