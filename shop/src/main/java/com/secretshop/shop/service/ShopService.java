@@ -6,14 +6,12 @@ import com.secretshop.shop.DTO.PurchaseDTO;
 import com.secretshop.shop.DTO.UpdateOperationDTO;
 import com.secretshop.shop.enums.Type;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
@@ -153,7 +151,7 @@ public class ShopService {
         return dtlServiceClient.uploadFile(itemId, file);
     }
 
-    public ResponseEntity<InputStreamResource> downloadFile(UUID itemId, String fileName) {
+    public ResponseEntity<byte[]> downloadFile(UUID itemId, String fileName) {
         return dtlServiceClient.downloadFile(itemId, fileName);
     }
 

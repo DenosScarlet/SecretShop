@@ -50,9 +50,9 @@ public class FileController {
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadFile(
             @Parameter(description = "Имя файла", required = true, example = "avatar.jpg")
-            @RequestParam String fileName,
+            @RequestParam("fileName") String fileName,
             @Parameter(description = "Название бакета", example = "my-bucket")
-            @RequestParam(required = false, defaultValue = "my-bucket") String bucketName) {
+            @RequestParam(value = "bucketName", required = false, defaultValue = "secretshop") String bucketName) {
         try {
             InputStream fileStream = minioService.downloadFile(bucketName, fileName);
 
@@ -94,9 +94,9 @@ public class FileController {
     @GetMapping("/exists")
     public ResponseEntity<Boolean> fileExists(
             @Parameter(description = "Имя файла", required = true, example = "avatar.jpg")
-            @RequestParam String fileName,
+            @RequestParam("fileName") String fileName,
             @Parameter(description = "Название бакета", example = "my-bucket")
-            @RequestParam(required = false, defaultValue = "my-bucket") String bucketName) {
+            @RequestParam(value = "bucketName", required = false, defaultValue = "my-bucket") String bucketName) {
         try {
             InputStream testStream = minioService.downloadFile(bucketName, fileName);
             if (testStream != null) {

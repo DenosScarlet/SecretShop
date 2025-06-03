@@ -34,7 +34,24 @@ const ItemListPage = () => {
         setIsLoading(true);
         try {
             const response = await shopApi.getAllItems();
-            setItems(response.data);
+            const itemsWithImageUrls = await Promise.all(response.data.map(async (item) => {
+                try {
+                    // Пытаемся получить изображение
+                    const imageResponse = await shopApi.downloadItemImage(item.itemId, `${item.itemId}.jpg`);
+                    const imageUrl = URL.createObjectURL(new Blob([imageResponse.data]));
+                    return {
+                        ...item,
+                        imageUrl
+                    };
+                } catch (error) {
+                    console.error(`Ошибка загрузки изображения для товара ${item.itemId}:`, error);
+                    return {
+                        ...item,
+                        imageUrl: 'https://via.placeholder.com/150' // Запасное изображение
+                    };
+                }
+            }));
+            setItems(itemsWithImageUrls);
         } catch (error) {
             console.error('Ошибка при загрузке товаров:', error);
             alert('Ошибка загрузки товаров');
@@ -149,110 +166,122 @@ const ItemListPage = () => {
                     <div className={styles.questList}>
                         {items.map(item => (
                             <div key={item.itemId} className={styles.questItem}>
-                                {editingId === item.itemId ? (
-                                    <div className={styles.editForm}>
-                                        <input
-                                            name="itemName"
-                                            value={editedData.itemName}
-                                            onChange={handleEditChange}
-                                            className={styles.editInput}
-                                            placeholder="Название товара"
-                                        />
-                                        <textarea
-                                            name="description"
-                                            value={editedData.description}
-                                            onChange={handleEditChange}
-                                            className={styles.editTextarea}
-                                            placeholder="Описание товара"
-                                        />
-                                        <input
-                                            name="owner"
-                                            value={editedData.owner}
-                                            onChange={handleEditChange}
-                                            className={styles.editInput}
-                                            placeholder="Владелец"
-                                        />
-                                        <select
-                                            name="type"
-                                            value={editedData.type}
-                                            onChange={handleEditChange}
-                                            className={styles.editSelect}
-                                        >
-                                            {typeOptions.map(option => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <input
-                                            type="number"
-                                            name="cost"
-                                            value={editedData.cost}
-                                            onChange={handleEditChange}
-                                            className={styles.editInput}
-                                            placeholder="Цена"
-                                            min="0"
-                                        />
-                                        <input
-                                            type="number"
-                                            name="count"
-                                            value={editedData.count}
-                                            onChange={handleEditChange}
-                                            className={styles.editInput}
-                                            placeholder="Количество"
-                                            min="1"
-                                        />
-
-                                        {/* Поле для загрузки нового изображения */}
-                                        <div className={styles.fileUploadSection}>
-                                            <button
-                                                type="button"
-                                                onClick={triggerFileInput}
-                                                className={styles.fileUploadButton}
-                                            >
-                                                Заменить изображение
-                                            </button>
-                                            <input
-                                                type="file"
-                                                ref={fileInputRef}
-                                                onChange={handleFileUpload}
-                                                accept="image/*"
-                                                style={{ display: 'none' }}
-                                            />
-
-                                            {previewUrl && (
-                                                <div className={styles.previewContainer}>
-                                                    <img
-                                                        src={previewUrl}
-                                                        alt="Предпросмотр нового изображения"
-                                                        className={styles.previewImage}
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className={styles.questInfo}>
-                                        <h3>{item.itemName}</h3>
-                                        <p>{item.description}</p>
-                                        <div className={styles.details}>
-                                            <span>Владелец: {item.owner}</span>
-                                            <span>Тип: {getTypeLabel(item.type)}</span>
-                                            <span>Цена: {item.cost}</span>
-                                            <span>Количество: {item.count}</span>
-                                        </div>
-                                        {/* Отображение текущего изображения товара */}
+                                <div style={{ display: 'flex', gap: '20px', width: '100%' }}>
+                                    {/* Блок с изображением */}
+                                    <div style={{ flexShrink: 0 }}>
                                         {item.imageUrl && (
-                                            <div className={styles.imagePreview}>
-                                                <img
-                                                    src={item.imageUrl}
-                                                    alt="Текущее изображение товара"
-                                                    className={styles.currentImage}
-                                                />
-                                            </div>
+                                            <img
+                                                src={item.imageUrl}
+                                                alt="Изображение товара"
+                                                style={{
+                                                    width: '150px',
+                                                    height: '150px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #ddd'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.src = 'https://via.placeholder.com/150'; // Запасное изображение
+                                                }}
+                                            />
                                         )}
                                     </div>
-                                )}
+
+                                    {editingId === item.itemId ? (
+                                        <div className={styles.editForm} style={{ flexGrow: 1 }}>
+                                            <input
+                                                name="itemName"
+                                                value={editedData.itemName}
+                                                onChange={handleEditChange}
+                                                className={styles.editInput}
+                                                placeholder="Название товара"
+                                            />
+                                            <textarea
+                                                name="description"
+                                                value={editedData.description}
+                                                onChange={handleEditChange}
+                                                className={styles.editTextarea}
+                                                placeholder="Описание товара"
+                                            />
+                                            <input
+                                                name="owner"
+                                                value={editedData.owner}
+                                                onChange={handleEditChange}
+                                                className={styles.editInput}
+                                                placeholder="Владелец"
+                                            />
+                                            <select
+                                                name="type"
+                                                value={editedData.type}
+                                                onChange={handleEditChange}
+                                                className={styles.editSelect}
+                                            >
+                                                {typeOptions.map(option => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <input
+                                                type="number"
+                                                name="cost"
+                                                value={editedData.cost}
+                                                onChange={handleEditChange}
+                                                className={styles.editInput}
+                                                placeholder="Цена"
+                                                min="0"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="count"
+                                                value={editedData.count}
+                                                onChange={handleEditChange}
+                                                className={styles.editInput}
+                                                placeholder="Количество"
+                                                min="1"
+                                            />
+
+                                            {/* Поле для загрузки нового изображения */}
+                                            <div className={styles.fileUploadSection}>
+                                                <button
+                                                    type="button"
+                                                    onClick={triggerFileInput}
+                                                    className={styles.fileUploadButton}
+                                                >
+                                                    Заменить изображение
+                                                </button>
+                                                <input
+                                                    type="file"
+                                                    ref={fileInputRef}
+                                                    onChange={handleFileUpload}
+                                                    accept="image/*"
+                                                    style={{ display: 'none' }}
+                                                />
+
+                                                {previewUrl && (
+                                                    <div className={styles.previewContainer}>
+                                                        <img
+                                                            src={previewUrl}
+                                                            alt="Предпросмотр нового изображения"
+                                                            className={styles.previewImage}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className={styles.questInfo} style={{ flexGrow: 1 }}>
+                                            <h3>{item.itemName}</h3>
+                                            <p>{item.description}</p>
+                                            <div className={styles.details}>
+                                                <span>Владелец: {item.owner}</span>
+                                                <span>Тип: {getTypeLabel(item.type)}</span>
+                                                <span>Цена: {item.cost}</span>
+                                                <span>Количество: {item.count}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
                                 <div className={styles.actions}>
                                     {editingId === item.itemId ? (

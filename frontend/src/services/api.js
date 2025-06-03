@@ -115,6 +115,12 @@ const shopApi = {
     // Удаление изображения товара (обновленная версия)
     deleteItemImage: (itemId) => {
         return shopAxiosInstance.delete(`/shop/item/${itemId}/file`);
+    },
+    downloadItemImage: (itemId, fileName) => {
+        return shopAxiosInstance.get(`/shop/item/${itemId}/download`, {
+            params: { fileName },
+            responseType: 'blob' // Указываем, что ожидаем бинарные данные
+        });
     }
 
 };

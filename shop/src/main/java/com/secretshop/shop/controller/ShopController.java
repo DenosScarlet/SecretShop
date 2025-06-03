@@ -219,7 +219,7 @@ public class ShopController {
     @Operation(summary = "Скачать файл товара", description = "Позволяет скачать файл, связанный с товаром")
     @ApiResponse(responseCode = "200", description = "Файл успешно скачан")
     @GetMapping("/item/{itemId}/download")
-    public ResponseEntity<InputStreamResource> downloadFile(
+    public ResponseEntity<byte[]> downloadFile(
             @Parameter(description = "UUID товара", required = true) @PathVariable UUID itemId,
             @Parameter(description = "Имя файла", required = true) @RequestParam String fileName) {
         return shopService.downloadFile(itemId, fileName);

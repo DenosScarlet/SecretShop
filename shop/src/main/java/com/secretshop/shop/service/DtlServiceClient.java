@@ -17,8 +17,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 
 
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -166,13 +169,16 @@ public class   DtlServiceClient {
         }
     }
 
-    public ResponseEntity<InputStreamResource> downloadFile(UUID itemId, String fileName) {
+    public ResponseEntity<byte[]> downloadFile(UUID itemId, String fileName) {
         return restClient.get()
                 .uri("/api/files/download?itemId={itemId}&fileName={fileName}", itemId, fileName)
                 .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .retrieve()
-                .toEntity(InputStreamResource.class);
+                .toEntity(byte[].class);
     }
+
+
+
 
     public String deleteFile(UUID itemId, String fileName) {
         return restClient.delete()
