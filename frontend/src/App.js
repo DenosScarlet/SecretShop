@@ -11,6 +11,9 @@ import ItemListPage from './pages/ItemListPage/ItemListPage';
 import ItemCreationPage from './pages/ItemCreationPage/ItemCreationPage'; // Новый импорт
 import QuestProtectedRoute from './components/QuestProtectedRoute/QuestProtectedRoute';
 import LoginPage from './pages/LoginPage/LoginPage';
+import ShopPage from './pages/ShopPage/ShopPage';
+import ItemPage from './pages/ItemPage/ItemPage';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import './App.css';
 
 const handleKeycloakEvent = (event, error) => {
@@ -86,6 +89,22 @@ function App() {
                                         <QuestProtectedRoute>
                                             <ItemListPage />
                                         </QuestProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/shop"
+                                    element={
+                                        <ProtectedRoute>
+                                            <ShopPage />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/shop/item/:itemId"
+                                    element={
+                                        <ProtectedRoute>
+                                            <ItemPage />
+                                        </ProtectedRoute>
                                     }
                                 />
                                 <Route
