@@ -244,6 +244,71 @@
     cursor: not-allowed;
 }
 
+/* Стили для поиска и фильтров */
+.searchBar {
+    margin-bottom: 20px;
+}
+
+.filterToggle {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+}
+
+.filterToggle:hover {
+    background: #e0e0e0;
+}
+
+.advancedFilters {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.resetButton {
+    padding: 8px 15px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.resetButton:hover {
+    background: #e0e0e0;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .searchBar {
+        flex-direction: column;
+    }
+
+    .filterToggle {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .advancedFilters > div {
+        grid-template-columns: 1fr !important;
+    }
+
+    .sortContainer {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+}
+
 /* Добавляем шрифт для всех текстовых элементов */
 .formWrapper,
 .header,
