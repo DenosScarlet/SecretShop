@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../QuestListPage/QuestListPage.module.css';
 import { shopApi } from '../../services/api';
+import Modal from '../../components/Modal/Modal';
+import ConfirmModal from '../../components/Modal/ConfirmModal';
+import modalStyles from '../../components/Modal/Modal.module.css';
 
-// Константы для типов товаров
 const typeOptions = [
     { value: '', label: 'Все типы' },
     { value: 'MERCH', label: 'Мерч' },
@@ -12,7 +14,6 @@ const typeOptions = [
     { value: 'COUPONS', label: 'Купоны' }
 ];
 
-// Функция для получения читаемого названия типа
 const getTypeLabel = (typeValue) => {
     const type = typeOptions.find(t => t.value === typeValue);
     return type ? type.label : typeValue;
@@ -31,6 +32,12 @@ const ItemListPage = () => {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const fileInputRef = useRef(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('info');
+    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
 
     useEffect(() => {
         fetchItems();
@@ -38,7 +45,6 @@ const ItemListPage = () => {
 
     useEffect(() => {
         applyFilters();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filter, selectedType, minPrice, maxPrice, items]);
 
     const fetchItems = async () => {
@@ -64,7 +70,7 @@ const ItemListPage = () => {
             setItems(itemsWithImageUrls);
         } catch (error) {
             console.error('Ошибка при загрузке товаров:', error);
-            alert('Ошибка загрузки товаров');
+            showModal('Ошибка', 'Ошибка загрузки товаров', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -92,16 +98,29 @@ const ItemListPage = () => {
         setFilteredItems(filtered);
     };
 
-    const handleDelete = async (itemId) => {
-        if (window.confirm('Вы уверены, что хотите удалить этот товар? Все связанные изображения также будут удалены.')) {
-            try {
-                await shopApi.deleteItemImage(itemId);
-                await shopApi.deleteItem(itemId);
-                fetchItems();
-            } catch (error) {
-                console.error('Ошибка при удалении товара:', error);
-                alert('Ошибка удаления товара: ' + (error.response?.data || error.message));
-            }
+    const showModal = (title, message, type = 'info') => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setModalType(type);
+        setModalOpen(true);
+    };
+
+    const handleDelete = (itemId) => {
+        setItemToDelete(itemId);
+        setConfirmModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            await shopApi.deleteItemImage(itemToDelete);
+            await shopApi.deleteItem(itemToDelete);
+            fetchItems();
+            showModal('Успех', 'Товар успешно удален', 'success');
+        } catch (error) {
+            console.error('Ошибка при удалении товара:', error);
+            showModal('Ошибка', `Ошибка удаления товара: ${error.response?.data || error.message}`, 'error');
+        } finally {
+            setItemToDelete(null);
         }
     };
 
@@ -165,10 +184,10 @@ const ItemListPage = () => {
                 setPreviewUrl(null);
             }
             fetchItems();
-            alert('Товар успешно обновлён!');
+            showModal('Успех', 'Товар успешно обновлён!', 'success');
         } catch (error) {
             console.error('Ошибка обновления:', error);
-            alert('Ошибка обновления товара: ' + (error.response?.data || error.message));
+            showModal('Ошибка', `Ошибка обновления товара: ${error.response?.data || error.message}`, 'error');
         }
     };
 
@@ -184,13 +203,22 @@ const ItemListPage = () => {
     return (
         <div className={styles.pageContainer}>
             <div className={styles.formWrapper}>
-                <div className={styles.header} style={{ marginBottom: '1rem' }}>
+                <div className={styles.header} style={{
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '1rem',
+                    paddingTop: '1rem'
+                }}>
                     <Link to="/shop/item/create" className={styles.createButton}>
                         Создать новый товар
                     </Link>
+                    <Link to="/shop/operations" className={styles.createButton}
+                          style={{ backgroundColor: '#3f51b5' }}>
+                        Управление покупками
+                    </Link>
                 </div>
 
-                {/* Фильтрация */}
                 <div className={styles.filterContainer} style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
                     <input
                         type="text"
@@ -399,6 +427,32 @@ const ItemListPage = () => {
                     </div>
                 )}
             </div>
+
+            <Modal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={modalTitle}
+                type={modalType}
+            >
+                <p>{modalMessage}</p>
+                <div className={modalStyles.modalActions}>
+                    <button
+                        onClick={() => setModalOpen(false)}
+                        className={`${modalStyles.modalButton} ${modalStyles.modalButtonPrimary}`}
+                    >
+                        OK
+                    </button>
+                </div>
+            </Modal>
+
+            <ConfirmModal
+                isOpen={confirmModalOpen}
+                onClose={() => setConfirmModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Подтверждение удаления"
+                message="Вы уверены, что хотите удалить этот товар? Все связанные изображения также будут удалены."
+                confirmText="Удалить"
+            />
         </div>
     );
 };

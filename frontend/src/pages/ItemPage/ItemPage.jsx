@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styles from '../QuestListPage/QuestListPage.module.css';
 import { shopApi } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import Modal from '../../components/Modal/Modal';
+import ConfirmModal from '../../components/Modal/ConfirmModal';
+import modalStyles from '../../components/Modal/Modal.module.css';
 
 const ItemPage = () => {
     const { itemId } = useParams();
@@ -11,16 +14,19 @@ const ItemPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [purchasing, setPurchasing] = useState(false);
     const { user } = useAuth();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('info');
+    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchItem = async () => {
             setIsLoading(true);
             try {
-                // Получаем данные товара
                 const itemResponse = await shopApi.getItem(itemId);
                 const itemData = itemResponse.data;
 
-                // Получаем изображение товара
                 try {
                     const imageResponse = await shopApi.downloadItemImage(
                         itemId,
@@ -40,8 +46,8 @@ const ItemPage = () => {
                 }
             } catch (error) {
                 console.error('Ошибка при загрузке товара:', error);
-                alert('Товар не найден');
-                navigate('/shop');
+                showModal('Ошибка', 'Товар не найден', 'error');
+                setTimeout(() => navigate('/shop'), 2000);
             } finally {
                 setIsLoading(false);
             }
@@ -50,25 +56,31 @@ const ItemPage = () => {
         fetchItem();
     }, [itemId, navigate]);
 
-    const handlePurchase = async () => {
+    const showModal = (title, message, type = 'info') => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setModalType(type);
+        setModalOpen(true);
+    };
+
+    const handlePurchase = () => {
         if (!user?.userId) {
-            alert('Для покупки товаров необходимо авторизоваться');
+            showModal('Ошибка', 'Для покупки товаров необходимо авторизоваться', 'error');
             return;
         }
+        setConfirmModalOpen(true);
+    };
 
-        if (!window.confirm(`Вы уверены, что хотите приобрести "${item.itemName}" за ${item.cost} монет?`)) {
-            return;
-        }
-
+    const confirmPurchase = async () => {
         setPurchasing(true);
         try {
             await shopApi.purchaseItem(itemId);
-            alert('Товар успешно приобретен!');
-            navigate('/shop');
+            showModal('Успех', 'Товар успешно приобретен!', 'success');
+            setTimeout(() => navigate('/shop'), 1500);
         } catch (error) {
             console.error('Ошибка при покупке товара:', error);
             const errorMessage = error.response?.data?.message || error.message;
-            alert(`Ошибка при покупке: ${errorMessage}`);
+            showModal('Ошибка', `Ошибка при покупке: ${errorMessage}`, 'error');
         } finally {
             setPurchasing(false);
         }
@@ -178,6 +190,32 @@ const ItemPage = () => {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={modalTitle}
+                type={modalType}
+            >
+                <p>{modalMessage}</p>
+                <div className={modalStyles.modalActions}>
+                    <button
+                        onClick={() => setModalOpen(false)}
+                        className={`${modalStyles.modalButton} ${modalStyles.modalButtonPrimary}`}
+                    >
+                        OK
+                    </button>
+                </div>
+            </Modal>
+
+            <ConfirmModal
+                isOpen={confirmModalOpen}
+                onClose={() => setConfirmModalOpen(false)}
+                onConfirm={confirmPurchase}
+                title="Подтверждение покупки"
+                message={`Вы уверены, что хотите приобрести "${item.itemName}" за ${item.cost} монет?`}
+                confirmText="Купить"
+            />
         </div>
     );
 };

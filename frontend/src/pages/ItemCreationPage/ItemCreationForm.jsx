@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styles from './ItemCreationForm.module.css';
 import { shopApi } from '../../services/api';
+import Modal from '../../components/Modal/Modal';
+import modalStyles from '../../components/Modal/Modal.module.css';
 
 const typeOptions = [
     { value: 'MERCH', label: 'Мерч' },
@@ -11,7 +13,7 @@ const typeOptions = [
 
 export default function ItemCreationForm({ onSuccess }) {
     const [formData, setFormData] = useState({
-        itemName: '', // Используем itemName вместо item_name
+        itemName: '',
         description: '',
         owner: '',
         type: 'MERCH',
@@ -23,24 +25,33 @@ export default function ItemCreationForm({ onSuccess }) {
     const [fileName, setFileName] = useState('');
     const [preview, setPreview] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('info');
+
+    const showModal = (title, message, type = 'info') => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setModalType(type);
+        setModalOpen(true);
+    };
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
             if (!selectedFile.type.startsWith('image/')) {
-                setErrorMessage('Пожалуйста, выберите файл изображения');
+                showModal('Ошибка', 'Пожалуйста, выберите файл изображения', 'error');
                 return;
             }
 
             if (selectedFile.size > 5 * 1024 * 1024) {
-                setErrorMessage('Размер файла не должен превышать 5MB');
+                showModal('Ошибка', 'Размер файла не должен превышать 5MB', 'error');
                 return;
             }
 
             setFile(selectedFile);
             setFileName(selectedFile.name);
-            setErrorMessage('');
 
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -53,31 +64,25 @@ export default function ItemCreationForm({ onSuccess }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Проверка обязательных полей
         if (!formData.itemName || !formData.description || !formData.owner) {
-            setErrorMessage("Заполните название, описание и владельца товара");
+            showModal('Ошибка', "Заполните название, описание и владельца товара", 'error');
             return;
         }
 
         if (!file) {
-            setErrorMessage("Выберите изображение товара");
+            showModal('Ошибка', "Выберите изображение товара", 'error');
             return;
         }
 
         setIsSubmitting(true);
-        setErrorMessage('');
 
         try {
-            // Создаем JSON для товара (с правильными именами полей)
             const itemJson = JSON.stringify(formData);
-
-            // Вызываем API с itemJson и файлом
             await shopApi.addItemWithFile(itemJson, file);
 
-            alert('Товар успешно создан!');
+            showModal('Успех', 'Товар успешно создан!', 'success');
             onSuccess?.();
 
-            // Сброс формы
             setFormData({
                 itemName: '',
                 description: '',
@@ -94,7 +99,7 @@ export default function ItemCreationForm({ onSuccess }) {
             const errorMsg = error.response?.data?.message ||
                 error.message ||
                 'Неизвестная ошибка при создании товара';
-            setErrorMessage(errorMsg);
+            showModal('Ошибка', errorMsg, 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -102,12 +107,6 @@ export default function ItemCreationForm({ onSuccess }) {
 
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
-            {errorMessage && (
-                <div className={styles.error}>
-                    {errorMessage}
-                </div>
-            )}
-
             <div className={styles.formGroup}>
                 <label className={styles.label}>Название товара</label>
                 <input
@@ -222,6 +221,23 @@ export default function ItemCreationForm({ onSuccess }) {
             >
                 {isSubmitting ? 'Создание...' : 'Создать товар'}
             </button>
+
+            <Modal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={modalTitle}
+                type={modalType}
+            >
+                <p>{modalMessage}</p>
+                <div className={modalStyles.modalActions}>
+                    <button
+                        onClick={() => setModalOpen(false)}
+                        className={`${modalStyles.modalButton} ${modalStyles.modalButtonPrimary}`}
+                    >
+                        OK
+                    </button>
+                </div>
+            </Modal>
         </form>
     );
 }

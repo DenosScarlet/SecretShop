@@ -14,6 +14,7 @@ import LoginPage from './pages/LoginPage/LoginPage';
 import ShopPage from './pages/ShopPage/ShopPage';
 import ItemPage from './pages/ItemPage/ItemPage';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import OperationListPage from './pages/OperationListPage/OperationListPage';
 import './App.css';
 
 const handleKeycloakEvent = (event, error) => {
@@ -107,6 +108,7 @@ function App() {
                                         </ProtectedRoute>
                                     }
                                 />
+                                <Route path="/shop/operations" element={<OperationListPage />} />
                                 <Route
                                     path="/shop/item/create" // Новый маршрут
                                     element={
