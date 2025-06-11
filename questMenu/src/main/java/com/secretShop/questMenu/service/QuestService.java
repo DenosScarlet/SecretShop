@@ -2,19 +2,22 @@ package com.secretShop.questMenu.service;
 
 import com.secretShop.questMenu.DTO.*;
 import com.secretShop.questMenu.enums.Status;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class QuestService {
-    QuestClient questClient = new QuestClient();
+    //QuestClient questClient = new QuestClient();
+    private final KafkaQuestClient questClient;
 
     @Transactional
     public void updateSteps(StepsRequestDTO stepsRequest) {
 
-        Status currentStatus = Status.valueOf(questClient.getQuestStatusById(stepsRequest.getQuestId()));
+        Status currentStatus = Status.valueOf(questClient.getQuestStatusById(stepsRequest.getUserId(), stepsRequest.getQuestId()));
 
         // Если квест уже завершен - выходим из метода
         if (currentStatus == Status.COMPLETE) {

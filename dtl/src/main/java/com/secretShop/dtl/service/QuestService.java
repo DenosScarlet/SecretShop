@@ -1,5 +1,6 @@
 package com.secretShop.dtl.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.secretShop.dtl.entity.Quest;
 import com.secretShop.dtl.entity.User;
 import com.secretShop.dtl.enums.WorkGroup;
@@ -24,21 +25,26 @@ public class QuestService {
     private final UserRepository userRepository;
     private final UsersQuestsRepository usersQuestsRepository;
     private final QuestMapper questMapper;
+    private final ObjectMapper objectMapper;
 
     @Transactional
-    public QuestDTO createQuestWithUserRelations(QuestDTO request) {
+    public QuestDTO createQuestWithUserRelations(QuestRequest questRequest) {
+        Object payload = questRequest.getPayload();
+        QuestDTO questDTO = objectMapper.convertValue(payload, QuestDTO.class);
+
         Quest newQuest = new Quest();
-        newQuest.setQuestTitle(request.getQuestTitle());
-        newQuest.setDescription(request.getDescription());
-        newQuest.setStepsToComplete(request.getStepsToComplete());
-        newQuest.setFrequency(request.getFrequency());
-        newQuest.setWorkGroup(request.getWorkGroup());
-        newQuest.setStartDate(request.getStartDate());
-        newQuest.setEndDate(request.getEndDate());
-        newQuest.setCost(request.getCost());
+        newQuest.setQuestTitle(questDTO.getQuestTitle());
+        newQuest.setDescription(questDTO.getDescription());
+        newQuest.setStepsToComplete(questDTO.getStepsToComplete());
+        newQuest.setFrequency(questDTO.getFrequency());
+        newQuest.setWorkGroup(questDTO.getWorkGroup());
+        newQuest.setStartDate(questDTO.getStartDate());
+        newQuest.setEndDate(questDTO.getEndDate());
+        newQuest.setCost(questDTO.getCost());
+
         Quest savedQuest = questRepository.save(newQuest);
 
-        List<User> users = userRepository.findUsersByWorkGroup(request.getWorkGroup());
+        List<User> users = userRepository.findUsersByWorkGroup(questDTO.getWorkGroup());
 
         users.forEach(user -> {
             usersQuestsRepository.createUserQuestRelation(user.getUserId(), savedQuest.getQuestId());
@@ -48,7 +54,9 @@ public class QuestService {
     }
 
     @Transactional
-    public QuestDTO updateQuest(UUID questId, QuestDTO questDTO) {
+    public QuestDTO updateQuest(UpdateQuestDTO updateQuestDTO) {
+        UUID questId = updateQuestDTO.getQuestId();
+        QuestDTO questDTO = updateQuestDTO.getQuestDTO();
         // Получаем существующий квест
         Quest existingQuest = questRepository.findById(questId)
                 .orElseThrow(() -> new ResponseStatusException(

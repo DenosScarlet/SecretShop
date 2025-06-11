@@ -23,8 +23,12 @@ public class UsersQuestsService {
 
     public StepsResponseDTO getSteps(UUID userId, UUID questId) {
         StepsResponseDTO response = new StepsResponseDTO();
+        response.setUserId(userId);
+        response.setQuestId(questId);
         response.setStepsToComplete(questRepository.getStepsToCompleteById(questId));
-        response.setCompletedSteps(usersQuestsRepository.getCompletedStepsById(userId));
+        response.setCompletedSteps(
+                usersQuestsRepository.getCompletedStepsById(userId, questId) // Добавлен questId
+        );
         return response;
     }
 

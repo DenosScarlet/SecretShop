@@ -63,36 +63,36 @@ public class QuestController {
         return questRepository.getCostById(questId);
     }
 
-    @Operation(summary = "Создать квест", description = "Добавляет новый квест в систему и устанавливает связи с сотрудниками")
-    @ApiResponse(responseCode = "201", description = "Квест успешно создан")
-    @PostMapping
-    public ResponseEntity<QuestDTO> createQuest(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Данные для создания квеста", required = true,
-                    content = @Content(schema = @Schema(implementation = QuestDTO.class)))
-            @RequestBody @Validated QuestDTO request) {
-        QuestDTO createdQuest = questService.createQuestWithUserRelations(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdQuest);
-    }
+//    @Operation(summary = "Создать квест", description = "Добавляет новый квест в систему и устанавливает связи с сотрудниками")
+//    @ApiResponse(responseCode = "201", description = "Квест успешно создан")
+//    @PostMapping
+//    public ResponseEntity<QuestDTO> createQuest(
+//            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+//                    description = "Данные для создания квеста", required = true,
+//                    content = @Content(schema = @Schema(implementation = QuestDTO.class)))
+//            @RequestBody @Validated QuestDTO request) {
+//        QuestDTO createdQuest = questService.createQuestWithUserRelations(request);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(createdQuest);
+//    }
 
-    @Operation(summary = "Обновить квест", description = "Изменяет данные существующего квеста")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Квест обновлен"),
-            @ApiResponse(responseCode = "404", description = "Квест не найден")
-    })
-    @PutMapping("/{id}")
-    public QuestDTO updateQuest(
-            @Parameter(description = "ID квеста", required = true, example = "123e4567-e89b-12d3-a456-426614174000")
-            @PathVariable("id") UUID id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Обновленные данные квеста", required = true,
-                    content = @Content(schema = @Schema(implementation = QuestDTO.class)))
-            @RequestBody QuestDTO questDTO) {
-        if (!questRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Сущность с id `%s` не найдена".formatted(id));
-        }
-        return questService.updateQuest(id, questDTO);
-    }
+//    @Operation(summary = "Обновить квест", description = "Изменяет данные существующего квеста")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "Квест обновлен"),
+//            @ApiResponse(responseCode = "404", description = "Квест не найден")
+//    })
+//    @PutMapping("/{id}")
+//    public QuestDTO updateQuest(
+//            @Parameter(description = "ID квеста", required = true, example = "123e4567-e89b-12d3-a456-426614174000")
+//            @PathVariable("id") UUID id,
+//            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+//                    description = "Обновленные данные квеста", required = true,
+//                    content = @Content(schema = @Schema(implementation = QuestDTO.class)))
+//            @RequestBody QuestDTO questDTO) {
+//        if (!questRepository.existsById(id)) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Сущность с id `%s` не найдена".formatted(id));
+//        }
+//        return questService.updateQuest(id, questDTO);
+//    }
 
     @Operation(summary = "Удалить квест", description = "Удаляет квест из системы")
     @ApiResponses(value = {

@@ -35,14 +35,14 @@ public class UsersQuestsController {
         return ResponseEntity.status(HttpStatus.OK).body(userQuests);
     }
 
-    @Operation(summary = "Получить статус квеста", description = "Возвращает текущий статус квеста")
-    @ApiResponse(responseCode = "200", description = "Статус получен")
-    @GetMapping("/quest_status/{id}")
-    public String getQuestStatusById(
-            @Parameter(description = "ID квеста", required = true, example = "123e4567-e89b-12d3-a456-426614174000")
-            @PathVariable("id") UUID questId) {
-        return usersQuestsRepository.getQuestStatusById(questId);
-    }
+//    @Operation(summary = "Получить статус квеста", description = "Возвращает текущий статус квеста")
+//    @ApiResponse(responseCode = "200", description = "Статус получен")
+//    @GetMapping("/quest_status/{id}")
+//    public String getQuestStatusById(
+//            @Parameter(description = "ID квеста", required = true, example = "123e4567-e89b-12d3-a456-426614174000")
+//            @PathVariable("id") UUID questId) {
+//        return usersQuestsRepository.getQuestStatusById(questId);
+//    }
 
     @Operation(summary = "Получить прогресс выполнения", description = "Возвращает количество выполненных шагов квеста")
     @ApiResponse(responseCode = "200", description = "Прогресс получен")
