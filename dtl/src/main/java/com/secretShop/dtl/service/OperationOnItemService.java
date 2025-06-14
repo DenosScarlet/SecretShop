@@ -1,5 +1,6 @@
 package com.secretShop.dtl.service;
 
+import com.secretShop.dtl.DTO.UpdateOperationDTO;
 import com.secretShop.dtl.entity.Item;
 import com.secretShop.dtl.entity.OperationOnItem;
 import com.secretShop.dtl.entity.User;
@@ -51,31 +52,16 @@ public class OperationOnItemService {
     }
 
     @Transactional
-    public OperationOnItemDTO updateOperation(UUID id, OperationOnItemDTO dto) {
+    public OperationOnItemDTO updateOperation(UUID id, UpdateOperationDTO dto) {
         OperationOnItem operation = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Operation not found"));
 
-        // Обновляем только не-null поля из DTO
+        // Обновляем только статус и историю
         if (dto.getStatus() != null) {
             operation.setStatus(dto.getStatus());
         }
         if (dto.getOperationHistory() != null) {
             operation.setOperationHistory(dto.getOperationHistory());
-        }
-
-        // Обновляем связи через UUID, только если в DTO есть значение
-        if (dto.getUserId() != null) {
-            if (operation.getUser() == null) {
-                operation.setUser(new User());
-            }
-            operation.getUser().setUserId(dto.getUserId());
-        }
-
-        if (dto.getItemId() != null) {
-            if (operation.getItem() == null) {
-                operation.setItem(new Item());
-            }
-            operation.getItem().setItemId(dto.getItemId());
         }
 
         operation = repository.save(operation);

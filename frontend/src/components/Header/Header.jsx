@@ -6,7 +6,7 @@ import QuestMenu from './QuestMenu';
 import Avatar from './Avatar';
 
 export default function Header() {
-    const { isAuthenticated, canManageQuests, user, login, logout } = useAuth();
+    const { isAuthenticated, canManageQuests, user, login, logout, canManageUsers } = useAuth();
 
     const navigationItems = [
         { name: 'Products', path: '/shop/items' },
@@ -21,6 +21,11 @@ export default function Header() {
     if (isAuthenticated && canManageQuests()) {
         navigationItems.push({ name: 'Quests', path: '/quests' });
     }
+
+    if (isAuthenticated && canManageUsers()) {
+        navigationItems.push({ name: 'Users', path: '/users' });
+    }
+
 
     // Добавляем ссылку на магазин для всех авторизованных пользователей
     if (isAuthenticated) {

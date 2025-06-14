@@ -1,5 +1,6 @@
 package com.secretshop.keycloak.service;
 
+import com.secretshop.keycloak.DTO.BalanceUpdateDTO;
 import com.secretshop.keycloak.DTO.DtlProperties;
 import com.secretshop.keycloak.DTO.UserDTO;
 import com.secretshop.keycloak.service.impl.UserEventClient;
@@ -40,12 +41,14 @@ public class RestUserEventClient implements UserEventClient {
     @Override
     public void sendUserUpdatedEvent(UserDTO userDTO) {
         String url = dtlProperties.getBaseUrl() + "/api/users/" + userDTO.getUserId();
+        log.info("Sending PUT to {} with user: {}", url, userDTO);
         restTemplate.put(url, userDTO);
     }
 
     @Override
     public void sendUserDeletedEvent(UUID userId) {
         String url = dtlProperties.getBaseUrl() + "/api/users/" + userId;
+        log.info("Sending DELETE to {}", url);
         restTemplate.delete(url);
     }
 
@@ -76,5 +79,17 @@ public class RestUserEventClient implements UserEventClient {
         return response.getBody();
     }
 
-
+    @Override
+    public void updateBalance(UUID userId, int newBalance) {
+        String url = dtlProperties.getBaseUrl() + "/api/users/balance";
+        BalanceUpdateDTO balanceDTO = new BalanceUpdateDTO(userId, newBalance);
+        log.info("Sending POST to {} with balance: {}", url, balanceDTO);
+        try {
+            restTemplate.postForObject(url, balanceDTO, Void.class);
+            log.info("Balance updated for user {}", userId);
+        } catch (Exception e) {
+            log.error("Failed to update balance for user {}: {}", userId, e.getMessage(), e);
+            throw new RuntimeException("Failed to update balance", e);
+        }
+    }
 }

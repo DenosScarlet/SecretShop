@@ -1,6 +1,7 @@
 package com.secretshop.keycloak.service.impl;
 
-import com.secretshop.keycloak.DTO.*;
+import com.secretshop.keycloak.DTO.UserDTO;
+import com.secretshop.keycloak.DTO.BalanceUpdateDTO;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,4 +13,5 @@ public interface UserEventClient {
     void sendUserCreatedEvent(UserDTO userDTO);
     void sendUserUpdatedEvent(UserDTO userDTO);
     void sendUserDeletedEvent(UUID userId);
+    void updateBalance(UUID userId, int newBalance);
 }

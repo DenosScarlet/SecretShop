@@ -8,13 +8,16 @@ import LeftMenu from './components/LeftMenu/LeftMenu';
 import QuestCreationPage from './pages/QuestCreationPage/QuestCreationPage';
 import QuestListPage from './pages/QuestListPage/QuestListPage';
 import ItemListPage from './pages/ItemListPage/ItemListPage';
-import ItemCreationPage from './pages/ItemCreationPage/ItemCreationPage'; // Новый импорт
+import ItemCreationPage from './pages/ItemCreationPage/ItemCreationPage';
 import QuestProtectedRoute from './components/QuestProtectedRoute/QuestProtectedRoute';
 import LoginPage from './pages/LoginPage/LoginPage';
 import ShopPage from './pages/ShopPage/ShopPage';
 import ItemPage from './pages/ItemPage/ItemPage';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import OperationListPage from './pages/OperationListPage/OperationListPage';
+import UserListPage from './pages/UserListPage/UserListPage';
+import UserCreationPage from './pages/UserCreationPage/UserCreationPage';
+import UserEditPage from './pages/UserEditPage/UserEditPage';
 import './App.css';
 
 const handleKeycloakEvent = (event, error) => {
@@ -110,11 +113,35 @@ function App() {
                                 />
                                 <Route path="/shop/operations" element={<OperationListPage />} />
                                 <Route
-                                    path="/shop/item/create" // Новый маршрут
+                                    path="/shop/item/create"
                                     element={
                                         <QuestProtectedRoute>
                                             <ItemCreationPage />
                                         </QuestProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/users"
+                                    element={
+                                        <ProtectedRoute requiredRole="adminGroup">
+                                            <UserListPage />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/users/create"
+                                    element={
+                                        <ProtectedRoute requiredRole="adminGroup">
+                                            <UserCreationPage />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/users/edit/:userId"
+                                    element={
+                                        <ProtectedRoute requiredRole="adminGroup">
+                                            <UserEditPage />
+                                        </ProtectedRoute>
                                     }
                                 />
                                 <Route path="/" element={<div>Главная страница</div>} />

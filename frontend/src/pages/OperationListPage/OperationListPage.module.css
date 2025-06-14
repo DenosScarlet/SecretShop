@@ -1,0 +1,295 @@
+.pageContainer {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 80px; /* Отступ для header */
+}
+
+.formWrapper {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-top: 20px; /* Дополнительный отступ */
+}
+
+.headerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 60px; /* Высота header */
+    background: white;
+    z-index: 10;
+    padding: 15px 0;
+}
+
+.backButton {
+    color: #1890ff;
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.backButton:hover {
+    text-decoration: underline;
+}
+
+.pageTitle {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+}
+
+.filterPanel {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 120px; /* Высота header + заголовка */
+    background: white;
+    z-index: 9;
+    padding: 10px 0;
+}
+
+.searchInput {
+    flex: 1;
+    min-width: 250px;
+    padding: 10px 15px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.statusSelect {
+    min-width: 200px;
+    padding: 10px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 0;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #1890ff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.emptyState {
+    text-align: center;
+    padding: 40px 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px dashed #ddd;
+}
+
+.resetButton {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.resetButton:hover {
+    background: #40a9ff;
+}
+
+.operationsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.operationCard {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.operationCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.operationHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.operationId {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.statusBadge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+}
+
+.operationBody {
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.operationSection {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.operationSection label {
+    font-weight: 500;
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 3px;
+}
+
+.operationValue {
+    font-size: 15px;
+    color: #333;
+}
+
+.operationActions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.actionButton {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.actionButton:hover {
+    opacity: 0.9;
+}
+
+.completeButton {
+    background: #52c41a;
+    color: white;
+}
+
+.cancelButton {
+    background: #ff4d4f;
+    color: white;
+}
+
+.statusInfo {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+}
+
+/* Стили для отображения коинов */
+.coinContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.coinIcon {
+    flex-shrink: 0;
+}
+
+.coinAmount {
+    font-weight: 600;
+    color: #d4af37; /* Золотой цвет */
+    font-size: 16px;
+}
+
+.coinContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.3s ease;
+}
+
+.coinContainer:hover {
+    transform: scale(1.05);
+}
+
+.coinIcon {
+    flex-shrink: 0;
+    transition: transform 0.5s ease;
+}
+
+.coinContainer:hover .coinIcon {
+    transform: rotateY(360deg);
+}
+.coinIcon {
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+}
+
+/* Новые стили для выпадающего списка статусов */
+.statusSelectAction {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.statusSelectAction:hover {
+    border-color: #40a9ff;
+}
+
+.statusSelectAction:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}

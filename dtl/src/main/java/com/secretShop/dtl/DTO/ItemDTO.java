@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "DTO для представления товара")
-public class ItemDTO {
+public class ItemDTO implements Serializable {
     @Schema(description = "Уникальный идентификатор товара", example = "123e4567-e89b-12d3-a456-426614174000")
     private UUID itemId;
 

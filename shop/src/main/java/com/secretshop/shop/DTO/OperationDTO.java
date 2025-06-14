@@ -4,11 +4,12 @@ import com.secretshop.shop.enums.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @Schema(description = "Модель операции (покупка/продажа)")
-public class OperationDTO {
+public class OperationDTO implements Serializable {
     @Schema(description = "ID операции", example = "550e8400-e29b-41d4-a716-446655440000")
     private UUID operationsId;
 
