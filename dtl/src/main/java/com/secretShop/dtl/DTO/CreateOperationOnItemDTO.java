@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
@@ -14,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Schema(description = "DTO для создания операции над товаром")
-public class CreateOperationOnItemDTO {
+public class CreateOperationOnItemDTO implements Serializable {
     @Schema(description = "ID сотрудника", example = "123e4567-e89b-12d3-a456-426614174000")
     private UUID userId;
 

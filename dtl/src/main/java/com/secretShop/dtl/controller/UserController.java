@@ -71,7 +71,7 @@ public class UserController {
 
     @Operation(summary = "Обновить баланс", description = "Изменяет баланс сотрудника")
     @ApiResponse(responseCode = "204", description = "Баланс обновлен")
-    @PatchMapping("/balance")
+    @PostMapping("/balance")
     public ResponseEntity<Void> updateUserBalance(
             @RequestBody UpdateBalanceDTO balanceDTO) {
         userService.updateBalance(balanceDTO);

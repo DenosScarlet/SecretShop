@@ -37,7 +37,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "201", description = "Пользователь успешно создан")
     })
     @PostMapping("/full")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<KeycloakUserResponse> createFullUser(
             @Parameter(description = "Данные для создания пользователя", required = true)
             @RequestBody FullUserCreateRequest request) {
@@ -51,7 +50,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "404", description = "Пользователь не найден")
     })
     @GetMapping("/{userId}")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<UserRepresentation> getUserById(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId) {
         return ResponseEntity.ok(keycloakUserService.getUserById(userId.toString()));
@@ -62,7 +60,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "200", description = "Список пользователей")
     })
     @GetMapping("/search")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<List<UserRepresentation>> searchUsers(
             @Parameter(description = "Имя пользователя") @RequestParam(required = false) String username,
             @Parameter(description = "Email пользователя") @RequestParam(required = false) String email) {
@@ -74,7 +71,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "200", description = "Пользователь успешно обновлён")
     })
     @PutMapping("/{userId}")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<KeycloakUserResponse> updateUser(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId,
             @Parameter(description = "Данные для обновления пользователя", required = true) @RequestBody UserUpdateRequest request) {
@@ -86,7 +82,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "204", description = "Пользователь деактивирован")
     })
     @PutMapping("/{userId}/disable")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<Void> disableUser(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId) {
         keycloakUserService.disableUser(userId.toString());
@@ -98,7 +93,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "204", description = "Пользователь активирован")
     })
     @PutMapping("/{userId}/enable")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<Void> enableUser(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId) {
         keycloakUserService.enableUser(userId.toString());
@@ -110,7 +104,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "204", description = "Пароль сброшен")
     })
     @PutMapping("/{userId}/reset-password")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<Void> resetPassword(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId,
             @Parameter(description = "Запрос на сброс пароля", required = true) @RequestBody PasswordResetRequest request) {
@@ -123,7 +116,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "200", description = "Список ролей пользователя")
     })
     @GetMapping("/{userId}/roles")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<List<String>> getUserRoles(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId) {
         return ResponseEntity.ok(keycloakUserService.getUserRoles(userId.toString()));
@@ -134,7 +126,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "204", description = "Роль назначена")
     })
     @PostMapping("/{userId}/roles")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<Void> assignRole(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId,
             @Parameter(description = "Запрос на назначение роли", required = true) @RequestBody RoleAssignmentRequest request) {
@@ -147,11 +138,48 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "204", description = "Роль удалена")
     })
     @DeleteMapping("/{userId}/roles/{roleName}")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<Void> removeRole(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId,
             @Parameter(description = "Название роли", required = true) @PathVariable String roleName) {
         keycloakUserService.removeRole(userId.toString(), roleName);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Получить группы пользователя", description = "Возвращает список групп пользователя по UUID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Список групп пользователя")
+    })
+    @GetMapping("/{userId}/groups")
+    public ResponseEntity<List<String>> getUserGroups(
+            @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId) {
+        return ResponseEntity.ok(keycloakUserService.getUserGroups(userId.toString()));
+    }
+
+    @Operation(summary = "Назначить группу пользователю", description = "Назначает группу пользователю по UUID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Группа назначена")
+    })
+    @PostMapping("/{userId}/groups")
+    public ResponseEntity<Void> assignGroup(
+            @Parameter(description = "UUID пользователя", required = true)
+            @PathVariable UUID userId,
+
+            @Parameter(description = "Запрос на назначение группы", required = true)
+            @RequestBody GroupAssignmentRequest request) {
+
+        keycloakUserService.joinGroup(userId.toString(), request.getGroupName());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Удалить группу у пользователя", description = "Удаляет группу у пользователя по UUID и названию группы")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Группа удалена")
+    })
+    @DeleteMapping("/{userId}/groups/{groupName}")
+    public ResponseEntity<Void> removeGroup(
+            @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId,
+            @Parameter(description = "Название группы", required = true) @PathVariable String groupName) {
+        keycloakUserService.leaveGroup(userId.toString(), groupName);
         return ResponseEntity.noContent().build();
     }
 
@@ -177,7 +205,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "204", description = "Пользователь удалён")
     })
     @DeleteMapping("/{userId}")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<Void> deleteUser(
             @Parameter(description = "UUID пользователя", required = true) @PathVariable UUID userId) {
         keycloakUserService.deleteUser(userId);
@@ -189,7 +216,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "200", description = "Список пользователей")
     })
     @GetMapping
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<List<UserRepresentation>> getAllUsers(
             @Parameter(description = "Смещение (по умолчанию 0)") @RequestParam(defaultValue = "0") int first,
             @Parameter(description = "Максимальное количество (по умолчанию 20)") @RequestParam(defaultValue = "20") int max) {
@@ -202,7 +228,6 @@ public class UserIntegrationController {
             @ApiResponse(responseCode = "404", description = "Пользователь не найден")
     })
     @GetMapping("/username/{username}")
-    @PreAuthorize("@securityUtils.hasRealmRole('admin')")
     public ResponseEntity<UserRepresentation> getUserByUsername(
             @Parameter(description = "Username пользователя", required = true) @PathVariable String username) {
         List<UserRepresentation> users = keycloakUserService.searchUsers(username, null);

@@ -46,25 +46,11 @@ public class DtlUserService {
 
     public UserDTO updateBalance(UUID userId, BalanceUpdateDTO balanceUpdate) {
         UserDTO userDTO = getUser(userId);
+        userEventClient.updateBalance(userId, balanceUpdate.getNewBalance());
         userDTO.setBalance(balanceUpdate.getNewBalance());
-        userEventClient.sendUserUpdatedEvent(userDTO);
         return userDTO;
     }
 
-    public UserDTO syncUser(UUID userId) {
-        // Получаем данные из Keycloak
-        var keycloakUser = keycloakUserService.getUserById(userId.toString());
-
-        // Обновляем/создаем в DTL
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUserId(userId);
-        userDTO.setFirstName(keycloakUser.getFirstName());
-        userDTO.setLastName(keycloakUser.getLastName());
-        userDTO.setMiddleName(keycloakUser.firstAttribute("middleName"));
-        userDTO.setAvatar(keycloakUser.firstAttribute("avatar"));
-
-        return userEventClient.createOrUpdateUser(userDTO);
-    }
 
     public String getUserAvatar(UUID userId) {
         return getUser(userId).getAvatar();

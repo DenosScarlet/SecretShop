@@ -7,11 +7,15 @@ import com.secretshop.keycloak.service.impl.UserEventClient;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.GroupsResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.slf4j.LoggerFactory;
+import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +26,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +38,7 @@ public class KeycloakUserService {
     private final Keycloak keycloak;
     private final UserEventClient userEventClient;
 
+
     @Value("${spring.security.oauth2.client.registration.keycloak.realm}")
     private String realm;
 
@@ -40,7 +47,7 @@ public class KeycloakUserService {
         validateRequest(request);
 
         try {
-            // Попробуем задать случайный UUID (для некоторых версий Keycloak это может сработать)
+            // Попробуем задать случайный UUID
             UUID userId = UUID.randomUUID();
             UserRepresentation user = buildKeycloakUserRepresentation(userId, request);
 
@@ -51,24 +58,23 @@ public class KeycloakUserService {
                 throw new RuntimeException("Failed to create user in Keycloak: " + response.getStatusInfo());
             }
 
-            // 2. Получаем ID созданного пользователя из Location header
+            // 2. Получаем ID созданного пользователя
             String createdUserId = extractUserIdFromLocation(response.getLocation());
             UUID dtlUserId = UUID.fromString(createdUserId);
 
             // 3. Устанавливаем пароль с retry
             setPasswordWithRetry(usersResource, createdUserId, request.getPassword());
 
-            // 4. Создаем пользователя в DTL с реальным ID из Keycloak
+            // 4. Создаем пользователя в DTL
             UserDTO userDto = createDtlUser(dtlUserId, request);
 
-            // 5. Возвращаем ответ с реальным ID пользователя
+
+
+            // 5. Возвращаем ответ
             return buildResponse(dtlUserId, request);
 
         } catch (Exception e) {
             log.error("User creation failed", e);
-            // rollback по ID из Keycloak не требуется — пользователь не был создан в DTL
-            // rollback по случайному UUID тоже не нужен, если Keycloak не принял его
-            // Если хотите — можно попробовать удалить пользователя по createdUserId, если он был создан, но это сложнее
             throw new UserCreationException("Failed to create user", e);
         }
     }
@@ -88,7 +94,6 @@ public class KeycloakUserService {
 
     private UserRepresentation buildKeycloakUserRepresentation(UUID userId, FullUserCreateRequest request) {
         UserRepresentation user = new UserRepresentation();
-        // Если Keycloak поддерживает ручное задание ID — задаём, если нет — игнорируется
         user.setId(userId.toString());
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
@@ -168,7 +173,6 @@ public class KeycloakUserService {
         try {
             return keycloak.realm(realm).users().get(userId).toRepresentation();
         } catch (NotAuthorizedException e) {
-            // Попробуем обновить токен и повторить запрос
             try {
                 keycloak.tokenManager().refreshToken();
                 return keycloak.realm(realm).users().get(userId).toRepresentation();
@@ -198,7 +202,6 @@ public class KeycloakUserService {
 
         keycloak.realm(realm).users().get(userId).update(user);
 
-        // Update in DTL if needed
         UserDTO userDto = new UserDTO();
         userDto.setUserId(UUID.fromString(userId));
         userDto.setFirstName(user.getFirstName());
@@ -254,44 +257,79 @@ public class KeycloakUserService {
         keycloak.realm(realm).users().get(userId).roles().realmLevel().remove(Collections.singletonList(role));
     }
 
-    /**
-     * Удаляет пользователя из Keycloak и DTL.
-     * @param userId ID пользователя (UUID)
-     */
-    public void deleteUser(UUID userId) {
-        // 1. Удаление из Keycloak
-        deleteUserFromKeycloak(userId);
+    public List<String> getUserGroups(String userId) {
+        return keycloak.realm(realm).users().get(userId).groups()
+                .stream()
+                .map(GroupRepresentation::getName)
+                .toList();
+    }
 
-        // 2. Удаление из DTL
+    public void joinGroup(String userId, String groupName) {
+        UserResource userResource = keycloak.realm(realm).users().get(userId);
+
+        // 1. Проверка существования пользователя
+        try {
+            userResource.toRepresentation();
+        } catch (NotFoundException e) {  // Используем стандартное исключение
+            throw new RuntimeException("User not found: " + userId, e);
+        }
+
+        // 2. Поиск группы
+        GroupsResource groupsResource = keycloak.realm(realm).groups();
+        List<GroupRepresentation> groups;
+
+        try {
+            // Используем поиск с параметрами вместо получения всех групп
+            groups = groupsResource.groups(groupName, 0, 1);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve groups: " + e.getMessage(), e);
+        }
+
+        // 3. Проверка результатов поиска
+        if (groups.isEmpty()) {
+            throw new RuntimeException("Group not found: " + groupName);
+        }
+
+        // 4. Добавление пользователя в группу
+        String groupId = groups.get(0).getId();
+        try {
+            userResource.joinGroup(groupId);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to assign group '" + groupName +
+                    "' to user " + userId + ": " + e.getMessage(), e);
+        }
+    }
+
+    public void leaveGroup(String userId, String groupName) {
+        String groupId = keycloak.realm(realm).groups().groups().stream()
+                .filter(group -> group.getName().equals(groupName))
+                .findFirst()
+                .map(GroupRepresentation::getId)
+                .orElseThrow(() -> new RuntimeException("Group not found: " + groupName));
+        keycloak.realm(realm).users().get(userId).leaveGroup(groupId);
+    }
+
+    public void deleteUser(UUID userId) {
+        deleteUserFromKeycloak(userId);
         userEventClient.sendUserDeletedEvent(userId);
     }
 
-    /**
-     * Удаляет пользователя из Keycloak.
-     */
     private void deleteUserFromKeycloak(UUID userId) {
         try {
             UserResource userResource = keycloak.realm(realm).users().get(userId.toString());
             UserRepresentation user = userResource.toRepresentation();
-
             if (user != null) {
-                userResource.remove();  // Удаление пользователя
+                userResource.remove();
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete user from Keycloak: " + e.getMessage());
         }
     }
 
-    /* Получает список всех пользователей с пагинацией
-    * @param first Начальный индекс (offset)
-    * @param max Максимальное количество записей
-    * @return Список пользователей
-    */
     public List<UserRepresentation> getAllUsers(int first, int max) {
         try {
             return keycloak.realm(realm).users().list(first, max);
         } catch (NotAuthorizedException e) {
-            // Попробуем обновить токен и повторить запрос
             try {
                 keycloak.tokenManager().refreshToken();
                 return keycloak.realm(realm).users().list(first, max);
@@ -300,10 +338,4 @@ public class KeycloakUserService {
             }
         }
     }
-
-
-
-
-    // rollback по сложной логике не требуется, потому что если Keycloak не принял ID,
-    // то пользователь в DTL не был создан, а если принял — то ID совпадает
 }

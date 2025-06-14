@@ -12,8 +12,6 @@ const api  = axios.create({
     }
 });
 
-
-
 // Общий интерцептор для добавления токена
 const addAuthInterceptor = (instance) => {
     instance.interceptors.request.use(
@@ -53,6 +51,10 @@ const addRefreshInterceptor = (instance) => {
     );
 };
 
+function isValidUUID(uuid) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+}
 // Применяем интерцепторы к обоим инстансам
 addAuthInterceptor(shopAxiosInstance);
 addAuthInterceptor(api);
@@ -93,8 +95,13 @@ const shopApi = {
     getOperationsByItem: (itemId) => shopAxiosInstance.get(`/shop/operations/item/${itemId}`),
     getOperationById: (operationId) => shopAxiosInstance.get(`/shop/operations/${operationId}`),
     getAllOperations: (params) => shopAxiosInstance.get('/shop/operations', { params }),
-    updateOperation: (operationId, updateData) => shopAxiosInstance.put(`/shop/operation/${operationId}`, updateData),
-
+    updateOperation: (operationsId, updateData) => {
+        // Проверяем валидность UUID
+        if (!isValidUUID(operationsId)) {
+            throw new Error(`Невалидный идентификатор операции: ${operationsId}`);
+        }
+        return shopAxiosInstance.put(`/shop/operation/${operationsId}`, updateData);
+    },
     // Файлы товаров
     uploadItemImage: (itemId, file) => {
         const formData = new FormData();
