@@ -4,6 +4,7 @@ import com.secretshop.keycloak.exception.UserAlreadyExistsException;
 import com.secretshop.keycloak.exception.UserCreationException;
 import com.secretshop.keycloak.DTO.*;
 import com.secretshop.keycloak.service.impl.UserEventClient;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import org.keycloak.admin.client.Keycloak;
@@ -47,32 +48,26 @@ public class KeycloakUserService {
         validateRequest(request);
 
         try {
-            // Попробуем задать случайный UUID
-            UUID userId = UUID.randomUUID();
-            UserRepresentation user = buildKeycloakUserRepresentation(userId, request);
-
-            // 1. Создаем пользователя в Keycloak
+            // 1. Создаем пользователя в Keycloak с паролем
+            UserRepresentation user = buildKeycloakUserRepresentation(request);
             UsersResource usersResource = keycloak.realm(realm).users();
-            Response response = usersResource.create(user);
-            if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
-                throw new RuntimeException("Failed to create user in Keycloak: " + response.getStatusInfo());
+
+            try (Response response = usersResource.create(user)) {
+                if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
+                    String errorBody = response.readEntity(String.class);
+                    log.error("Keycloak error: {} - {}", response.getStatus(), errorBody);
+                    throw new RuntimeException("Failed to create user: " + response.getStatus() + " - " + errorBody);
+                }
+
+                // 2. Получаем ID созданного пользователя
+                String createdUserId = extractUserIdFromLocation(response.getLocation());
+                UUID dtlUserId = UUID.fromString(createdUserId);
+
+                // 3. Создаем пользователя в DTL
+                UserDTO userDto = createDtlUser(dtlUserId, request);
+
+                return buildResponse(dtlUserId, request);
             }
-
-            // 2. Получаем ID созданного пользователя
-            String createdUserId = extractUserIdFromLocation(response.getLocation());
-            UUID dtlUserId = UUID.fromString(createdUserId);
-
-            // 3. Устанавливаем пароль с retry
-            setPasswordWithRetry(usersResource, createdUserId, request.getPassword());
-
-            // 4. Создаем пользователя в DTL
-            UserDTO userDto = createDtlUser(dtlUserId, request);
-
-
-
-            // 5. Возвращаем ответ
-            return buildResponse(dtlUserId, request);
-
         } catch (Exception e) {
             log.error("User creation failed", e);
             throw new UserCreationException("Failed to create user", e);
@@ -92,19 +87,20 @@ public class KeycloakUserService {
         }
     }
 
-    private UserRepresentation buildKeycloakUserRepresentation(UUID userId, FullUserCreateRequest request) {
+    private UserRepresentation buildKeycloakUserRepresentation(FullUserCreateRequest request) {
         UserRepresentation user = new UserRepresentation();
-        user.setId(userId.toString());
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEnabled(true);
+        user.setEmailVerified(false);
 
         if (request.getMiddleName() != null) {
             user.singleAttribute("middleName", request.getMiddleName());
         }
 
+        // Устанавливаем пароль при создании
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
         credential.setValue(request.getPassword());
@@ -134,6 +130,7 @@ public class KeycloakUserService {
                 usersResource.get(userId).resetPassword(credential);
                 return;
             } catch (NotFoundException e) {
+                // Пользователь еще не доступен, ждем и повторяем
                 retries--;
                 if (retries == 0) throw e;
                 try {
@@ -142,6 +139,11 @@ public class KeycloakUserService {
                     Thread.currentThread().interrupt();
                     throw new RuntimeException("Interrupted during retry", ie);
                 }
+            } catch (BadRequestException e) {
+                // Добавляем логирование для диагностики
+                String errorBody = e.getResponse().readEntity(String.class);
+                log.error("Keycloak password error: {}", errorBody);
+                throw new RuntimeException("Invalid password: " + errorBody);
             }
         }
     }
