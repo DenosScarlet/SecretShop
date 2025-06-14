@@ -57,43 +57,36 @@ public class QuestService {
     public QuestDTO updateQuest(UpdateQuestDTO updateQuestDTO) {
         UUID questId = updateQuestDTO.getQuestId();
         QuestDTO questDTO = updateQuestDTO.getQuestDTO();
-        // Получаем существующий квест
+
         Quest existingQuest = questRepository.findById(questId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Quest not found with id: " + questId
                 ));
 
-        // Обновляем поля через маппер
         questMapper.updateFromDto(questDTO, existingQuest);
 
-        // Сохраняем обновлённый квест
         Quest updatedQuest = questRepository.save(existingQuest);
 
-        // Обновляем связи с пользователями
         updateUserRelations(updatedQuest, questDTO.getWorkGroup());
 
         return questMapper.modelToDto(updatedQuest);
     }
 
     private void updateUserRelations(Quest quest, WorkGroup newWorkGroup) {
-        // Получаем текущих связанных пользователей
         List<UUID> currentUserIds = usersQuestsRepository.findUserIdsByQuestId(quest.getQuestId());
 
-        // Получаем новых пользователей по рабочей группе
         List<User> newUsers = userRepository.findUsersByWorkGroup(newWorkGroup);
         List<UUID> newUserIds = newUsers.stream()
                 .map(User::getUserId)
                 .toList();
 
-        // Удаляем устаревшие связи
         currentUserIds.stream()
                 .filter(userId -> !newUserIds.contains(userId))
                 .forEach(userId ->
                         usersQuestsRepository.deleteByUserIdAndQuestId(userId, quest.getQuestId())
                 );
 
-        // Добавляем новые связи
         newUserIds.stream()
                 .filter(userId -> !currentUserIds.contains(userId))
                 .forEach(userId ->

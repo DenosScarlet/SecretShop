@@ -27,7 +27,7 @@ public class UsersQuestsService {
         response.setQuestId(questId);
         response.setStepsToComplete(questRepository.getStepsToCompleteById(questId));
         response.setCompletedSteps(
-                usersQuestsRepository.getCompletedStepsById(userId, questId) // Добавлен questId
+                usersQuestsRepository.getCompletedStepsById(userId, questId)
         );
         return response;
     }

@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    @Autowired // Добавьте эту аннотацию
+    @Autowired
     UserRepository userRepository;
 
     @Transactional

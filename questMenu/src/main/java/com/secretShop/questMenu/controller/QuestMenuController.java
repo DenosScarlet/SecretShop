@@ -27,7 +27,6 @@ import java.util.UUID;
 @Tag(name = "Управление квестами", description = "API для управления квестами")
 public class QuestMenuController {
 
-    //private final QuestClient questClient = new QuestClient();
     private final KafkaQuestClient kafkaQuestClient;
     private final QuestService questService;
 

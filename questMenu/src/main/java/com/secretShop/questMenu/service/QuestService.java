@@ -11,7 +11,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class QuestService {
-    //QuestClient questClient = new QuestClient();
     private final KafkaQuestClient questClient;
 
     @Transactional
@@ -19,7 +18,6 @@ public class QuestService {
 
         Status currentStatus = Status.valueOf(questClient.getQuestStatusById(stepsRequest.getUserId(), stepsRequest.getQuestId()));
 
-        // Если квест уже завершен - выходим из метода
         if (currentStatus == Status.COMPLETE) {
             return;
         }
