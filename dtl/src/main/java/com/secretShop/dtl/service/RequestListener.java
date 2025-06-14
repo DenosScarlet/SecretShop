@@ -42,7 +42,7 @@ public class RequestListener {
 //        this.usersQuestsRepository = usersQuestsRepository;
 //    }
 
-    @KafkaListener(topics = "quest-requests", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "quest-requests", containerFactory = "questKafkaListenerContainerFactory")
     public void listen(QuestRequest request) {
         String op = request.getOperation();
         Object payload = request.getPayload();

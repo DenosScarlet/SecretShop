@@ -100,7 +100,8 @@ public class KafkaConfig {
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.secretShop.dtl.DTO,com.secretShop.questMenu.DTO");
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.secretShop.dtl.DTO.QuestRequest");
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(objectMapper()));
+        props.put(JsonDeserializer.TYPE_MAPPINGS, "QuestRequest:com.secretShop.dtl.DTO.QuestRequest");
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(QuestRequest.class, objectMapper()));
     }
 
     @Bean

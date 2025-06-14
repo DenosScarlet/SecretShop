@@ -32,7 +32,7 @@ public class KafkaConfig {
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-        mapper.registerModule(new Jdk8Module()); // Добавляем поддержку Optional
+        mapper.registerModule(new Jdk8Module());
         return mapper;
     }
 
@@ -42,6 +42,7 @@ public class KafkaConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        props.put(JsonSerializer.TYPE_MAPPINGS, "QuestRequest:com.secretShop.questMenu.DTO.QuestRequest");
 
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.RETRIES_CONFIG, 3);
@@ -50,9 +51,9 @@ public class KafkaConfig {
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
 
         // Создаем JsonSerializer с настроенным ObjectMapper
-        JsonSerializer<QuestRequest> jsonSerializer = new JsonSerializer<>(objectMapper());
+        //JsonSerializer<QuestRequest> jsonSerializer = new JsonSerializer<>(objectMapper());
 
-        return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), jsonSerializer);
+        return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), new JsonSerializer<>(objectMapper()));
     }
 
     @Bean
