@@ -482,6 +482,15 @@
     cursor: pointer;
 }
 
+.cancelButton {
+    padding: 8px 16px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 .questItem {
     display: flex;
     flex-direction: column;
