@@ -18,7 +18,6 @@ import OperationListPage from './pages/OperationListPage/OperationListPage';
 import UserListPage from './pages/UserListPage/UserListPage';
 import UserCreationPage from './pages/UserCreationPage/UserCreationPage';
 import UserEditPage from './pages/UserEditPage/UserEditPage';
-import PersonalAccountPage from './pages/PersonalAccountPage/PersonalAccountPage';
 import './App.css';
 
 const handleKeycloakEvent = (event, error) => {
@@ -80,7 +79,6 @@ function App() {
                                         </QuestProtectedRoute>
                                     }
                                 />
-
                                 <Route
                                     path="/quests"
                                     element={
@@ -143,14 +141,6 @@ function App() {
                                     element={
                                         <ProtectedRoute requiredRole="adminGroup">
                                             <UserEditPage />
-                                        </ProtectedRoute>
-                                    }
-                                />
-                                <Route
-                                    path="/account"
-                                    element={
-                                        <ProtectedRoute>
-                                            <PersonalAccountPage />
                                         </ProtectedRoute>
                                     }
                                 />

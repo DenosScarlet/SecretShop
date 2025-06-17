@@ -58,6 +58,10 @@ export default function Header() {
         navigationItems.push({ name: 'Shop', path: '/shop' });
     }
 
+    if (isAuthenticated) {
+        navigationItems.push({ name: 'Tasks', path: '/tasks' });
+    }
+
     return (
         <header className={styles.header}>
             <svg
