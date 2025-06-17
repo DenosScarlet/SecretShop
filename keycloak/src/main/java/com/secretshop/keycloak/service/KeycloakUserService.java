@@ -39,7 +39,6 @@ public class KeycloakUserService {
     private final Keycloak keycloak;
     private final UserEventClient userEventClient;
 
-
     @Value("${spring.security.oauth2.client.registration.keycloak.realm}")
     private String realm;
 
@@ -48,7 +47,6 @@ public class KeycloakUserService {
         validateRequest(request);
 
         try {
-            // 1. Создаем пользователя в Keycloak с паролем
             UserRepresentation user = buildKeycloakUserRepresentation(request);
             UsersResource usersResource = keycloak.realm(realm).users();
 
@@ -59,11 +57,9 @@ public class KeycloakUserService {
                     throw new RuntimeException("Failed to create user: " + response.getStatus() + " - " + errorBody);
                 }
 
-                // 2. Получаем ID созданного пользователя
                 String createdUserId = extractUserIdFromLocation(response.getLocation());
                 UUID dtlUserId = UUID.fromString(createdUserId);
 
-                // 3. Создаем пользователя в DTL
                 UserDTO userDto = createDtlUser(dtlUserId, request);
 
                 return buildResponse(dtlUserId, request);
@@ -100,7 +96,6 @@ public class KeycloakUserService {
             user.singleAttribute("middleName", request.getMiddleName());
         }
 
-        // Устанавливаем пароль при создании
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
         credential.setValue(request.getPassword());
@@ -130,7 +125,6 @@ public class KeycloakUserService {
                 usersResource.get(userId).resetPassword(credential);
                 return;
             } catch (NotFoundException e) {
-                // Пользователь еще не доступен, ждем и повторяем
                 retries--;
                 if (retries == 0) throw e;
                 try {
@@ -140,7 +134,6 @@ public class KeycloakUserService {
                     throw new RuntimeException("Interrupted during retry", ie);
                 }
             } catch (BadRequestException e) {
-                // Добавляем логирование для диагностики
                 String errorBody = e.getResponse().readEntity(String.class);
                 log.error("Keycloak password error: {}", errorBody);
                 throw new RuntimeException("Invalid password: " + errorBody);
@@ -269,30 +262,25 @@ public class KeycloakUserService {
     public void joinGroup(String userId, String groupName) {
         UserResource userResource = keycloak.realm(realm).users().get(userId);
 
-        // 1. Проверка существования пользователя
         try {
             userResource.toRepresentation();
         } catch (NotFoundException e) {  // Используем стандартное исключение
             throw new RuntimeException("User not found: " + userId, e);
         }
 
-        // 2. Поиск группы
         GroupsResource groupsResource = keycloak.realm(realm).groups();
         List<GroupRepresentation> groups;
 
         try {
-            // Используем поиск с параметрами вместо получения всех групп
             groups = groupsResource.groups(groupName, 0, 1);
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve groups: " + e.getMessage(), e);
         }
 
-        // 3. Проверка результатов поиска
         if (groups.isEmpty()) {
             throw new RuntimeException("Group not found: " + groupName);
         }
 
-        // 4. Добавление пользователя в группу
         String groupId = groups.get(0).getId();
         try {
             userResource.joinGroup(groupId);
