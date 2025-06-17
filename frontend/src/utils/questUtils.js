@@ -1,7 +1,7 @@
 // Утилиты для работы с квестами
 
 // Функция для преобразования массива даты в объект Date
-const parseDate = (dateArray) => {
+export const parseDate = (dateArray) => {
     if (Array.isArray(dateArray) && dateArray.length >= 3) {
         // Массив: [год, месяц, день, час, минута, секунда]
         // Важно: месяц в JavaScript начинается с 0, поэтому вычитаем 1

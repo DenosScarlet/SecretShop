@@ -162,7 +162,14 @@ function App() {
                                         </ProtectedRoute>
                                     }
                                 />
-                                <Route path="/" element={<div>Главная страница</div>} />
+                                <Route
+                                    path="/"
+                                    element={
+                                        <ProtectedRoute>
+                                            <TasksPage/>
+                                        </ProtectedRoute>
+                                    }
+                                />
                             </Routes>
                         </div>
                     </div>

@@ -327,6 +327,105 @@
     pointer-events: none;
 }
 
+.questsList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.questItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+
+.questItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.questInfo {
+    flex: 1;
+}
+
+.questTitle {
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 16px;
+    color: #212121;
+}
+
+.questDescription {
+    font-size: 14px;
+    color: #616161;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.questSteps {
+    font-size: 14px;
+    color: #424242;
+    margin-bottom: 8px;
+}
+
+.questMeta {
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.questDate {
+    color: #757575;
+}
+
+.questStatus {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.statusComplete {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.statusIncomplete {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+.questReward {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #f57c00;
+}
+
+/* Add to existing styles */
+.iconCoin {
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.balance,
+.iconCoin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.questItem .iconCoin {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 @media (max-width: 768px) {
     .profileInfo {
         flex-direction: column;
