@@ -34,5 +34,22 @@ export const keycloakApi = {
     updateDtlUser: (userId, updateData) => keycloakApiClient.put(`/api/dtl/users/${userId}`, updateData),
     getAllDtlUsers: (page = 0, size = 20) => keycloakApiClient.get(`/api/dtl/users?page=${page}&size=${size}`),
     updateUserBalance: (userId, newBalance) => keycloakApiClient.put(`/api/dtl/users/${userId}/balance`, { newBalance }),
-    updateUserAvatar: (userId, avatarUrl) => keycloakApiClient.put(`/api/dtl/users/${userId}/avatar`, { avatar: avatarUrl })
+    updateUserAvatar: (userId, avatarUrl) => keycloakApiClient.put(`/api/dtl/users/${userId}/avatar`, { avatar: avatarUrl }),
+    uploadUserAvatar: (userId, file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return keycloakApiClient.post(
+            `/api/dtl/users/${userId}/avatar/upload`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        );
+    },
+    downloadUserAvatar: (fileName, bucketName = 'secretshop') => keycloakApiClient.get(`/api/dtl/users/download?fileName=${fileName}&bucketName=${bucketName}`, {
+        responseType: 'blob'
+    })
 };

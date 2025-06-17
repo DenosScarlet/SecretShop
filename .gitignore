@@ -308,3 +308,4 @@ sketch
 
 shop/.idea/amplicode-settings.xml
 /shop/.idea
+keycloak/src/main/resources/application.yml
