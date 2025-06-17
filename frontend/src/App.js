@@ -19,6 +19,7 @@ import UserListPage from './pages/UserListPage/UserListPage';
 import UserCreationPage from './pages/UserCreationPage/UserCreationPage';
 import UserEditPage from './pages/UserEditPage/UserEditPage';
 import './App.css';
+import PersonalAccountPage from "./pages/PersonalAccountPage/PersonalAccountPage";
 
 const handleKeycloakEvent = (event, error) => {
     console.log('Keycloak event:', event, error);
@@ -141,6 +142,14 @@ function App() {
                                     element={
                                         <ProtectedRoute requiredRole="adminGroup">
                                             <UserEditPage />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/account"
+                                    element={
+                                        <ProtectedRoute>
+                                            <PersonalAccountPage />
                                         </ProtectedRoute>
                                     }
                                 />
