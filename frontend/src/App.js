@@ -20,6 +20,7 @@ import UserCreationPage from './pages/UserCreationPage/UserCreationPage';
 import UserEditPage from './pages/UserEditPage/UserEditPage';
 import './App.css';
 import PersonalAccountPage from "./pages/PersonalAccountPage/PersonalAccountPage";
+import TasksPage from "./pages/TaskPage/TasksPage";
 
 const handleKeycloakEvent = (event, error) => {
     console.log('Keycloak event:', event, error);
@@ -150,6 +151,14 @@ function App() {
                                     element={
                                         <ProtectedRoute>
                                             <PersonalAccountPage />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/tasks"
+                                    element={
+                                        <ProtectedRoute>
+                                            <TasksPage/>
                                         </ProtectedRoute>
                                     }
                                 />
