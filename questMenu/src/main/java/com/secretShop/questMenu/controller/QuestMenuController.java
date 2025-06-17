@@ -2,6 +2,7 @@ package com.secretShop.questMenu.controller;
 
 import com.secretShop.questMenu.DTO.QuestDTO;
 import com.secretShop.questMenu.DTO.StepsRequestDTO;
+import com.secretShop.questMenu.DTO.UsersQuestsDTO;
 import com.secretShop.questMenu.service.KafkaQuestClient;
 import com.secretShop.questMenu.service.QuestService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,6 +53,17 @@ public class QuestMenuController {
                     example = "123e4567-e89b-12d3-a456-426614174000")
             @PathVariable("id") UUID id) {
         return kafkaQuestClient.findQuestById(id);
+    }
+
+    @Operation(summary = "Получить квесты пользователя")
+    @ApiResponse(responseCode = "200", description = "Квесты пользователя получены",
+            content = @Content(mediaType = "application/json",
+                    array = @ArraySchema(schema = @Schema(implementation = UsersQuestsDTO.class))))
+    @GetMapping("/user")
+    public List<UsersQuestsDTO> getUserQuests(
+            @Parameter(description = "ID пользователя", required = true)
+            @RequestParam UUID userId) {
+        return kafkaQuestClient.getUserQuests(userId);
     }
 
     @Operation(summary = "Создать новый квест", description = "Добавляет новый квест в систему")

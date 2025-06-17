@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { keycloakApi } from '../services/keycloakApi';
 import { questApi } from '../services/questApi';
@@ -21,29 +21,12 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (initialized) {
-            if (keycloak.authenticated) {
-                loadUserData();
-            } else {
-                setLoading(false);
-                setUserGroups([]);
-            }
-        }
-    }, [initialized, keycloak.authenticated]);
+    function isValidUUID(uuid) {
+        const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        return regex.test(uuid);
+    }
 
-    const getUserQuests = async () => {
-        try {
-            const response = await questApi.getUserQuests();
-            console.log('User quests:', response.data);
-            return response.data || [];
-        } catch (error) {
-            console.error('Error loading user quests:', error);
-            return [];
-        }
-    };
-
-    const loadUserData = async () => {
+    const loadUserData = useCallback(async () => {
         setLoading(true);
         setError(null);
 
@@ -122,34 +105,62 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [keycloak.tokenParsed]);
+
+    useEffect(() => {
+        if (initialized) {
+            if (keycloak.authenticated) {
+                loadUserData();
+            } else {
+                setLoading(false);
+                setUserGroups([]);
+            }
+        }
+    }, [initialized, keycloak.authenticated, loadUserData]);
+
+    const getUserQuests = useCallback(async () => {
+        try {
+            if (!user?.userId || !isValidUUID(user.userId)) {
+                console.error('Invalid user ID:', user?.userId);
+                return [];
+            }
+
+            console.log('Fetching quests for user:', user.userId);
+            const response = await questApi.getUserQuests(user.userId);
+            console.log('Quests response:', response);
+            return response.data || [];
+        } catch (error) {
+            console.error('Error loading user quests:', error);
+            return [];
+        }
+    }, [user?.userId]);
 
     // Проверка принадлежности к группе
-    const hasGroup = (group) => {
+    const hasGroup = useCallback((group) => {
         if (!group) return false;
         const normalizedGroup = group.toLowerCase();
         const has = userGroups.includes(normalizedGroup);
         console.log(`Checking group ${normalizedGroup}: ${has}`);
         return has;
-    };
+    }, [userGroups]);
 
     // Основные группы системы
-    const isAdmin = () => hasGroup('adminGroup');
-    const isManager = () => hasGroup('managerGroup');
-    const isEmployee = () => hasGroup('userGroup');
+    const isAdmin = useCallback(() => hasGroup('adminGroup'), [hasGroup]);
+    const isManager = useCallback(() => hasGroup('managerGroup'), [hasGroup]);
+    const isEmployee = useCallback(() => hasGroup('userGroup'), [hasGroup]);
 
     // Права доступа
-    const canManageQuests = () => {
+    const canManageQuests = useCallback(() => {
         const can = isAdmin() || isManager();
         console.log('canManageQuests:', can);
         return can;
-    };
+    }, [isAdmin, isManager]);
 
-    const canManageUsers = () => {
+    const canManageUsers = useCallback(() => {
         const can = isAdmin();
         console.log('canManageUsers:', can);
         return can;
-    };
+    }, [isAdmin]);
 
     // Обновление пользователя
     const updateUser = async (userId, userData) => {

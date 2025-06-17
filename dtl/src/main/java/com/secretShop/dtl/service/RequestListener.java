@@ -99,6 +99,11 @@ public class RequestListener {
                 questRepository.findById(UUID.fromString((String) payload)).ifPresent(questRepository::delete);
                 break;
             }
+            case "GET_USERS_QUESTS": {
+                UUID userId = UUID.fromString((String) payload);
+                result = usersQuestsService.getUserQuests(userId);
+                break;
+            }
         }
         kafkaTemplate.send("quest-responses", new QuestRequest(op, result, correlationId));
     }

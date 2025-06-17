@@ -3,11 +3,14 @@ import styles from './QuestMenu.module.css';
 import { MenuItem } from './MenuItem';
 import { useAuth } from '../../contexts/AuthContext';
 import { filterActiveQuests, groupQuestsByFrequency, getFrequencyLabel } from '../../utils/questUtils';
+import { questApi } from '../../services/questApi';
 
 export default function QuestMenu() {
     const { user, getUserQuests } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [groupedQuests, setGroupedQuests] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [selectedQuest, setSelectedQuest] = useState(null);
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -23,25 +26,58 @@ export default function QuestMenu() {
 
     useEffect(() => {
         const loadQuests = async () => {
-            if (user?.userId) {
-                const quests = await getUserQuests();
-                const activeQuests = filterActiveQuests(quests);
-                const grouped = groupQuestsByFrequency(activeQuests);
-                setGroupedQuests(grouped);
+            if (user?.userId && isOpen) {
+                setLoading(true);
+                try {
+                    const quests = await getUserQuests();
+
+                    if (Array.isArray(quests) && quests.length > 0) {
+                        const activeQuests = filterActiveQuests(quests);
+                        const grouped = groupQuestsByFrequency(activeQuests);
+                        setGroupedQuests(grouped);
+                    } else {
+                        setGroupedQuests({});
+                    }
+                } catch (error) {
+                    console.error('Error loading quests:', error);
+                    setGroupedQuests({});
+                } finally {
+                    setLoading(false);
+                }
+            } else if (!isOpen) {
+                setGroupedQuests({});
+                setSelectedQuest(null); // Сбрасываем выбранный квест при закрытии
             }
         };
 
-        if (isOpen) {
-            loadQuests();
+        loadQuests();
+    }, [isOpen, user?.userId, getUserQuests]);
+
+    const handleMenuToggle = () => {
+        setIsOpen(!isOpen);
+    };
+
+    const handleQuestSelect = async (quest) => {
+        try {
+            const response = await questApi.getQuestById(quest.questId);
+            setSelectedQuest(response.data);
+        } catch (error) {
+            console.error('Error loading quest details:', error);
+            setSelectedQuest(quest);
         }
-    }, [isOpen, user, getUserQuests]);
+    };
+
+    const handleBackToList = () => {
+        setSelectedQuest(null);
+    };
 
     return (
         <div className={styles.menuContainer} ref={menuRef}>
             <button
                 className={`${styles.questMenuButton} ${isOpen ? styles.active : ''}`}
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={handleMenuToggle}
                 aria-label="Меню квестов"
+                aria-expanded={isOpen}
             >
                 <div className={styles.container}>
                     <div className={styles.stateLayer}>
@@ -65,26 +101,54 @@ export default function QuestMenu() {
                 </div>
             </button>
 
-            <div className={`${styles.headerMenu} ${isOpen ? styles.menuVisible : ''}`}>
+            <div
+                className={`${styles.headerMenu} ${isOpen ? styles.menuVisible : ''}`}
+                aria-hidden={!isOpen}
+            >
                 <div className={styles.menuList}>
-                    {Object.entries(groupedQuests).map(([frequency, quests]) => (
-                        <div key={frequency} className={styles.frequencyGroup}>
-                            <div className={styles.sectionHeader}>
-                                {getFrequencyLabel(frequency)}
-                            </div>
-                            {quests.map((quest) => (
-                                <MenuItem
-                                    key={quest.questId}
-                                    title={quest.questTitle}
-                                    progress={`${quest.completedSteps}/${quest.stepsToComplete}`}
-                                    reward={`+${quest.cost}`}
-                                    isCompleted={quest.questStatus === 'COMPLETE'}
-                                />
-                            ))}
+                    {loading ? (
+                        <div className={styles.loadingState}>
+                            Загрузка квестов...
                         </div>
-                    ))}
-
-                    {Object.keys(groupedQuests).length === 0 && (
+                    ) : selectedQuest ? (
+                        <div className={styles.questDetail}>
+                            <button
+                                className={styles.backButton}
+                                onClick={handleBackToList}
+                                aria-label="Назад к списку квестов"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Назад
+                            </button>
+                            <h3 className={styles.detailTitle}>{selectedQuest.questTitle}</h3>
+                            <div className={styles.detailDescription}>
+                                {selectedQuest.description || "Описание отсутствует"}
+                            </div>
+                            <div className={styles.detailProgress}>
+                                Прогресс: <strong>{selectedQuest.completedSteps || 0}/{selectedQuest.stepsToComplete || 0}</strong>
+                            </div>
+                            <div className={styles.detailReward}>
+                                Награда: <strong>+{selectedQuest.cost || 0}</strong>
+                            </div>
+                        </div>
+                    ) : Object.keys(groupedQuests).length > 0 ? (
+                        Object.entries(groupedQuests).map(([frequency, quests]) => (
+                            <div key={frequency} className={styles.frequencyGroup}>
+                                <div className={styles.sectionHeader}>
+                                    {getFrequencyLabel(frequency)}
+                                </div>
+                                {quests.map((quest) => (
+                                    <MenuItem
+                                        key={quest.questId}
+                                        quest={quest}
+                                        onClick={() => handleQuestSelect(quest)}
+                                    />
+                                ))}
+                            </div>
+                        ))
+                    ) : (
                         <div className={styles.emptyState}>
                             На данный момент активных квестов нет
                         </div>

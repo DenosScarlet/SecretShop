@@ -25,15 +25,15 @@ public class UsersQuestsController {
     private final UsersQuestsService usersQuestsService;
     private final UsersQuestsRepository usersQuestsRepository;
 
-    @Operation(summary = "Получить квесты сотрудника", description = "Возвращает все квесты определенного сотрудника")
-    @ApiResponse(responseCode = "200", description = "Квесты успешно получены")
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<QuestStatusDTO>> getUsersQuests(
-            @Parameter(description = "ID сотрудника", required = true, example = "123e4567-e89b-12d3-a456-426614174000")
-            @PathVariable UUID userId) {
-        List<QuestStatusDTO> userQuests = usersQuestsService.getUserQuests(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(userQuests);
-    }
+//    @Operation(summary = "Получить квесты сотрудника", description = "Возвращает все квесты определенного сотрудника")
+//    @ApiResponse(responseCode = "200", description = "Квесты успешно получены")
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<QuestStatusDTO>> getUsersQuests(
+//            @Parameter(description = "ID сотрудника", required = true, example = "123e4567-e89b-12d3-a456-426614174000")
+//            @PathVariable UUID userId) {
+//        List<QuestStatusDTO> userQuests = usersQuestsService.getUserQuests(userId);
+//        return ResponseEntity.status(HttpStatus.OK).body(userQuests);
+//    }
 
 //    @Operation(summary = "Получить статус квеста", description = "Возвращает текущий статус квеста")
 //    @ApiResponse(responseCode = "200", description = "Статус получен")

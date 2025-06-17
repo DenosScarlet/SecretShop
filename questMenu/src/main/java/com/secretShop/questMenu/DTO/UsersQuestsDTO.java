@@ -1,7 +1,6 @@
-package com.secretShop.dtl.DTO;
+package com.secretShop.questMenu.DTO;
 
-import com.secretShop.dtl.enums.Frequency;
-import com.secretShop.dtl.enums.Status;
+import com.secretShop.questMenu.enums.Frequency;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "DTO связи сотрудника и квеста")
-public class UsersQuestDTO {
+public class UsersQuestsDTO {
     private UUID questId;
     private String questTitle;
     private Integer stepsToComplete;

@@ -3,6 +3,7 @@ package com.secretShop.dtl.service;
 import com.secretShop.dtl.DTO.QuestStatusDTO;
 import com.secretShop.dtl.DTO.StepsResponseDTO;
 import com.secretShop.dtl.DTO.UpdateStepsRequestDTO;
+import com.secretShop.dtl.DTO.UsersQuestDTO;
 import com.secretShop.dtl.entity.UsersQuests;
 import com.secretShop.dtl.repository.QuestRepository;
 import com.secretShop.dtl.repository.UsersQuestsRepository;
@@ -39,13 +40,20 @@ public class UsersQuestsService {
     }
 
     @Transactional(readOnly = true)
-    public List<QuestStatusDTO> getUserQuests(UUID userId) {
+    public List<UsersQuestDTO> getUserQuests(UUID userId) {
         List<UsersQuests> userQuests = usersQuestsRepository.findByUser_UserIdWithQuest(userId);
+
         return userQuests.stream()
-                .map(uq -> new QuestStatusDTO(
+                .map(uq -> new UsersQuestDTO(
                         uq.getQuest().getQuestId(),
-                        uq.getQuestStatus(),
-                        uq.getCompletedSteps()
+                        uq.getQuest().getQuestTitle(),
+                        uq.getQuest().getStepsToComplete(),
+                        uq.getCompletedSteps(),
+                        uq.getQuest().getFrequency(),
+                        uq.getQuestStatus().name(),
+                        uq.getQuest().getStartDate(),
+                        uq.getQuest().getEndDate(),
+                        uq.getQuest().getCost()
                 ))
                 .collect(Collectors.toList());
     }

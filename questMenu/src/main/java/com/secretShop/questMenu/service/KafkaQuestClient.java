@@ -30,6 +30,13 @@ public class KafkaQuestClient {
         return producer.sendAndReceive(new QuestRequest("STATUS_BY_ID", dto, null), String.class).join();
     }
 
+    public List<UsersQuestsDTO> getUserQuests(UUID userId) {
+        return producer.sendAndReceive(
+                new QuestRequest("GET_USERS_QUESTS", userId.toString(), null),
+                List.class
+        ).join();
+    }
+
     public StepsResponseDTO getSteps(UUID userId, UUID questId) {
         StepsRequestDTO dto = new StepsRequestDTO(userId, questId);
         return producer.sendAndReceive(new QuestRequest("GET_STEPS", dto, null), StepsResponseDTO.class).join();
