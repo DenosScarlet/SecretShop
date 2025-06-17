@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import {useState, useRef, useEffect, useCallback} from 'react';
 import styles from './QuestMenu.module.css';
 import { MenuItem } from './MenuItem';
 import { useAuth } from '../../contexts/AuthContext';
@@ -8,9 +8,13 @@ import { questApi } from '../../services/questApi';
 export default function QuestMenu() {
     const { user, getUserQuests } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
+    const [cachedQuests, setCachedQuests] = useState([]);
+    const [cacheTimestamp, setCacheTimestamp] = useState(null);
+    const [cacheUserId, setCacheUserId] = useState(null);
     const [groupedQuests, setGroupedQuests] = useState({});
     const [loading, setLoading] = useState(false);
     const [selectedQuest, setSelectedQuest] = useState(null);
+    const [questDetailsCache, setQuestDetailsCache] = useState({});
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -24,48 +28,84 @@ export default function QuestMenu() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const processQuests = useCallback((quests) => {
+        if (Array.isArray(quests) && quests.length > 0) {
+            const activeQuests = filterActiveQuests(quests);
+            const grouped = groupQuestsByFrequency(activeQuests);
+            setGroupedQuests(grouped);
+        } else {
+            setGroupedQuests({});
+        }
+    }, []);
+
     useEffect(() => {
         const loadQuests = async () => {
-            if (user?.userId && isOpen) {
-                setLoading(true);
-                try {
-                    const quests = await getUserQuests();
+            if (!user?.userId) return;
 
-                    if (Array.isArray(quests) && quests.length > 0) {
-                        const activeQuests = filterActiveQuests(quests);
-                        const grouped = groupQuestsByFrequency(activeQuests);
-                        setGroupedQuests(grouped);
-                    } else {
-                        setGroupedQuests({});
-                    }
-                } catch (error) {
-                    console.error('Error loading quests:', error);
-                    setGroupedQuests({});
-                } finally {
-                    setLoading(false);
-                }
-            } else if (!isOpen) {
+            const isCacheValid = cacheUserId === user.userId &&
+                cacheTimestamp &&
+                Date.now() - cacheTimestamp < 300000;
+
+            if (isCacheValid && cachedQuests.length > 0) {
+                processQuests(cachedQuests);
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const quests = await getUserQuests();
+                setCachedQuests(quests);
+                setCacheTimestamp(Date.now());
+                setCacheUserId(user.userId);
+
+                processQuests(quests);
+            } catch (error) {
+                console.error('Error loading quests:', error);
                 setGroupedQuests({});
-                setSelectedQuest(null); // Сбрасываем выбранный квест при закрытии
+            } finally {
+                setLoading(false);
             }
         };
 
-        loadQuests();
-    }, [isOpen, user?.userId, getUserQuests]);
+        if (user?.userId && isOpen) {
+            loadQuests();
+        } else if (!isOpen) {
+            setGroupedQuests({});
+            setSelectedQuest(null);
+        }
+    }, [isOpen, user?.userId, getUserQuests, cacheTimestamp, cacheUserId, cachedQuests, processQuests]);
 
     const handleMenuToggle = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleQuestSelect = async (quest) => {
+    const handleQuestSelect = useCallback(async (quest) => {
+        if (questDetailsCache[quest.questId]) {
+            setSelectedQuest(questDetailsCache[quest.questId]);
+            return;
+        }
+
         try {
             const response = await questApi.getQuestById(quest.questId);
-            setSelectedQuest(response.data);
+            const questData = response.data;
+
+            setQuestDetailsCache(prev => ({
+                ...prev,
+                [quest.questId]: questData
+            }));
+
+            setSelectedQuest(questData);
         } catch (error) {
             console.error('Error loading quest details:', error);
+
+            setQuestDetailsCache(prev => ({
+                ...prev,
+                [quest.questId]: quest
+            }));
+
             setSelectedQuest(quest);
         }
-    };
+    }, [questDetailsCache]);
 
     const handleBackToList = () => {
         setSelectedQuest(null);
