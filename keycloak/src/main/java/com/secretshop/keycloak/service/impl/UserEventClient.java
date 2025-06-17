@@ -2,6 +2,8 @@ package com.secretshop.keycloak.service.impl;
 
 import com.secretshop.keycloak.DTO.UserDTO;
 import com.secretshop.keycloak.DTO.BalanceUpdateDTO;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -14,4 +16,7 @@ public interface UserEventClient {
     void sendUserUpdatedEvent(UserDTO userDTO);
     void sendUserDeletedEvent(UUID userId);
     void updateBalance(UUID userId, int newBalance);
+    String uploadAvatar(MultipartFile file, String fileName, String bucketName);
+
+    byte[] downloadFile(String fileName, String bucketName);
 }

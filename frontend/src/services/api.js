@@ -119,6 +119,7 @@ const shopApi = {
         });
     },
 
+
     // Удаление изображения товара (обновленная версия)
     deleteItemImage: (itemId) => {
         return shopAxiosInstance.delete(`/shop/item/${itemId}/file`);

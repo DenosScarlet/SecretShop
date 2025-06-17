@@ -96,7 +96,7 @@ public class FileController {
             @Parameter(description = "Имя файла", required = true, example = "avatar.jpg")
             @RequestParam("fileName") String fileName,
             @Parameter(description = "Название бакета", example = "my-bucket")
-            @RequestParam(value = "bucketName", required = false, defaultValue = "my-bucket") String bucketName) {
+            @RequestParam(value = "bucketName", required = false, defaultValue = "secretshop") String bucketName) {
         try {
             InputStream testStream = minioService.downloadFile(bucketName, fileName);
             if (testStream != null) {
@@ -106,6 +106,30 @@ public class FileController {
             return ResponseEntity.ok(false);
         } catch (Exception e) {
             return ResponseEntity.ok(false);
+        }
+    }
+
+    @Operation(summary = "Загрузить файл с указанием имени", description = "Загружает файл в облачное хранилище с заданным именем")
+    @ApiResponse(responseCode = "200", description = "Файл успешно загружен")
+    @PostMapping("/upload-with-name")
+    public ResponseEntity<String> uploadFileWithName(
+            @Parameter(description = "Файл для загрузки", required = true)
+            @RequestParam("file") MultipartFile file,
+            @Parameter(description = "Желаемое имя файла", required = true)
+            @RequestParam("fileName") String fileName,
+            @Parameter(description = "Название бакета", example = "secretshop")
+            @RequestParam(value = "bucketName", required = false, defaultValue = "avatars") String bucketName) {
+        try {
+            minioService.uploadFile(
+                    bucketName,
+                    fileName,
+                    file.getInputStream(),
+                    file.getSize(),
+                    file.getContentType()
+            );
+            return ResponseEntity.ok("File uploaded successfully: " + fileName);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Upload failed: " + e.getMessage());
         }
     }
 }

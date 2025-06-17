@@ -28,7 +28,7 @@ spring:
           keycloak:
             realm: secretshoprealm
             client-id: myclient
-            client-secret: XwABwMGGKw1HnS4tPYYbVgax3MH6sDQ2
+            client-secret: 23NQ767KhjXbg9UuW4n4HlQKev3wBCjy
             scope: openid,profile,email
             redirect-uri: http://localhost:8280/login/oauth2/code/keycloak
             auth-server-url: http://localhost:8180
