@@ -1,8 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ReactKeycloakProvider } from '@react-keycloak/web';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import {ReactKeycloakProvider} from '@react-keycloak/web';
 import keycloak from './services/keycloak';
-import { AuthProvider } from './contexts/AuthContext';
+import {AuthProvider} from './contexts/AuthContext';
 import Header from './components/Header/Header';
 import LeftMenu from './components/LeftMenu/LeftMenu';
 import QuestCreationPage from './pages/QuestCreationPage/QuestCreationPage';
@@ -19,6 +19,7 @@ import UserListPage from './pages/UserListPage/UserListPage';
 import UserCreationPage from './pages/UserCreationPage/UserCreationPage';
 import UserEditPage from './pages/UserEditPage/UserEditPage';
 import './App.css';
+import TasksPage from "./pages/TaskPage/TasksPage";
 
 const handleKeycloakEvent = (event, error) => {
     console.log('Keycloak event:', event, error);
@@ -66,16 +67,16 @@ function App() {
             <AuthProvider>
                 <Router>
                     <div className="app">
-                        <Header />
+                        <Header/>
                         <div className="main-content">
-                            <LeftMenu />
+                            <LeftMenu/>
                             <Routes>
-                                <Route path="/login" element={<LoginPage />} />
+                                <Route path="/login" element={<LoginPage/>}/>
                                 <Route
                                     path="/quest/create"
                                     element={
                                         <QuestProtectedRoute>
-                                            <QuestCreationPage />
+                                            <QuestCreationPage/>
                                         </QuestProtectedRoute>
                                     }
                                 />
@@ -83,7 +84,7 @@ function App() {
                                     path="/quests"
                                     element={
                                         <QuestProtectedRoute>
-                                            <QuestListPage />
+                                            <QuestListPage/>
                                         </QuestProtectedRoute>
                                     }
                                 />
@@ -91,7 +92,7 @@ function App() {
                                     path="/shop/items"
                                     element={
                                         <QuestProtectedRoute>
-                                            <ItemListPage />
+                                            <ItemListPage/>
                                         </QuestProtectedRoute>
                                     }
                                 />
@@ -99,7 +100,7 @@ function App() {
                                     path="/shop"
                                     element={
                                         <ProtectedRoute>
-                                            <ShopPage />
+                                            <ShopPage/>
                                         </ProtectedRoute>
                                     }
                                 />
@@ -107,16 +108,16 @@ function App() {
                                     path="/shop/item/:itemId"
                                     element={
                                         <ProtectedRoute>
-                                            <ItemPage />
+                                            <ItemPage/>
                                         </ProtectedRoute>
                                     }
                                 />
-                                <Route path="/shop/operations" element={<OperationListPage />} />
+                                <Route path="/shop/operations" element={<OperationListPage/>}/>
                                 <Route
                                     path="/shop/item/create"
                                     element={
                                         <QuestProtectedRoute>
-                                            <ItemCreationPage />
+                                            <ItemCreationPage/>
                                         </QuestProtectedRoute>
                                     }
                                 />
@@ -124,7 +125,7 @@ function App() {
                                     path="/users"
                                     element={
                                         <ProtectedRoute requiredRole="adminGroup">
-                                            <UserListPage />
+                                            <UserListPage/>
                                         </ProtectedRoute>
                                     }
                                 />
@@ -132,7 +133,7 @@ function App() {
                                     path="/users/create"
                                     element={
                                         <ProtectedRoute requiredRole="adminGroup">
-                                            <UserCreationPage />
+                                            <UserCreationPage/>
                                         </ProtectedRoute>
                                     }
                                 />
@@ -140,11 +141,19 @@ function App() {
                                     path="/users/edit/:userId"
                                     element={
                                         <ProtectedRoute requiredRole="adminGroup">
-                                            <UserEditPage />
+                                            <UserEditPage/>
                                         </ProtectedRoute>
                                     }
                                 />
-                                <Route path="/" element={<div>Главная страница</div>} />
+                                <Route
+                                    path="/tasks"
+                                    element={
+                                        <ProtectedRoute>
+                                            <TasksPage/>
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route path="/" element={<div>Главная страница</div>}/>
                             </Routes>
                         </div>
                     </div>
