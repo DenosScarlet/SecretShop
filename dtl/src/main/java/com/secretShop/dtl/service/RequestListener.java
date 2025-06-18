@@ -30,18 +30,6 @@ public class RequestListener {
     private final QuestMapper questMapper;
     private final ObjectMapper objectMapper;
 
-//    public RequestListener(KafkaTemplate<String, QuestRequest> kafkaTemplate,
-//                           QuestService questService,
-//                           UsersQuestsService usersQuestsService,
-//                           UserService userService, QuestRepository questRepository, UsersQuestsRepository usersQuestsRepository) {
-//        this.kafkaTemplate = kafkaTemplate;
-//        this.questService = questService;
-//        this.usersQuestsService = usersQuestsService;
-//        this.userService = userService;
-//        this.questRepository = questRepository;
-//        this.usersQuestsRepository = usersQuestsRepository;
-//    }
-
     @KafkaListener(topics = "quest-requests", containerFactory = "questKafkaListenerContainerFactory")
     public void listen(QuestRequest request) {
         String op = request.getOperation();
