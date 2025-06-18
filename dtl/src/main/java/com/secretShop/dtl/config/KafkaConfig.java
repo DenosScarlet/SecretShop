@@ -38,7 +38,7 @@ public class KafkaConfig {
         return mapper;
     }
 
-    // ProducerFactory и KafkaTemplate для QuestRequest
+
     @Bean
     public ProducerFactory<String, QuestRequest> questProducerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -55,7 +55,7 @@ public class KafkaConfig {
         return template;
     }
 
-    // ProducerFactory и KafkaTemplate для ShopRequest (одиночный)
+
     @Bean
     public ProducerFactory<String, ShopRequest> singleProducerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -72,7 +72,7 @@ public class KafkaConfig {
         return template;
     }
 
-    // ProducerFactory и KafkaTemplate для List<ShopRequest>
+
     @Bean
     public ProducerFactory<String, List<ShopRequest>> listProducerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -111,7 +111,7 @@ public class KafkaConfig {
         return factory;
     }
 
-    // ConsumerFactory и ListenerFactory для ShopRequest
+
     @Bean
     public ConsumerFactory<String, ShopRequest> shopConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -132,7 +132,7 @@ public class KafkaConfig {
         return factory;
     }
 
-    // Топики для QuestRequest
+
     @Bean
     public NewTopic questRequestTopic() {
         return new NewTopic("quest-requests", 3, (short) 1);
@@ -143,7 +143,7 @@ public class KafkaConfig {
         return new NewTopic("quest-responses", 3, (short) 1);
     }
 
-    // Топики для ShopRequest
+
     @Bean
     public NewTopic shopRequestTopic() {
         return new NewTopic("shop-requests", 3, (short) 1);
