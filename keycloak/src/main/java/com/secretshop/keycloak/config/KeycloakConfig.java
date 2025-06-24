@@ -1,5 +1,7 @@
 package com.secretshop.keycloak.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,20 +12,22 @@ import org.keycloak.OAuth2Constants;
 
 @Configuration
 public class KeycloakConfig {
-    @Value("${keycloak.auth-server-url}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.auth-server-url}")
     private String serverUrl;
 
-    @Value("${keycloak.realm}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.realm}")
     private String realm;
 
-    @Value("${keycloak.client-id}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
     private String clientId;
 
-    @Value("${keycloak.client-secret}")
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
     private String clientSecret;
 
     @Bean
     public Keycloak keycloak() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         return KeycloakBuilder.builder()
                 .serverUrl(serverUrl)

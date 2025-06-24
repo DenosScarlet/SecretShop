@@ -1,7 +1,7 @@
 .header {
     background: #ffffff;
     border-bottom: 1px solid #d9d9d9;
-    padding: 8px 24px; /* Добавлены боковые отступы */
+    padding: 8px 24px;
     display: flex;
     gap: 26px;
     align-items: center;
@@ -73,4 +73,11 @@
 
 .authButton:hover {
     opacity: 0.9;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
 }

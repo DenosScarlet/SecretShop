@@ -30,6 +30,12 @@ export default function QuestCreationForm({ initialData, onSuccess }) {
         cost: 0
     });
 
+    const formatDateForBackend = (date) => {
+        return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 19);
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,9 +44,14 @@ export default function QuestCreationForm({ initialData, onSuccess }) {
             const url = initialData ? `/quest/${initialData.questId}` : '/quest';
 
             await api[method](url, {
-                ...formData,
-                startDate: formData.startDate.toISOString(),
-                endDate: formData.endDate.toISOString()
+                questTitle: formData.questTitle,
+                description: formData.description,
+                stepsToComplete: formData.stepsToComplete,
+                frequency: formData.frequency,
+                workGroup: formData.workGroup,
+                startDate: formatDateForBackend(formData.startDate),
+                endDate: formatDateForBackend(formData.endDate),
+                cost: formData.cost
             });
 
             alert(initialData ? 'Квест успешно обновлён!' : 'Квест успешно создан!');

@@ -1,9 +1,7 @@
 package com.secretShop.dtl.service;
 
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.GetObjectArgs;
-import io.minio.RemoveObjectArgs;
+import io.minio.*;
+import io.minio.errors.ErrorResponseException;
 import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,11 +33,31 @@ public class MinioService {
         return minioClient.getObject(args);
     }
 
-    public void deleteFile(String bucketName, String objectName) throws MinioException, java.security.NoSuchAlgorithmException, java.io.IOException, InvalidKeyException {
-        RemoveObjectArgs args = RemoveObjectArgs.builder()
-                .bucket(bucketName)
-                .object(objectName)
-                .build();
-        minioClient.removeObject(args);
+    public void deleteFile(String bucketName, String objectName) {
+        try {
+            // Проверяем существование файла
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build()
+            );
+
+            // Если файл существует - удаляем
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build()
+            );
+        } catch (ErrorResponseException e) {
+            if (e.errorResponse().code().equals("NoSuchKey")) {
+               // log.warn("File not found: {}/{}", bucketName, objectName);
+            } else {
+                throw new RuntimeException("MinIO error: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting file: " + e.getMessage());
+        }
     }
 }

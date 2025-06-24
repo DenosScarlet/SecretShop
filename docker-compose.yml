@@ -5,15 +5,15 @@ services:
     build:
       context: ./dtl/
       dockerfile: Dockerfile
-#    network_mode: host
-    ports:
-      - "8580:8580"
+    network_mode: host
+#    ports:
+#     - "8580:8580"
     depends_on:
       service-db:
         condition: service_healthy
     environment:
       - SERVER_PORT=8580
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/secretshop_db
+      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 
   shop:
     container_name: shop-service
@@ -21,11 +21,13 @@ services:
       context: ./shop/
       dockerfile: Dockerfile
     network_mode: host
-    ports:
-      - "8480:8480"
+#    ports:
+#      - "8480:8480"
     depends_on:
       service-db:
         condition: service_healthy
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 
   quest-menu:
     container_name: quest-menu-service
@@ -33,14 +35,44 @@ services:
       context: ./questMenu/
       dockerfile: Dockerfile
     network_mode: host
-    ports:
-      - "8380:8380"
+#    ports:
+#      - "8380:8380"
     depends_on:
       service-db:
         condition: service_healthy
-#    environment:
-#      SPRING_PROFILES_ACTIVE: dev
-#      DTL_SERVICE_URL: "http://localhost:8181"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+
+  frontend:
+    container_name: secretshop-frontend
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    depends_on:
+      keycloak-client:
+        condition: service_started
+    network_mode: host
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  kafka:
+    image: 'bitnami/kafka:latest'
+#    ports:
+#      - '9092:9092'
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@localhost:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server localhost:9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    network_mode: host
 
   service-db:
     container_name: secretshop-db
@@ -53,9 +85,8 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
-#    network_mode: host
     ports:
-      - "15432:15432"
+      - "5432:5432"
     volumes:
       - ./dtl/infrastructure/db/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
       - db-data:/var/lib/postgresql/data
@@ -68,7 +99,6 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
-#    network_mode: host
     ports:
       - "5050:80"
     volumes:
@@ -83,35 +113,30 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#    network_mode: host
     ports:
-      - "5432:5432"
+      - "15432:15432"
+    command:
+      - "postgres"
+      - "-c"
+      - "port=15432"
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U keycloakuser -d keycloakdb" ]
+      test: [ "CMD-SHELL", "pg_isready -U keycloakuser -d keycloakdb -p 15432" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   keycloak:
-    #image: quay.io/keycloak/keycloak:21.1.2
-#    image: quay.io/keycloak/keycloak:26.1
     image: bitnami/keycloak:26
     container_name: keycloak
-    ports:
-      - "8180:8180"
+#    ports:
+#      - "8180:8180"
     environment:
       KEYCLOAK_HTTP_PORT: 8180
-#      KEYCLOAK_BIND_ADDRESS: localhost
       KEYCLOAK_HOSTNAME_ADMIN: http://localhost:8180
       KEYCLOAK_HOSTNAME: http://localhost:8180
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-#      KEYCLOAK_HOSTNAME_ADMIN: localhost
-#      KEYCLOAK_HOSTNAME: localhost
-#      KC_PROXY: edge
-#      KEYCLOAK_HTTP_RELATIVE_PATH: /
-#      KEYCLOAK_HOSTNAME_STRICT: "false"
       KEYCLOAK_ENABLE_STATISTICS: "true"
       KEYCLOAK_ENABLE_HEALTH_ENDPOINTS: "true"
       KEYCLOAK_DATABASE_NAME: ${POSTGRES_DB}
@@ -120,6 +145,7 @@ services:
       KEYCLOAK_DATABASE_USER: ${POSTGRES_USER}
       KEYCLOAK_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_DATABASE_HOST: localhost
+      KEYCLOAK_DATABASE_PORT: 15432
       KC_LOG_LEVEL: INFO
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9000/health/live" ]
@@ -141,8 +167,8 @@ services:
     build:
       context: ./keycloak/
       dockerfile: Dockerfile
-    ports:
-      - "8280:8280"
+#    ports:
+#      - "8280:8280"
     network_mode: host
     depends_on:
       keycloak:
@@ -153,11 +179,11 @@ services:
     image: quay.io/minio/minio:latest
     command: server /data --console-address ":9001"
     ports:
-      - "9002:9000"  # API порт
-      - "9003:9001"  # Console порт (веб-интерфейс)
+      - "9002:9000"
+      - "9003:9001"
     environment:
-      MINIO_ROOT_USER: minioadmin  # Логин по умолчанию
-      MINIO_ROOT_PASSWORD: minioadmin  # Пароль по умолчанию
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     volumes:
       - minio-data:/data
     healthcheck:
@@ -166,7 +192,6 @@ services:
       timeout: 5s
       retries: 3
     restart: unless-stopped
-    # network_mode: host  # Раскомментируйте, если нужен host-режим
 
 volumes:
   db-data:

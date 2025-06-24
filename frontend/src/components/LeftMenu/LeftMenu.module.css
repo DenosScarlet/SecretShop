@@ -2,12 +2,12 @@
     background: rgba(217, 217, 217, 0.28);
     border: 1px solid rgba(0, 0, 0, 0.13);
     border-radius: 2px;
-    padding: 71px 17px;
+    padding: 20px 17px; /* Уменьшен верхний/нижний padding */
     display: flex;
     flex-direction: column;
     gap: 17px;
     width: 212px;
-    height: calc(100vh - 57px);
+    height: calc(100vh - 57px); /* Учитываем высоту хедера */
     position: fixed;
     top: 57px;
     left: 0;
@@ -15,6 +15,7 @@
     overflow-x: hidden;
     z-index: 99;
     transition: transform 0.3s ease;
+    box-sizing: border-box;
 }
 
 .menuItem {

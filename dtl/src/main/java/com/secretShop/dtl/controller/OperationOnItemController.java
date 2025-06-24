@@ -2,6 +2,7 @@ package com.secretShop.dtl.controller;
 
 import com.secretShop.dtl.DTO.CreateOperationOnItemDTO;
 import com.secretShop.dtl.DTO.OperationOnItemDTO;
+import com.secretShop.dtl.DTO.UpdateOperationDTO;
 import com.secretShop.dtl.service.OperationOnItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -70,7 +71,7 @@ public class OperationOnItemController {
     public OperationOnItemDTO updateOperation(
             @Parameter(description = "ID операции", required = true, example = "123e4567-e89b-12d3-a456-426614174000")
             @PathVariable("id") UUID id,
-            @RequestBody OperationOnItemDTO dto) {
+            @RequestBody UpdateOperationDTO dto) {
         return service.updateOperation(id, dto);
     }
 

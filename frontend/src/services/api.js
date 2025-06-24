@@ -1,5 +1,9 @@
 import axios from 'axios';
 
+const shopAxiosInstance = axios.create({
+    baseURL: 'http://localhost:8480',
+});
+
 const api = axios.create({
     baseURL: 'http://localhost:8380/api',
     headers: {
@@ -7,39 +11,111 @@ const api = axios.create({
     }
 });
 
-// Добавляем интерцептор для автоматического добавления токена авторизации
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('keycloak-token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
-
-// Интерцептор для обработки ошибок авторизации
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            // Если токен истек, попробуем обновить его
-            const keycloak = window.keycloak;
-            if (keycloak) {
-                keycloak.updateToken(30).then(() => {
-                    localStorage.setItem('keycloak-token', keycloak.token);
-                    // Повторяем запрос с новым токеном
-                    return api.request(error.config);
-                }).catch(() => {
-                    keycloak.login();
-                });
+const addAuthInterceptor = (instance) => {
+    instance.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('keycloak-token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
             }
-        }
-        return Promise.reject(error);
-    }
-);
+            return config;
+        },
+        (error) => Promise.reject(error)
+    );
+};
 
-export default api;
+const addRefreshInterceptor = (instance) => {
+    instance.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error.response?.status === 401) {
+                const keycloak = window.keycloak;
+                if (keycloak) {
+                    return keycloak.updateToken(30)
+                        .then(() => {
+                            localStorage.setItem('keycloak-token', keycloak.token);
+                            error.config.headers.Authorization = `Bearer ${keycloak.token}`;
+                            return instance.request(error.config);
+                        })
+                        .catch(() => {
+                            keycloak.login();
+                            return Promise.reject(error);
+                        });
+                }
+            }
+            return Promise.reject(error);
+        }
+    );
+};
+
+function isValidUUID(uuid) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+}
+
+addAuthInterceptor(shopAxiosInstance);
+addAuthInterceptor(api);
+addRefreshInterceptor(shopAxiosInstance);
+addRefreshInterceptor(api);
+
+const shopApi = {
+    getItem: (id) => shopAxiosInstance.get(`/shop/item/${id}`),
+    getAllItems: () => shopAxiosInstance.get('/shop/items'),
+    addItemWithFile: (itemJson, file) => {
+        const formData = new FormData();
+
+        formData.append('item', itemJson);
+
+        if (file) {
+            formData.append('file', file, file.name);
+        }
+
+        return shopAxiosInstance.post('/shop/item', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    },
+    updateItem: (id, itemData) => shopAxiosInstance.put(`/shop/item/${id}`, itemData),
+    deleteItem: (id) => shopAxiosInstance.delete(`/shop/item/${id}`),
+    searchItems: (params) => shopAxiosInstance.get('/shop/item/search', {params}),
+
+    purchaseItem: (itemId) => shopAxiosInstance.post(`/shop/purchase/${itemId}`),
+
+    getOperationsByUser: (userId) => shopAxiosInstance.get(`/shop/operations/user/${userId}`),
+    getOperationsByItem: (itemId) => shopAxiosInstance.get(`/shop/operations/item/${itemId}`),
+    getOperationById: (operationId) => shopAxiosInstance.get(`/shop/operations/${operationId}`),
+    getAllOperations: (params) => shopAxiosInstance.get('/shop/operations', {params}),
+    updateOperation: (operationsId, updateData) => {
+        if (!isValidUUID(operationsId)) {
+            throw new Error(`Невалидный идентификатор операции: ${operationsId}`);
+        }
+        return shopAxiosInstance.put(`/shop/operation/${operationsId}`, updateData);
+    },
+    uploadItemImage: (itemId, file) => {
+        const formData = new FormData();
+
+        const extension = file.name.substring(file.name.lastIndexOf('.'));
+        const newFileName = `${itemId}${extension}`;
+
+        formData.append('file', file, newFileName);
+
+        return shopAxiosInstance.post(`/shop/item/${itemId}/upload`, formData, {
+            headers: {'Content-Type': 'multipart/form-data'}
+        });
+    },
+
+
+    deleteItemImage: (itemId) => {
+        return shopAxiosInstance.delete(`/shop/item/${itemId}/file`);
+    },
+    downloadItemImage: (itemId, fileName) => {
+        return shopAxiosInstance.get(`/shop/item/${itemId}/download`, {
+            params: {fileName},
+            responseType: 'blob'
+        });
+    }
+
+};
+
+export {api as default, shopApi};

@@ -2,7 +2,8 @@ package com.secretShop.questMenu.controller;
 
 import com.secretShop.questMenu.DTO.QuestDTO;
 import com.secretShop.questMenu.DTO.StepsRequestDTO;
-import com.secretShop.questMenu.service.QuestClient;
+import com.secretShop.questMenu.DTO.UsersQuestsDTO;
+import com.secretShop.questMenu.service.KafkaQuestClient;
 import com.secretShop.questMenu.service.QuestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,11 +14,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/quest")
@@ -25,8 +28,8 @@ import java.util.UUID;
 @Tag(name = "Управление квестами", description = "API для управления квестами")
 public class QuestMenuController {
 
-    private final QuestClient questClient = new QuestClient();
-    private final QuestService questService = new QuestService();
+    private final KafkaQuestClient kafkaQuestClient;
+    private final QuestService questService;
 
     @Operation(summary = "Получить все квесты", description = "Возвращает список всех доступных квестов")
     @ApiResponse(responseCode = "200", description = "Квесты успешно получены",
@@ -34,7 +37,7 @@ public class QuestMenuController {
                     array = @ArraySchema(schema = @Schema(implementation = QuestDTO.class))))
     @GetMapping
     public List<QuestDTO> getAllQuests() {
-        return questClient.findAllQuests();
+        return kafkaQuestClient.findAllQuests();
     }
 
     @Operation(summary = "Получить квест по ID", description = "Возвращает конкретный квест по его уникальному идентификатору")
@@ -49,7 +52,18 @@ public class QuestMenuController {
             @Parameter(description = "Уникальный идентификатор квеста", required = true,
                     example = "123e4567-e89b-12d3-a456-426614174000")
             @PathVariable("id") UUID id) {
-        return questClient.findQuestById(id);
+        return kafkaQuestClient.findQuestById(id);
+    }
+
+    @Operation(summary = "Получить квесты пользователя")
+    @ApiResponse(responseCode = "200", description = "Квесты пользователя получены",
+            content = @Content(mediaType = "application/json",
+                    array = @ArraySchema(schema = @Schema(implementation = UsersQuestsDTO.class))))
+    @GetMapping("/user")
+    public List<UsersQuestsDTO> getUserQuests(
+            @Parameter(description = "ID пользователя", required = true)
+            @RequestParam UUID userId) {
+        return kafkaQuestClient.getUserQuests(userId);
     }
 
     @Operation(summary = "Создать новый квест", description = "Добавляет новый квест в систему")
@@ -62,7 +76,8 @@ public class QuestMenuController {
                     description = "Детали квеста для создания", required = true,
                     content = @Content(schema = @Schema(implementation = QuestDTO.class)))
             @RequestBody QuestDTO quest) {
-        return questClient.saveQuest(quest);
+        log.info("Received quest creation request: {}", quest);
+        return kafkaQuestClient.saveQuest(quest);
     }
 
     @Operation(summary = "Обновить квест", description = "Редактирует существующий квест по ID")
@@ -81,7 +96,7 @@ public class QuestMenuController {
                     description = "Обновленные данные квеста", required = true,
                     content = @Content(schema = @Schema(implementation = QuestDTO.class)))
             @RequestBody QuestDTO quest) {
-        return questClient.updateQuest(id, quest);
+        return kafkaQuestClient.updateQuest(id, quest);
     }
 
     @Operation(summary = "Удалить квест", description = "Удаляет квест из системы по ID")
@@ -94,7 +109,7 @@ public class QuestMenuController {
             @Parameter(description = "Уникальный идентификатор квеста", required = true,
                     example = "123e4567-e89b-12d3-a456-426614174000")
             @PathVariable("id") UUID id) {
-        questClient.deleteQuest(id);
+        kafkaQuestClient.deleteQuest(id);
     }
 
     @Operation(summary = "Обновить шаги квеста", description = "Изменяет шаги для существующего квеста")

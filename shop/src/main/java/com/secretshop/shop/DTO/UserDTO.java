@@ -4,9 +4,11 @@ import com.secretshop.shop.enums.WorkGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @Schema(description = "DTO пользователя системы")
-public class UserDTO {
+public class UserDTO implements Serializable {
     @Schema(description = "Имя пользователя", example = "Иван")
     private String firstName;
 

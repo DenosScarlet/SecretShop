@@ -52,7 +52,7 @@ public class PurchaseService {
             "userId": "%s",
             "userName": "%s %s",
             "cost": %d,
-            "message": "Purchase completed successfully"
+            "message": "Ожидание выдачи"
         }
         """,
                 item.getItemId(), item.getItemName(),
@@ -63,7 +63,7 @@ public class PurchaseService {
         CreateOperationOnItemDTO operationDTO = CreateOperationOnItemDTO.builder()
                 .userId(purchaseItemDTO.getUserId())
                 .itemId(purchaseItemDTO.getItemId())
-                .status(Status.COMPLETE)
+                .status(Status.IN_PROGRESS)
                 .operationHistory(operationHistory)
                 .build();
 

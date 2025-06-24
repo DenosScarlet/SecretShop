@@ -1,6 +1,5 @@
 package com.secretshop.shop.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -9,6 +8,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -17,6 +21,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults()) // Используем CorsConfigurationSource из бина
+                .csrf(csrf -> csrf.disable()) // Отключаем CSRF (если не используете сессии)
                 .authorizeHttpRequests(auth -> auth
                         // Разрешаем доступ к Swagger без аутентификации
                         .requestMatchers(
@@ -27,35 +33,31 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
                         // Все остальные запросы требуют аутентификации
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder()))
-                        .bearerTokenResolver(this::resolveTokenFromQueryParam)
-                )
-                .csrf(csrf -> csrf.disable());
+                                .jwt(jwt -> jwt.decoder(jwtDecoder()))
+                        // Стандартный Bearer Token Resolver — из заголовка Authorization
+                );
 
         return http.build();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Разрешённый фронтенд
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.addAllowedHeader("*"); // Разрешаем все заголовки
+        configuration.setAllowCredentials(true); // Для передачи куки и авторизации
 
-    private String resolveTokenFromQueryParam(HttpServletRequest request) {
-        // Проверяем query-параметр
-        String token = request.getParameter("access_token");
-        if (token != null && !token.isBlank()) {
-            return token;
-        }
-        // Проверяем заголовок Authorization
-        String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
-        }
-        return null;
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        // Указываем JWKS URI из Keycloak
         return NimbusJwtDecoder.withJwkSetUri(
                 "http://localhost:8180/realms/secretshoprealm/protocol/openid-connect/certs"
         ).build();

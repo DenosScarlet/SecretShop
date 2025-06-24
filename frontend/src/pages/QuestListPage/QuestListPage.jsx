@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {Link} from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './QuestListPage.module.css';
 import api from '../../services/api';
 
-const QuestListPage = ({ collapsed }) => {
+const QuestListPage = ({collapsed}) => {
     const [quests, setQuests] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editedData, setEditedData] = useState({});
@@ -17,7 +17,39 @@ const QuestListPage = ({ collapsed }) => {
     const fetchQuests = async () => {
         try {
             const response = await api.get('/quest');
-            setQuests(response.data);
+            console.log('Raw quest data from API:', response.data); // Отладочная информация
+
+            // Преобразуем строки дат в объекты Date с тщательной проверкой валидности
+            const questsWithDates = response.data.map(quest => {
+                console.log('Processing quest:', quest.questId, 'startDate:', quest.startDate, 'endDate:', quest.endDate);
+
+                let startDate, endDate;
+
+                try {
+                    startDate = quest.startDate ? new Date(quest.startDate) : new Date();
+                    if (isNaN(startDate.getTime())) {
+                        startDate = new Date();
+                    }
+                } catch (e) {
+                    startDate = new Date();
+                }
+
+                try {
+                    endDate = quest.endDate ? new Date(quest.endDate) : new Date();
+                    if (isNaN(endDate.getTime())) {
+                        endDate = new Date();
+                    }
+                } catch (e) {
+                    endDate = new Date();
+                }
+
+                return {
+                    ...quest,
+                    startDate,
+                    endDate
+                };
+            });
+            setQuests(questsWithDates);
         } catch (error) {
             console.error('Error fetching quests:', error);
             alert('Ошибка загрузки квестов');
@@ -38,41 +70,110 @@ const QuestListPage = ({ collapsed }) => {
 
     const startEditing = (quest) => {
         setEditingId(quest.questId);
+
+        // Создаем валидные объекты Date с более строгой проверкой
+        let startDate, endDate;
+
+        try {
+            if (quest.startDate && quest.startDate instanceof Date && !isNaN(quest.startDate.getTime())) {
+                startDate = quest.startDate;
+            } else if (quest.startDate) {
+                startDate = new Date(quest.startDate);
+                if (isNaN(startDate.getTime())) {
+                    startDate = new Date();
+                }
+            } else {
+                startDate = new Date();
+            }
+        } catch (e) {
+            console.error('Error parsing start date:', e);
+            startDate = new Date();
+        }
+
+        try {
+            if (quest.endDate && quest.endDate instanceof Date && !isNaN(quest.endDate.getTime())) {
+                endDate = quest.endDate;
+            } else if (quest.endDate) {
+                endDate = new Date(quest.endDate);
+                if (isNaN(endDate.getTime())) {
+                    endDate = new Date();
+                }
+            } else {
+                endDate = new Date();
+            }
+        } catch (e) {
+            console.error('Error parsing end date:', e);
+            endDate = new Date();
+        }
+
         setEditedData({
-            questTitle: quest.questTitle,
-            description: quest.description,
-            stepsToComplete: quest.stepsToComplete,
-            frequency: quest.frequency,
-            workGroup: quest.workGroup,
-            startDate: new Date(quest.startDate),
-            endDate: new Date(quest.endDate),
-            cost: quest.cost
+            questTitle: quest.questTitle || '',
+            description: quest.description || '',
+            stepsToComplete: quest.stepsToComplete || 1,
+            frequency: quest.frequency || 'DAILY',
+            workGroup: quest.workGroup || 'DEVELOPMENT',
+            startDate: startDate,
+            endDate: endDate,
+            cost: quest.cost || 0
         });
     };
 
     const handleEditChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setEditedData(prev => ({
             ...prev,
             [name]: name === 'stepsToComplete' || name === 'cost'
-                ? parseInt(value, 10)
+                ? parseInt(value, 10) || 0
                 : value
         }));
     };
 
     const handleDateChange = (date, field) => {
+        // Убеждаемся, что дата валидна или создаем новую дату
+        let validDate;
+        try {
+            if (date && date instanceof Date && !isNaN(date.getTime())) {
+                validDate = date;
+            } else if (date) {
+                validDate = new Date(date);
+                if (isNaN(validDate.getTime())) {
+                    validDate = new Date();
+                }
+            } else {
+                validDate = new Date();
+            }
+        } catch (e) {
+            console.error('Error in handleDateChange:', e);
+            validDate = new Date();
+        }
+
         setEditedData(prev => ({
             ...prev,
-            [field]: date
+            [field]: validDate
         }));
+    };
+
+    const formatDateForBackend = (date) => {
+        try {
+            // Проверяем, что дата валидна
+            if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+                date = new Date();
+            }
+            return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+                .toISOString()
+                .slice(0, 19);
+        } catch (e) {
+            console.error('Error formatting date for backend:', e);
+            return new Date().toISOString().slice(0, 19);
+        }
     };
 
     const saveChanges = async () => {
         try {
             await api.put(`/quest/${editingId}`, {
                 ...editedData,
-                startDate: editedData.startDate.toISOString(),
-                endDate: editedData.endDate.toISOString()
+                startDate: formatDateForBackend(editedData.startDate),
+                endDate: formatDateForBackend(editedData.endDate)
             });
             setEditingId(null);
             fetchQuests();
@@ -80,6 +181,27 @@ const QuestListPage = ({ collapsed }) => {
         } catch (error) {
             console.error('Ошибка обновления:', error);
             alert('Ошибка обновления квеста');
+        }
+    };
+
+    const formatDisplayDate = (date) => {
+        try {
+            if (!date) return 'Не указано';
+
+            let validDate;
+            if (date instanceof Date && !isNaN(date.getTime())) {
+                validDate = date;
+            } else {
+                validDate = new Date(date);
+                if (isNaN(validDate.getTime())) {
+                    return 'Неверная дата';
+                }
+            }
+
+            return validDate.toLocaleString();
+        } catch (e) {
+            console.error('Error formatting display date:', e);
+            return 'Ошибка даты';
         }
     };
 
@@ -103,12 +225,14 @@ const QuestListPage = ({ collapsed }) => {
                                         value={editedData.questTitle}
                                         onChange={handleEditChange}
                                         className={styles.editInput}
+                                        placeholder="Название квеста"
                                     />
                                     <textarea
                                         name="description"
                                         value={editedData.description}
                                         onChange={handleEditChange}
                                         className={styles.editTextarea}
+                                        placeholder="Описание"
                                     />
                                     <input
                                         type="number"
@@ -116,6 +240,7 @@ const QuestListPage = ({ collapsed }) => {
                                         value={editedData.stepsToComplete}
                                         onChange={handleEditChange}
                                         className={styles.editInput}
+                                        min="1"
                                     />
                                     <select
                                         name="frequency"
@@ -146,8 +271,11 @@ const QuestListPage = ({ collapsed }) => {
                                             selected={editedData.startDate}
                                             onChange={(date) => handleDateChange(date, 'startDate')}
                                             showTimeSelect
+                                            timeFormat="HH:mm"
+                                            timeIntervals={15}
                                             dateFormat="dd.MM.yyyy HH:mm"
                                             className={styles.editInput}
+                                            placeholderText="Выберите дату начала"
                                         />
                                     </div>
 
@@ -156,8 +284,11 @@ const QuestListPage = ({ collapsed }) => {
                                             selected={editedData.endDate}
                                             onChange={(date) => handleDateChange(date, 'endDate')}
                                             showTimeSelect
+                                            timeFormat="HH:mm"
+                                            timeIntervals={15}
                                             dateFormat="dd.MM.yyyy HH:mm"
                                             className={styles.editInput}
+                                            placeholderText="Выберите дату окончания"
                                         />
                                     </div>
                                     <input
@@ -166,6 +297,7 @@ const QuestListPage = ({ collapsed }) => {
                                         value={editedData.cost}
                                         onChange={handleEditChange}
                                         className={styles.editInput}
+                                        min="0"
                                     />
                                 </div>
                             ) : (
@@ -178,20 +310,28 @@ const QuestListPage = ({ collapsed }) => {
                                         <span>Частота: {quest.frequency}</span>
                                         <span>Группа: {quest.workGroup}</span>
                                         <span>Стоимость: {quest.cost}</span>
-                                        <span>Начало: {new Date(quest.startDate).toLocaleString()}</span>
-                                        <span>Конец: {new Date(quest.endDate).toLocaleString()}</span>
+                                        <span>Начало: {formatDisplayDate(quest.startDate)}</span>
+                                        <span>Конец: {formatDisplayDate(quest.endDate)}</span>
                                     </div>
                                 </div>
                             )}
 
                             <div className={styles.actions}>
                                 {editingId === quest.questId ? (
-                                    <button
-                                        onClick={saveChanges}
-                                        className={styles.saveButton}
-                                    >
-                                        Сохранить
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={saveChanges}
+                                            className={styles.saveButton}
+                                        >
+                                            Сохранить
+                                        </button>
+                                        <button
+                                            onClick={() => setEditingId(null)}
+                                            className={styles.cancelButton}
+                                        >
+                                            Отменить
+                                        </button>
+                                    </>
                                 ) : (
                                     <button
                                         onClick={() => startEditing(quest)}
@@ -217,17 +357,17 @@ const QuestListPage = ({ collapsed }) => {
 
 // Добавляем константы из QuestCreationForm
 const frequencyOptions = [
-    { value: 'DAILY', label: 'Ежедневно' },
-    { value: 'WEEKLY', label: 'Еженедельно' },
-    { value: 'MONTHLY', label: 'Ежемесячно' },
-    { value: 'ANNUAL', label: 'Ежегодно' },
-    { value: 'ONCE', label: 'Однократно' }
+    {value: 'DAILY', label: 'Ежедневно'},
+    {value: 'WEEKLY', label: 'Еженедельно'},
+    {value: 'MONTHLY', label: 'Ежемесячно'},
+    {value: 'ANNUAL', label: 'Ежегодно'},
+    {value: 'ONCE', label: 'Однократно'}
 ];
 
 const workGroupOptions = [
-    { value: 'DEVELOPMENT', label: 'Разработка' },
-    { value: 'DATA_PROCESSING', label: 'Обработка данных' },
-    { value: 'MANAGEMENT', label: 'Управление' }
+    {value: 'DEVELOPMENT', label: 'Разработка'},
+    {value: 'DATA_PROCESSING', label: 'Обработка данных'},
+    {value: 'MANAGEMENT', label: 'Управление'}
 ];
 
 export default QuestListPage;

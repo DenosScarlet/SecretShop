@@ -1,0 +1,139 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4); /* Уменьшили замутнение */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px); /* Уменьшили размытие */
+}
+
+.modal {
+    background: white;
+    border-radius: 8.82px; /* Как в QuestListPage */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Более мягкая тень */
+    width: 90%;
+    max-width: 450px;
+    overflow: hidden;
+    transform: scale(0.95);
+    animation: modalAppear 0.3s forwards;
+    border: 1px solid #D9D9D9; /* Добавили границу как у формы */
+}
+
+@keyframes modalAppear {
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    border-bottom: 1px solid #D9D9D9; /* Разделитель как в стилях страниц */
+}
+
+.modalIcon {
+    margin-right: 12px;
+    font-size: 24px;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #2C2C2C; /* Цвет как в заголовках страниц */
+}
+
+.closeButton {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+}
+
+.closeButton:hover {
+    color: #000;
+}
+
+.modalBody {
+    padding: 20px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333; /* Основной цвет текста */
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee; /* Разделитель */
+}
+
+.modalButton {
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: 1px solid #D9D9D9;
+}
+
+.modalButtonPrimary {
+    background: #2C2C2C;
+    color: #F5F5F5;
+    border: none;
+}
+
+.modalButtonPrimary:hover {
+    background: #1a1a1a;
+}
+
+.modalButtonSecondary {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.modalButtonSecondary:hover {
+    background: #e0e0e0;
+}
+
+/* Цвета для разных типов модалок */
+.infoHeader {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+.successHeader {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.errorHeader {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.warningHeader {
+    background-color: #fff8e1;
+    color: #f57f17;
+}
+
+.confirmHeader {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}

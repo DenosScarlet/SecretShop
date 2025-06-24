@@ -8,7 +8,6 @@ const keycloakConfig = {
 
 const keycloak = new Keycloak(keycloakConfig);
 
-// Делаем keycloak доступным глобально для использования в интерцепторах
 window.keycloak = keycloak;
 
 export default keycloak;

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.io.Serializable;
 
 import java.util.UUID;
 
@@ -12,12 +13,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Модель товара")
-public class ItemDTO {
+public class ItemDTO implements Serializable {
     @Schema(description = "Уникальный идентификатор товара", example = "550e8400-e29b-41d4-a716-446655440000")
-    private UUID item_id;
+    private UUID itemId;
 
     @Schema(description = "Название товара", example = "Книга по Java")
-    private String item_name;
+    private String itemName;
 
     @Schema(description = "Описание товара", example = "Учебник по Spring Boot")
     private String description;

@@ -9,6 +9,326 @@
     font-family: 'Inter', sans-serif; /* Добавлено для всего контейнера */
 }
 
+.fileUploadSection {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+}
+
+.fileUploadButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.fileUploadButton:hover {
+    background-color: #45a049;
+}
+
+.previewContainer {
+    margin-top: 10px;
+}
+
+.previewImage {
+    max-width: 200px;
+    max-height: 200px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.currentImage {
+    max-width: 200px;
+    max-height: 200px;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.imagePreview {
+    margin-top: 10px;
+}
+
+/* Стили для сетки товаров */
+.itemGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.itemCard {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    background: white;
+}
+
+.itemCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-color: #FEB238;
+}
+
+.cardImage {
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f8f8;
+}
+
+.cardImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cardContent {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.cardTitle {
+    margin: 0 0 10px;
+    font-size: 18px;
+    flex-grow: 1;
+}
+
+.cardPrice {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: bold;
+    font-size: 18px;
+    color: #d4af37;
+}
+
+.lowStock {
+    margin-top: 8px;
+    padding: 3px 8px;
+    background-color: #fff8e1;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #ff8f00;
+    align-self: flex-start;
+}
+
+/* Стили для страницы товара */
+.backButton {
+    background: none;
+    border: none;
+    color: #FEB238;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.backButton:hover {
+    text-decoration: underline;
+}
+
+.itemDetail {
+    display: flex;
+    gap: 40px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.itemImage {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.itemImage img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.itemInfo {
+    flex: 1;
+    min-width: 300px;
+}
+
+.itemTitle {
+    margin-top: 0;
+    font-size: 28px;
+    color: #333;
+}
+
+.itemType {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.itemPrice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #d4af37;
+    margin-bottom: 15px;
+}
+
+.itemStock {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.inStock {
+    color: #388e3c;
+    font-weight: bold;
+}
+
+.outOfStock {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.itemOwner {
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #555;
+}
+
+.itemDescription {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+.purchaseButton {
+    background-color: #FEB238;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    max-width: 300px;
+}
+
+.purchaseButton:hover:not(:disabled) {
+    background-color: #EB8A00;
+}
+
+.purchaseButton:disabled {
+    background-color: #bdbdbd;
+    cursor: not-allowed;
+}
+
+/* Стили для поиска и фильтров */
+.searchBar {
+    margin-bottom: 20px;
+}
+
+.filterToggle {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+}
+
+.filterToggle:hover {
+    background: #e0e0e0;
+}
+
+.advancedFilters {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.resetButton {
+    padding: 8px 15px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.resetButton:hover {
+    background: #e0e0e0;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .searchBar {
+        flex-direction: column;
+    }
+
+    .filterToggle {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .advancedFilters > div {
+        grid-template-columns: 1fr !important;
+    }
+
+    .sortContainer {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+}
+
+/* Добавим в QuestListPage.module.css */
+.header {
+    padding-top: 1rem; /* Дополнительный отступ сверху */
+    margin-bottom: 1.5rem !important; /* Усилим отступ снизу */
+}
+
+.action-buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+}
+
+.operation-actions button {
+    margin: 0.3rem 0;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
 /* Добавляем шрифт для всех текстовых элементов */
 .formWrapper,
 .header,
@@ -156,6 +476,15 @@
 .saveButton {
     padding: 8px 16px;
     background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancelButton {
+    padding: 8px 16px;
+    background: #6c757d;
     color: white;
     border: none;
     border-radius: 4px;

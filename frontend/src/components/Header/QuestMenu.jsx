@@ -1,9 +1,20 @@
-import { useState, useRef, useEffect } from 'react';
+import {useState, useRef, useEffect, useCallback} from 'react';
 import styles from './QuestMenu.module.css';
 import { MenuItem } from './MenuItem';
+import { useAuth } from '../../contexts/AuthContext';
+import { filterActiveQuests, groupQuestsByFrequency, getFrequencyLabel } from '../../utils/questUtils';
+import { questApi } from '../../services/questApi';
 
 export default function QuestMenu() {
+    const { user, getUserQuests } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
+    const [cachedQuests, setCachedQuests] = useState([]);
+    const [cacheTimestamp, setCacheTimestamp] = useState(null);
+    const [cacheUserId, setCacheUserId] = useState(null);
+    const [groupedQuests, setGroupedQuests] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [selectedQuest, setSelectedQuest] = useState(null);
+    const [questDetailsCache, setQuestDetailsCache] = useState({});
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -17,19 +28,96 @@ export default function QuestMenu() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const menuItems = [
-        { title: "Quest 1", progress: "0/3", reward: "+5" },
-        { title: "Quest 2", progress: "1/5", reward: "+10" },
-        { title: "Special Quest", progress: "2/2", reward: "+20" },
-        { title: "Daily Challenge", progress: "3/4", reward: "+15" }
-    ];
+    const processQuests = useCallback((quests) => {
+        if (Array.isArray(quests) && quests.length > 0) {
+            const activeQuests = filterActiveQuests(quests);
+            const grouped = groupQuestsByFrequency(activeQuests);
+            setGroupedQuests(grouped);
+        } else {
+            setGroupedQuests({});
+        }
+    }, []);
+
+    useEffect(() => {
+        const loadQuests = async () => {
+            if (!user?.userId) return;
+
+            const isCacheValid = cacheUserId === user.userId &&
+                cacheTimestamp &&
+                Date.now() - cacheTimestamp < 300000;
+
+            if (isCacheValid && cachedQuests.length > 0) {
+                processQuests(cachedQuests);
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const quests = await getUserQuests();
+                setCachedQuests(quests);
+                setCacheTimestamp(Date.now());
+                setCacheUserId(user.userId);
+
+                processQuests(quests);
+            } catch (error) {
+                console.error('Error loading quests:', error);
+                setGroupedQuests({});
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user?.userId && isOpen) {
+            loadQuests();
+        } else if (!isOpen) {
+            setGroupedQuests({});
+            setSelectedQuest(null);
+        }
+    }, [isOpen, user?.userId, getUserQuests, cacheTimestamp, cacheUserId, cachedQuests, processQuests]);
+
+    const handleMenuToggle = () => {
+        setIsOpen(!isOpen);
+    };
+
+    const handleQuestSelect = useCallback(async (quest) => {
+        if (questDetailsCache[quest.questId]) {
+            setSelectedQuest(questDetailsCache[quest.questId]);
+            return;
+        }
+
+        try {
+            const response = await questApi.getQuestById(quest.questId);
+            const questData = response.data;
+
+            setQuestDetailsCache(prev => ({
+                ...prev,
+                [quest.questId]: questData
+            }));
+
+            setSelectedQuest(questData);
+        } catch (error) {
+            console.error('Error loading quest details:', error);
+
+            setQuestDetailsCache(prev => ({
+                ...prev,
+                [quest.questId]: quest
+            }));
+
+            setSelectedQuest(quest);
+        }
+    }, [questDetailsCache]);
+
+    const handleBackToList = () => {
+        setSelectedQuest(null);
+    };
 
     return (
         <div className={styles.menuContainer} ref={menuRef}>
             <button
                 className={`${styles.questMenuButton} ${isOpen ? styles.active : ''}`}
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label="Меню каталога"
+                onClick={handleMenuToggle}
+                aria-label="Меню квестов"
+                aria-expanded={isOpen}
             >
                 <div className={styles.container}>
                     <div className={styles.stateLayer}>
@@ -53,16 +141,58 @@ export default function QuestMenu() {
                 </div>
             </button>
 
-            <div className={`${styles.headerMenu} ${isOpen ? styles.menuVisible : ''}`}>
+            <div
+                className={`${styles.headerMenu} ${isOpen ? styles.menuVisible : ''}`}
+                aria-hidden={!isOpen}
+            >
                 <div className={styles.menuList}>
-                    {menuItems.map((item, index) => (
-                        <MenuItem
-                            key={index}
-                            title={item.title}
-                            progress={item.progress}
-                            reward={item.reward}
-                        />
-                    ))}
+                    {loading ? (
+                        <div className={styles.loadingState}>
+                            Загрузка квестов...
+                        </div>
+                    ) : selectedQuest ? (
+                        <div className={styles.questDetail}>
+                            <button
+                                className={styles.backButton}
+                                onClick={handleBackToList}
+                                aria-label="Назад к списку квестов"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Назад
+                            </button>
+                            <h3 className={styles.detailTitle}>{selectedQuest.questTitle}</h3>
+                            <div className={styles.detailDescription}>
+                                {selectedQuest.description || "Описание отсутствует"}
+                            </div>
+                            <div className={styles.detailProgress}>
+                                Прогресс: <strong>{selectedQuest.completedSteps || 0}/{selectedQuest.stepsToComplete || 0}</strong>
+                            </div>
+                            <div className={styles.detailReward}>
+                                Награда: <strong>+{selectedQuest.cost || 0}</strong>
+                            </div>
+                        </div>
+                    ) : Object.keys(groupedQuests).length > 0 ? (
+                        Object.entries(groupedQuests).map(([frequency, quests]) => (
+                            <div key={frequency} className={styles.frequencyGroup}>
+                                <div className={styles.sectionHeader}>
+                                    {getFrequencyLabel(frequency)}
+                                </div>
+                                {quests.map((quest) => (
+                                    <MenuItem
+                                        key={quest.questId}
+                                        quest={quest}
+                                        onClick={() => handleQuestSelect(quest)}
+                                    />
+                                ))}
+                            </div>
+                        ))
+                    ) : (
+                        <div className={styles.emptyState}>
+                            На данный момент активных квестов нет
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

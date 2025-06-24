@@ -18,4 +18,7 @@ public class UserUpdateDTO {
 
     @Schema(description = "Рабочая группа пользователя", example = "DEVELOPMENT")
     private WorkGroup workGroup;
+
+    public UserUpdateDTO(String firstName, String lastName, String middleName, WorkGroup workGroup) {
+    }
 }

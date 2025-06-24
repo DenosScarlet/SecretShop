@@ -1,0 +1,466 @@
+.pageContainer {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 120px 20px 40px;
+    width: 100%;
+    min-height: 100vh;
+    background: #f5f7fa;
+    font-family: 'Roboto', sans-serif;
+    box-sizing: border-box;
+}
+
+.accountCard {
+    width: 100%;
+    max-width: 800px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 32px;
+    box-sizing: border-box;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 500;
+    color: #1e1e1e;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.section {
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.sectionTitle {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1e1e1e;
+    margin-bottom: 24px;
+}
+
+.profileInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+}
+
+.avatarSection {
+    flex: 0 0 auto;
+}
+
+.avatarContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+    background-color: #f5f5f5;
+}
+
+.avatarUpload {
+    padding: 8px 16px;
+    background: #f0f5ff;
+    color: #1e88e5;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.avatarUpload:hover {
+    background: #e3f2fd;
+}
+
+.fileInput {
+    display: none;
+}
+
+.saveButton {
+    padding: 8px 20px;
+    background: #1e88e5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.saveButton:hover {
+    background: #1565c0;
+}
+
+.userDetails {
+    flex: 1;
+    min-width: 250px;
+}
+
+.detailRow {
+    display: flex;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.detailRow:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.detailLabel {
+    flex: 0 0 160px;
+    font-weight: 500;
+    color: #616161;
+}
+
+.detailValue {
+    flex: 1;
+    color: #212121;
+}
+
+.balance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #f57c00;
+}
+
+.purchasesList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.purchaseItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+
+.purchaseItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.purchaseImage {
+    flex-shrink: 0;
+    margin-right: 16px;
+}
+
+.itemImage {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.purchaseInfo {
+    flex: 1;
+    position: relative;
+}
+
+.purchaseTitle {
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 16px;
+    color: #212121;
+}
+
+.itemLink {
+    color: #1e88e5;
+    text-decoration: none;
+}
+
+.itemLink:hover {
+    text-decoration: underline;
+}
+
+.purchaseMeta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.purchaseDate {
+    font-size: 14px;
+    color: #757575;
+}
+
+.purchaseCost {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #f57c00;
+}
+
+.statusBadge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.statusComplete {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.statusPending {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+.statusCanceled {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.statusUnknown {
+    background: #f5f5f5;
+    color: #616161;
+}
+
+.loading {
+    text-align: center;
+    padding: 24px;
+    color: #757575;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #1e88e5;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.empty {
+    text-align: center;
+    padding: 24px;
+    color: #757575;
+    font-style: italic;
+}
+
+.errorMessage {
+    padding: 12px 16px;
+    background: #ffebee;
+    color: #c62828;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.successMessage {
+    padding: 12px 16px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.filterContainer {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.searchWrapper {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.inputField {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.inputField:focus {
+    outline: none;
+    border-color: #1e88e5;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.searchIcon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.questsList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.questItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+
+.questItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.questInfo {
+    flex: 1;
+}
+
+.questTitle {
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 16px;
+    color: #212121;
+}
+
+.questDescription {
+    font-size: 14px;
+    color: #616161;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.questSteps {
+    font-size: 14px;
+    color: #424242;
+    margin-bottom: 8px;
+}
+
+.questMeta {
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.questDate {
+    color: #757575;
+}
+
+.questStatus {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.statusComplete {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.statusIncomplete {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+.questReward {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #f57c00;
+}
+
+/* Add to existing styles */
+.iconCoin {
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.balance,
+.iconCoin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.questItem .iconCoin {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+@media (max-width: 768px) {
+    .profileInfo {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .userDetails {
+        width: 100%;
+    }
+
+    .detailRow {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .detailLabel {
+        flex: none;
+    }
+
+    .purchaseItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .purchaseCost {
+        align-self: flex-end;
+    }
+
+    .filterContainer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .searchWrapper {
+        min-width: auto;
+    }
+}
